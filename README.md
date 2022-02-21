@@ -1,6 +1,8 @@
 # blossom
 
-A new Flutter project.
+1. Clone the repository
+2. Create a .env file in root folder with MONGO_URI=<insert connection_string from our Telegram group> 
+3. Run the app
 
 ## Getting Started
 
