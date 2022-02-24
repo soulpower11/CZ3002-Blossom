@@ -36,8 +36,11 @@ class _MyHomePageState extends State<MyHomePage> {
     setState(() {
       _counter++;
     });
-    final result =
-        await Authentication().register("chris@123.com","123123123", "chris");
+    // final result =
+    //     await Authentication().register("chris@123.com","123123123", "chris");
+
+    final login = await Authentication().login("chris@123.com", "123123123");
+    print(login);
   }
 
   @override
