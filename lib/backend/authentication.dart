@@ -52,23 +52,24 @@ class Authentication {
 
     String output = "";
 
-    usersCollection.findOne(where.eq('email', email)).then((user) async {
-      if (user != null) {
-        bool result = await FlutterBcrypt.verify(
-            password: password, hash: user['password']);
-        if (result) {
-          output = generateJWT(user["username"], email);
-        } else {
-          // Password is wrong
-          output = "WrongPassword";
-        }
+    var user = await usersCollection.findOne(where.eq('email', email));
+
+    if (user != null) {
+      bool result = await FlutterBcrypt.verify(
+          password: password, hash: user['password']);
+      if (result) {
+        output = generateJWT(user["username"], email);
       } else {
-        // User not found
-        output = "UserNotFound";
+        // Password is wrong
+        output = "WrongPassword";
       }
-    });
+    } else {
+      // User not found
+      output = "UserNotFound";
+    }
 
     db.close();
+
     return output;
   }
 }
