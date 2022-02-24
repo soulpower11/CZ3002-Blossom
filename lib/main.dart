@@ -1,12 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
-import 'package:mongo_dart/mongo_dart.dart' as mongo;
+import './backend/authentication.dart';
 
-Future main() async {
-  await dotenv.load(fileName: ".env");
-  String mongoUri = dotenv.get('MONGO_URI');
-  var db = await mongo.Db.create(mongoUri);
-  await db.open();
+void main() async {
   runApp(const MyApp());
 }
 
@@ -41,6 +36,8 @@ class _MyHomePageState extends State<MyHomePage> {
     setState(() {
       _counter++;
     });
+    final result =
+        await Authentication().register("chris@123.com","123123123", "chris");
   }
 
   @override
