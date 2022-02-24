@@ -2,8 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:mongo_dart/mongo_dart.dart' as mongo;
 
-
-
 Future main() async {
   await dotenv.load(fileName: ".env");
   String mongoUri = dotenv.get('MONGO_URI');
