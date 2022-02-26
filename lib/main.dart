@@ -1,8 +1,13 @@
 import 'package:flutter/material.dart';
 import './backend/authentication.dart';
+import './parks.dart';
 
 void main() async {
   runApp(const MyApp());
+}
+
+void _navigateToNextScreen(BuildContext context) {
+  Navigator.of(context).push(MaterialPageRoute(builder: (context) => Parks()));
 }
 
 class MyApp extends StatelessWidget {
@@ -59,6 +64,15 @@ class _MyHomePageState extends State<MyHomePage> {
             Text(
               '$_counter',
               style: Theme.of(context).textTheme.headline4,
+            ),
+            RaisedButton(
+              child: Text(
+                'Navigate to a new screen >>',
+                style: TextStyle(fontSize: 24.0),
+              ),
+              onPressed: () {
+                _navigateToNextScreen(context);
+              },
             ),
           ],
         ),
