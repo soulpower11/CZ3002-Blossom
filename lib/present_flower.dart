@@ -1,10 +1,17 @@
+import 'dart:io';
+
+import 'package:blossom/social_media.dart';
 import 'package:flutter/material.dart';
+import 'package:share_plus/share_plus.dart';
+import 'components/bottombar.dart';
+import 'package:http/http.dart' as http;
 
 class PresentFlower extends StatelessWidget {
   const PresentFlower({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
+    double height = MediaQuery.of(context).size.height;
     final flowerInfo = Container(
       padding: EdgeInsets.all(20),
       child: Column(
@@ -53,7 +60,23 @@ class PresentFlower extends StatelessWidget {
         actions: [
           IconButton(
             icon: Icon(Icons.share),
-            onPressed: () {},
+            onPressed: () async {
+              showDialog(
+                  context: context,
+                  builder: (context) {
+                    return new ShareSocialMedia();
+                  });
+              // final urlImage = "https://picsum.photos/200/300";
+              // final url = Uri.parse(urlImage);
+              // final response = await http.get(url);
+              // final bytes = response.bodyBytes;
+
+              // final temp = await getTemporaryDirectory();
+              // final path = '${temp.path}/image.jpg';
+
+              // File(path).writeAsBytesSync(bytes);
+              // await Share.shareFiles([path], text: "This lion is cute!");
+            },
           ),
           IconButton(
             icon: Icon(Icons.favorite_border),
@@ -96,10 +119,7 @@ class PresentFlower extends StatelessWidget {
               ]),
         ),
       ),
-      bottomNavigationBar: Container(
-        height: 40.0,
-        color: Colors.red,
-      ),
+      bottomNavigationBar: BottomBar(),
     );
   }
 }
