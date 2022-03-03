@@ -1,9 +1,12 @@
+import 'package:blossom/backend/authentication.dart';
 import 'package:blossom/components/constants.dart';
 import 'package:blossom/components/form_error.dart';
 import 'package:blossom/components/no_account_text.dart';
 import 'package:blossom/components/rounded_button.dart';
 import 'package:blossom/components/size_config.dart';
 import 'package:flutter/material.dart';
+import 'package:email_auth/email_auth.dart';
+import '../auth.config.dart';
 
 class ForgotPasswordScreen extends StatelessWidget {
   static Route route() {
@@ -74,6 +77,30 @@ class _ForgotPassFormState extends State<ForgotPassForm> {
   final _formKey = GlobalKey<FormState>();
   List<String> errors = [];
   late String email;
+  TextEditingController emailController = TextEditingController();
+  late EmailAuth emailAuth;
+
+  @override
+  void initState() {
+    super.initState();
+    // Initialize the package
+    emailAuth = new EmailAuth(
+      sessionName: "Blossom",
+    );
+
+    /// Configuring the remote server
+    emailAuth.config(remoteServerConfiguration);
+  }
+
+  void sendOtp(String email) async {
+    bool result = await emailAuth.sendOtp(recipientMail: email, otpLength: 5);
+    if (result) {
+      // using a void function because i am using a
+      // stateful widget and seting the state from here.
+      setState(() {});
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Form(
@@ -81,6 +108,7 @@ class _ForgotPassFormState extends State<ForgotPassForm> {
       child: Column(
         children: [
           TextFormField(
+            controller: emailController,
             keyboardType: TextInputType.emailAddress,
             onSaved: (newValue) => email = newValue!,
             onChanged: (value) {
@@ -144,9 +172,17 @@ class _ForgotPassFormState extends State<ForgotPassForm> {
             padding: EdgeInsets.only(left: 150, bottom: 10, right: 40, top: 10),
             child: RoundedButton(
               text: "Continue",
-              press: () {
+              press: () async {
                 if (_formKey.currentState!.validate()) {
                   // Do what you want to do
+                  bool exist = await Authentication.checkUserExist(
+                      emailController.text);
+                  if (exist) {
+                    sendOtp(emailController.text);
+                  }
+                  else{
+                    
+                  }
                 }
               },
             ),

@@ -1,6 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'components/bottombar.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'src/locations.dart' as locations;
+
+enum PermissionGroup {
+  /// Android: Fine and Coarse Location
+  /// iOS: CoreLocation - Always
+  locationAlways,
+
+  /// Android: Fine and Coarse Location
+  /// iOS: CoreLocation - WhenInUse
+  locationWhenInUse
+}
 
 class Parks extends StatefulWidget {
   @override
@@ -11,6 +23,19 @@ class _ParksState extends State<Parks> {
   late GoogleMapController mapController;
 
   final Map<String, Marker> _markers = {};
+
+  @override
+  void initState() {
+    super.initState();
+    Permission.location.serviceStatus.isEnabled.then((value) async {
+      print(value);
+      if (!value) {
+        Map<Permission, PermissionStatus> statuses =
+            await [Permission.location].request();
+        print(statuses[Permission.location]);
+      }
+    });
+  }
 
   Future<void> _onMapCreated(GoogleMapController controller) async {
     mapController = controller;
@@ -53,6 +78,7 @@ class _ParksState extends State<Parks> {
           ),
           markers: _markers.values.toSet(),
         ),
+        bottomNavigationBar: const BottomBar(),
       ),
     );
   }

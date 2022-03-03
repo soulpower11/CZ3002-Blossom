@@ -5,6 +5,7 @@ import 'package:blossom/components/rounded_button.dart';
 import 'package:blossom/components/size_config.dart';
 import 'package:blossom/forgot_password/forgot_password_screen.dart';
 import 'package:blossom/present_flower.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter/material.dart';
 
 import '../backend/authentication.dart';
@@ -102,98 +103,109 @@ class _SignFormState extends State<SignInForm> {
   Widget build(BuildContext context) {
     return Form(
       key: _formKey,
-      child: Column(
-        children: [
-          Padding(
-            padding: EdgeInsets.only(left: 0, bottom: 20, right: 280, top: 10),
-            //apply padding horizontal or vertical only
-            child: Text(
-              "EMAIL",
-              style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
+      child: AutofillGroup(
+        child: Column(
+          children: [
+            Padding(
+              padding:
+                  EdgeInsets.only(left: 0, bottom: 20, right: 280, top: 10),
+              //apply padding horizontal or vertical only
+              child: Text(
+                "EMAIL",
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
             ),
-          ),
-          buildEmailFormField(),
-          SizedBox(height: getProportionateScreenHeight(20)),
-          Padding(
-            padding: EdgeInsets.only(left: 0, bottom: 10, right: 240, top: 10),
-            //apply padding horizontal or vertical only
-            child: Text(
-              "PASSWORD",
-              style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
+            buildEmailFormField(),
+            SizedBox(height: getProportionateScreenHeight(20)),
+            Padding(
+              padding:
+                  EdgeInsets.only(left: 0, bottom: 10, right: 240, top: 10),
+              //apply padding horizontal or vertical only
+              child: Text(
+                "PASSWORD",
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
             ),
-          ),
-          buildPasswordFormField(),
-          SizedBox(height: getProportionateScreenHeight(30)),
-          Row(
-            children: [
-              // Checkbox(
-              //   value: remember,
-              //   activeColor: kPrimaryColor,
-              //   onChanged: (value) {
-              //     setState(() {
-              //       remember = value;
-              //     });
-              //   },
-              // ),
-              //Text("Remember me", style: TextStyle(color: Colors.black)),
-              Spacer(),
-              GestureDetector(
-                onTap: () => Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                      builder: (context) => ForgotPasswordScreen()),
-                ),
-                // Named(
-                //     context, ForgotPasswordScreen.routeName),
-                child: Text(
-                  "Forgot Password",
-                  style: TextStyle(
-                      color: Colors.black,
-                      decoration: TextDecoration.underline),
-                ),
-              )
-            ],
-          ),
-          FormError(errors: errors),
-          SizedBox(height: getProportionateScreenHeight(20)),
-          SizedBox(height: SizeConfig.screenHeight! * 0.04),
-          SizedBox(height: SizeConfig.screenHeight! * 0.03),
-          Padding(
-            padding: EdgeInsets.only(left: 150, bottom: 10, right: 40, top: 10),
-            child: RoundedButton(
-              text: "Login",
+            buildPasswordFormField(),
+            SizedBox(height: getProportionateScreenHeight(30)),
+            Row(
+              children: [
+                // Checkbox(
+                //   value: remember,
+                //   activeColor: kPrimaryColor,
+                //   onChanged: (value) {
+                //     setState(() {
+                //       remember = value;
+                //     });
+                //   },
+                // ),
+                //Text("Remember me", style: TextStyle(color: Colors.black)),
+                Spacer(),
+                GestureDetector(
+                  onTap: () => Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => ForgotPasswordScreen()),
+                  ),
+                  // Named(
+                  //     context, ForgotPasswordScreen.routeName),
+                  child: Text(
+                    "Forgot Password",
+                    style: TextStyle(
+                        color: Colors.black,
+                        decoration: TextDecoration.underline),
+                  ),
+                )
+              ],
+            ),
+            FormError(errors: errors),
+            SizedBox(height: getProportionateScreenHeight(20)),
+            SizedBox(height: SizeConfig.screenHeight! * 0.04),
+            SizedBox(height: SizeConfig.screenHeight! * 0.03),
+            Padding(
+              padding:
+                  EdgeInsets.only(left: 150, bottom: 10, right: 40, top: 10),
+              child: RoundedButton(
+                text: "Login",
 
-              // backgroundColor: Color(0xFFFFC61F),
-              press: () async {
-                if (_formKey.currentState!.validate()) {
-                  _formKey.currentState?.save();
-                  // if all are valid then go to success screen
-                  // KeyboardUtil.hideKeyboard(context);
-                  final login = await Authentication()
-                      .login(emailController.text, passwordController.text);
-                  print(login);
-                  if (login == "UserNotFound") {
-                    addError(error: kUserNotFoundError);
-                  } else if (login == "WrongPassword") {
-                    addError(error: kWrongPassError);
-                  } else {
-                    Navigator.of(context).push(
-                      MaterialPageRoute(
-                        builder: (context) => const PresentFlower(),
-                      ),
-                    );
+                // backgroundColor: Color(0xFFFFC61F),
+                press: () async {
+                  if (_formKey.currentState!.validate()) {
+                    _formKey.currentState?.save();
+                    // if all are valid then go to success screen
+                    // KeyboardUtil.hideKeyboard(context);
+                    final login = await Authentication()
+                        .login(emailController.text, passwordController.text);
+                    print(login);
+                    if (login == "UserNotFound") {
+                      addError(error: kUserNotFoundError);
+                    } else if (login == "WrongPassword") {
+                      addError(error: kWrongPassError);
+                    } else {
+                      // Obtain shared preferences.
+                      final prefs = await SharedPreferences.getInstance();
+                      // Save an String value to 'action' key.
+                      await prefs.setString('jwt', login);
+                      print(prefs);
+
+                      Navigator.of(context).push(
+                        MaterialPageRoute(
+                          builder: (context) => const PresentFlower(),
+                        ),
+                      );
+                    }
                   }
-                }
-              },
+                },
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
@@ -201,6 +213,7 @@ class _SignFormState extends State<SignInForm> {
   TextFormField buildPasswordFormField() {
     return TextFormField(
       controller: passwordController,
+      autofillHints: const [AutofillHints.password],
       obscureText: true,
       onSaved: (newValue) => password = newValue!,
       onChanged: (value) {
@@ -262,6 +275,7 @@ class _SignFormState extends State<SignInForm> {
   TextFormField buildEmailFormField() {
     return TextFormField(
       controller: emailController,
+      autofillHints: const [AutofillHints.username],
       keyboardType: TextInputType.emailAddress,
       onSaved: (newValue) => email = newValue!,
       onChanged: (value) {

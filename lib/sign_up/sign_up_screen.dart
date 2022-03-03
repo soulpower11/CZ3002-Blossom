@@ -5,6 +5,7 @@ import 'package:blossom/components/size_config.dart';
 import 'package:flutter/material.dart';
 
 import '../backend/authentication.dart';
+import '../present_flower.dart';
 
 class SignUpScreen extends StatelessWidget {
   static Route route() {
@@ -115,64 +116,78 @@ class _SignUpFormState extends State<SignUpForm> {
   Widget build(BuildContext context) {
     return Form(
       key: _formKey,
-      child: Column(
-        children: [
-          Padding(
-            padding: EdgeInsets.only(left: 0, bottom: 20, right: 280),
-            //apply padding horizontal or vertical only
-            child: Text(
-              "EMAIL",
-              style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
+      child: AutofillGroup(
+        child: Column(
+          children: [
+            Padding(
+              padding: EdgeInsets.only(left: 0, bottom: 20, right: 280),
+              //apply padding horizontal or vertical only
+              child: Text(
+                "EMAIL",
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
             ),
-          ),
-          buildEmailFormField(),
-          SizedBox(height: getProportionateScreenHeight(20)),
-          Padding(
-            padding: EdgeInsets.only(left: 0, bottom: 20, right: 240),
-            //apply padding horizontal or vertical only
-            child: Text(
-              "PASSWORD",
-              style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
+            buildEmailFormField(),
+            SizedBox(height: getProportionateScreenHeight(20)),
+            Padding(
+              padding: EdgeInsets.only(left: 0, bottom: 20, right: 240),
+              //apply padding horizontal or vertical only
+              child: Text(
+                "PASSWORD",
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
             ),
-          ),
-          buildPasswordFormField(),
-          SizedBox(height: getProportionateScreenHeight(20)),
-          Padding(
-            padding: EdgeInsets.only(left: 0, bottom: 20, right: 140),
-            //apply padding horizontal or vertical only
-            child: Text(
-              "CONFIRM PASSWORD",
-              style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
+            buildPasswordFormField(),
+            SizedBox(height: getProportionateScreenHeight(20)),
+            Padding(
+              padding: EdgeInsets.only(left: 0, bottom: 20, right: 140),
+              //apply padding horizontal or vertical only
+              child: Text(
+                "CONFIRM PASSWORD",
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
             ),
-          ),
-          buildConformPassFormField(),
-          FormError(errors: errors),
-          SizedBox(height: getProportionateScreenHeight(50)),
-          Padding(
-            padding: EdgeInsets.only(left: 150, bottom: 10, right: 40, top: 10),
-            child: RoundedButton(
-              text: "Continue",
-              press: () async {
-                if (_formKey.currentState!.validate()) {
-                  _formKey.currentState?.save();
-                  final result = await Authentication()
-                      .register(emailController.text, passwordController.text, "");
-                  // if all are valid then go to success screen
-                  // Navigator.pushNamed(context, CompleteProfileScreen.routeName);
-                }
-              },
+            buildConformPassFormField(),
+            FormError(errors: errors),
+            SizedBox(height: getProportionateScreenHeight(50)),
+            Padding(
+              padding:
+                  EdgeInsets.only(left: 150, bottom: 10, right: 40, top: 10),
+              child: RoundedButton(
+                text: "Continue",
+                press: () async {
+                  if (_formKey.currentState!.validate()) {
+                    _formKey.currentState?.save();
+                    bool exist = await Authentication.checkUserExist(
+                        emailController.text);
+                    if (!exist) {
+                      final result = await Authentication().register(
+                          emailController.text, passwordController.text, "");
+                      Navigator.of(context).push(
+                        MaterialPageRoute(
+                          builder: (context) => const PresentFlower(),
+                        ),
+                      );
+                    } else {
+                      addError(error: kUserExistError);
+                    }
+                    // if all are valid then go to success screen
+                    // Navigator.pushNamed(context, CompleteProfileScreen.routeName);
+                  }
+                },
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
@@ -180,12 +195,14 @@ class _SignUpFormState extends State<SignUpForm> {
   TextFormField buildConformPassFormField() {
     return TextFormField(
       controller: confirmPasswordController,
+      autofillHints: const [AutofillHints.newPassword],
       obscureText: true,
       onSaved: (newValue) => conform_password = newValue!,
       onChanged: (value) {
         if (value.isNotEmpty) {
           removeError(error: kPassNullError);
-        } else if (value.isNotEmpty && passwordController.text == confirmPasswordController.text) {
+        } else if (value.isNotEmpty &&
+            passwordController.text == confirmPasswordController.text) {
           removeError(error: kMatchPassError);
         }
         conform_password = value;
@@ -239,6 +256,7 @@ class _SignUpFormState extends State<SignUpForm> {
   TextFormField buildPasswordFormField() {
     return TextFormField(
       controller: passwordController,
+      autofillHints: const [AutofillHints.newPassword],
       obscureText: true,
       onSaved: (newValue) => password = newValue!,
       onChanged: (value) {
@@ -299,9 +317,11 @@ class _SignUpFormState extends State<SignUpForm> {
   TextFormField buildEmailFormField() {
     return TextFormField(
       controller: emailController,
+      autofillHints: const [AutofillHints.newUsername],
       keyboardType: TextInputType.emailAddress,
       onSaved: (newValue) => email = newValue!,
       onChanged: (value) {
+        removeError(error: kUserExistError);
         if (value.isNotEmpty) {
           removeError(error: kEmailNullError);
         } else if (emailValidatorRegExp.hasMatch(value)) {

@@ -1,7 +1,9 @@
 import 'dart:async';
+import 'package:blossom/present_flower.dart';
 import 'package:blossom/sign_in/sign_in_screen.dart';
 import 'package:blossom/splash/welcome_screen.dart';
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class SplashScreen extends StatelessWidget {
   static Route route() {
@@ -12,13 +14,20 @@ class SplashScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    Timer(
-        Duration(seconds: 2),
-        () => Navigator.of(context).push(
-              MaterialPageRoute(
-                builder: (context) => WelcomeScreen(),
-              ),
-            ));
+    Timer(const Duration(seconds: 2), () async {
+      final prefs = await SharedPreferences.getInstance();
+      final String? jwt = prefs.getString('jwt');
+      //Remove jwt first cause there is no logout button yet
+      final success = await prefs.remove('jwt');
+      if (jwt != null) {
+        Navigator.of(context)
+            .push(MaterialPageRoute(builder: (context) => PresentFlower()));
+      } else {
+        Navigator.of(context)
+            .push(MaterialPageRoute(builder: (context) => WelcomeScreen()));
+      }
+    });
+
     // push(
     //       context,
     //       MaterialPageRoute(builder: (context) => SignInScreen()),

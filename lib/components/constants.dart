@@ -36,6 +36,7 @@ const String kPhoneNumberNullError = "Please enter your phone number";
 const String kAddressNullError = "Please enter your address";
 const String kWrongPassError = "Wrong password";
 const String kUserNotFoundError = "User not found";
+const String kUserExistError = "User already exist";
 
 final otpInputDecoration = InputDecoration(
   contentPadding:
