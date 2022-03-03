@@ -5,11 +5,11 @@ import 'package:flutter/material.dart';
 
 class IconBtnWithCounter extends StatelessWidget {
   const IconBtnWithCounter({
-    Key key,
-    this.svgSrc,
+    Key? key,
+    required this.svgSrc,
     this.numOfitem = 0,
-    this.press,
-    IconData icon,
+    required this.press,
+    required IconData icon,
   }) : super(key: key);
 
   final String svgSrc;

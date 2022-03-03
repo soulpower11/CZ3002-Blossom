@@ -7,6 +7,8 @@ import 'package:blossom/forgot_password/forgot_password_screen.dart';
 import 'package:blossom/splash_screen.dart';
 import 'package:flutter/material.dart';
 
+import '../backend/authentication.dart';
+
 class SignInScreen extends StatelessWidget {
   static Route route() {
     return MaterialPageRoute(
@@ -31,7 +33,7 @@ class SignInScreen extends StatelessWidget {
             child: SingleChildScrollView(
               child: Column(
                 children: [
-                  SizedBox(height: SizeConfig.screenHeight * 0.04),
+                  SizedBox(height: SizeConfig.screenHeight! * 0.04),
                   Padding(
                     padding: EdgeInsets.only(left: 0, right: 100, top: 10),
                     child: Text(
@@ -43,16 +45,16 @@ class SignInScreen extends StatelessWidget {
                       ),
                     ),
                   ),
-                  SizedBox(height: SizeConfig.screenHeight * 0.03),
+                  SizedBox(height: SizeConfig.screenHeight! * 0.03),
                   const Divider(
                     height: 2,
                     indent: 2,
                     endIndent: 0,
                     color: Colors.black,
                   ),
-                  SizedBox(height: SizeConfig.screenHeight * 0.04),
+                  SizedBox(height: SizeConfig.screenHeight! * 0.04),
                   SignInForm(),
-                  SizedBox(height: SizeConfig.screenHeight * 0.04),
+                  SizedBox(height: SizeConfig.screenHeight! * 0.04),
                   SizedBox(height: getProportionateScreenHeight(20)),
                   Padding(
                     padding: EdgeInsets.only(left: 0, right: 80, top: 10),
@@ -75,19 +77,21 @@ class SignInForm extends StatefulWidget {
 
 class _SignFormState extends State<SignInForm> {
   final _formKey = GlobalKey<FormState>();
-  String email;
-  String password;
+  late String email;
+  late String password;
   bool remember = false;
   final List<String> errors = [];
+  TextEditingController emailController = TextEditingController();
+  TextEditingController passwordController = TextEditingController();
 
-  void addError({String error}) {
+  void addError({String? error}) {
     if (!errors.contains(error))
       setState(() {
-        errors.add(error);
+        errors.add(error!);
       });
   }
 
-  void removeError({String error}) {
+  void removeError({String? error}) {
     if (errors.contains(error))
       setState(() {
         errors.remove(error);
@@ -158,24 +162,33 @@ class _SignFormState extends State<SignInForm> {
           ),
           FormError(errors: errors),
           SizedBox(height: getProportionateScreenHeight(20)),
-          SizedBox(height: SizeConfig.screenHeight * 0.04),
-          SizedBox(height: SizeConfig.screenHeight * 0.03),
+          SizedBox(height: SizeConfig.screenHeight! * 0.04),
+          SizedBox(height: SizeConfig.screenHeight! * 0.03),
           Padding(
             padding: EdgeInsets.only(left: 150, bottom: 10, right: 40, top: 10),
             child: RoundedButton(
               text: "Login",
 
               // backgroundColor: Color(0xFFFFC61F),
-              press: () {
-                if (_formKey.currentState.validate()) {
-                  _formKey.currentState.save();
+              press: () async {
+                if (_formKey.currentState!.validate()) {
+                  _formKey.currentState?.save();
                   // if all are valid then go to success screen
                   // KeyboardUtil.hideKeyboard(context);
-                  Navigator.of(context).push(
-                    MaterialPageRoute(
-                      builder: (context) => SplashScreen(),
-                    ),
-                  );
+                  final login = await Authentication()
+                      .login(emailController.text, passwordController.text);
+                  print(login);
+                  if (login == "UserNotFound") {
+                    addError(error: kUserNotFoundError);
+                  } else if (login == "WrongPassword") {
+                    addError(error: kWrongPassError);
+                  } else {
+                    Navigator.of(context).push(
+                      MaterialPageRoute(
+                        builder: (context) => SplashScreen(),
+                      ),
+                    );
+                  }
                 }
               },
             ),
@@ -187,9 +200,11 @@ class _SignFormState extends State<SignInForm> {
 
   TextFormField buildPasswordFormField() {
     return TextFormField(
+      controller: passwordController,
       obscureText: true,
-      onSaved: (newValue) => password = newValue,
+      onSaved: (newValue) => password = newValue!,
       onChanged: (value) {
+        removeError(error: kWrongPassError);
         if (value.isNotEmpty) {
           removeError(error: kPassNullError);
         } else if (value.length >= 8) {
@@ -198,7 +213,7 @@ class _SignFormState extends State<SignInForm> {
         return null;
       },
       validator: (value) {
-        if (value.isEmpty) {
+        if (value!.isEmpty) {
           addError(error: kPassNullError);
           return "";
         } else if (value.length < 8) {
@@ -246,9 +261,11 @@ class _SignFormState extends State<SignInForm> {
 
   TextFormField buildEmailFormField() {
     return TextFormField(
+      controller: emailController,
       keyboardType: TextInputType.emailAddress,
-      onSaved: (newValue) => email = newValue,
+      onSaved: (newValue) => email = newValue!,
       onChanged: (value) {
+        removeError(error: kUserNotFoundError);
         if (value.isNotEmpty) {
           removeError(error: kEmailNullError);
         } else if (emailValidatorRegExp.hasMatch(value)) {
@@ -257,7 +274,7 @@ class _SignFormState extends State<SignInForm> {
         return null;
       },
       validator: (value) {
-        if (value.isEmpty) {
+        if (value!.isEmpty) {
           addError(error: kEmailNullError);
           return "";
         } else if (!emailValidatorRegExp.hasMatch(value)) {

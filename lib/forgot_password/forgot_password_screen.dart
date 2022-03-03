@@ -29,7 +29,7 @@ class ForgotPasswordScreen extends StatelessWidget {
                 horizontal: getProportionateScreenWidth(20)),
             child: Column(
               children: [
-                SizedBox(height: SizeConfig.screenHeight * 0.04),
+                SizedBox(height: SizeConfig.screenHeight! * 0.04),
                 Padding(
                   padding: EdgeInsets.only(left: 0, right: 100, top: 10),
                   child: Text(
@@ -41,7 +41,7 @@ class ForgotPasswordScreen extends StatelessWidget {
                     ),
                   ),
                 ),
-                SizedBox(height: SizeConfig.screenHeight * 0.03),
+                SizedBox(height: SizeConfig.screenHeight! * 0.03),
                 const Divider(
                   height: 2,
                   indent: 2,
@@ -73,7 +73,7 @@ class ForgotPassForm extends StatefulWidget {
 class _ForgotPassFormState extends State<ForgotPassForm> {
   final _formKey = GlobalKey<FormState>();
   List<String> errors = [];
-  String email;
+  late String email;
   @override
   Widget build(BuildContext context) {
     return Form(
@@ -82,7 +82,7 @@ class _ForgotPassFormState extends State<ForgotPassForm> {
         children: [
           TextFormField(
             keyboardType: TextInputType.emailAddress,
-            onSaved: (newValue) => email = newValue,
+            onSaved: (newValue) => email = newValue!,
             onChanged: (value) {
               if (value.isNotEmpty && errors.contains(kEmailNullError)) {
                 setState(() {
@@ -97,7 +97,7 @@ class _ForgotPassFormState extends State<ForgotPassForm> {
               return null;
             },
             validator: (value) {
-              if (value.isEmpty && !errors.contains(kEmailNullError)) {
+              if (value!.isEmpty && !errors.contains(kEmailNullError)) {
                 setState(() {
                   errors.add(kEmailNullError);
                 });
@@ -139,13 +139,13 @@ class _ForgotPassFormState extends State<ForgotPassForm> {
           ),
           SizedBox(height: getProportionateScreenHeight(50)),
           FormError(errors: errors),
-          SizedBox(height: SizeConfig.screenHeight * 0.25),
+          SizedBox(height: SizeConfig.screenHeight! * 0.25),
           Padding(
             padding: EdgeInsets.only(left: 150, bottom: 10, right: 40, top: 10),
             child: RoundedButton(
               text: "Continue",
               press: () {
-                if (_formKey.currentState.validate()) {
+                if (_formKey.currentState!.validate()) {
                   // Do what you want to do
                 }
               },

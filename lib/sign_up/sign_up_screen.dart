@@ -4,6 +4,8 @@ import 'package:blossom/components/rounded_button.dart';
 import 'package:blossom/components/size_config.dart';
 import 'package:flutter/material.dart';
 
+import '../backend/authentication.dart';
+
 class SignUpScreen extends StatelessWidget {
   static Route route() {
     return MaterialPageRoute(
@@ -28,12 +30,12 @@ class SignUpScreen extends StatelessWidget {
             child: SingleChildScrollView(
               child: Column(
                 children: [
-                  SizedBox(height: SizeConfig.screenHeight * 0.03), // 4%
+                  SizedBox(height: SizeConfig.screenHeight! * 0.03), // 4%
                   Padding(
                     padding: EdgeInsets.only(left: 0, right: 80, top: 10),
                     child: Text("Register Account", style: headingStyle),
                   ),
-                  SizedBox(height: SizeConfig.screenHeight * 0.03),
+                  SizedBox(height: SizeConfig.screenHeight! * 0.03),
                   const Divider(
                     height: 2,
                     indent: 2,
@@ -41,9 +43,9 @@ class SignUpScreen extends StatelessWidget {
                     color: Colors.black,
                   ),
 
-                  SizedBox(height: SizeConfig.screenHeight * 0.03),
+                  SizedBox(height: SizeConfig.screenHeight! * 0.03),
                   SignUpForm(),
-                  SizedBox(height: SizeConfig.screenHeight * 0.08),
+                  SizedBox(height: SizeConfig.screenHeight! * 0.08),
                   // Row(
                   //   mainAxisAlignment: MainAxisAlignment.center,
                   //   children: [
@@ -85,20 +87,24 @@ class SignUpForm extends StatefulWidget {
 
 class _SignUpFormState extends State<SignUpForm> {
   final _formKey = GlobalKey<FormState>();
-  String email;
-  String password;
-  String conform_password;
+  late String email;
+  late String password;
+  late String conform_password;
   bool remember = false;
   final List<String> errors = [];
 
-  void addError({String error}) {
+  TextEditingController emailController = TextEditingController();
+  TextEditingController passwordController = TextEditingController();
+  TextEditingController confirmPasswordController = TextEditingController();
+
+  void addError({String? error}) {
     if (!errors.contains(error))
       setState(() {
-        errors.add(error);
+        errors.add(error!);
       });
   }
 
-  void removeError({String error}) {
+  void removeError({String? error}) {
     if (errors.contains(error))
       setState(() {
         errors.remove(error);
@@ -155,9 +161,11 @@ class _SignUpFormState extends State<SignUpForm> {
             padding: EdgeInsets.only(left: 150, bottom: 10, right: 40, top: 10),
             child: RoundedButton(
               text: "Continue",
-              press: () {
-                if (_formKey.currentState.validate()) {
-                  _formKey.currentState.save();
+              press: () async {
+                if (_formKey.currentState!.validate()) {
+                  _formKey.currentState?.save();
+                  final result = await Authentication()
+                      .register(emailController.text, passwordController.text, "");
                   // if all are valid then go to success screen
                   // Navigator.pushNamed(context, CompleteProfileScreen.routeName);
                 }
@@ -171,18 +179,19 @@ class _SignUpFormState extends State<SignUpForm> {
 
   TextFormField buildConformPassFormField() {
     return TextFormField(
+      controller: confirmPasswordController,
       obscureText: true,
-      onSaved: (newValue) => conform_password = newValue,
+      onSaved: (newValue) => conform_password = newValue!,
       onChanged: (value) {
         if (value.isNotEmpty) {
           removeError(error: kPassNullError);
-        } else if (value.isNotEmpty && password == conform_password) {
+        } else if (value.isNotEmpty && passwordController.text == confirmPasswordController.text) {
           removeError(error: kMatchPassError);
         }
         conform_password = value;
       },
       validator: (value) {
-        if (value.isEmpty) {
+        if (value!.isEmpty) {
           addError(error: kPassNullError);
           return "";
         } else if ((password != value)) {
@@ -229,8 +238,9 @@ class _SignUpFormState extends State<SignUpForm> {
 
   TextFormField buildPasswordFormField() {
     return TextFormField(
+      controller: passwordController,
       obscureText: true,
-      onSaved: (newValue) => password = newValue,
+      onSaved: (newValue) => password = newValue!,
       onChanged: (value) {
         if (value.isNotEmpty) {
           removeError(error: kPassNullError);
@@ -240,7 +250,7 @@ class _SignUpFormState extends State<SignUpForm> {
         password = value;
       },
       validator: (value) {
-        if (value.isEmpty) {
+        if (value!.isEmpty) {
           addError(error: kPassNullError);
           return "";
         } else if (value.length < 8) {
@@ -288,8 +298,9 @@ class _SignUpFormState extends State<SignUpForm> {
 
   TextFormField buildEmailFormField() {
     return TextFormField(
+      controller: emailController,
       keyboardType: TextInputType.emailAddress,
-      onSaved: (newValue) => email = newValue,
+      onSaved: (newValue) => email = newValue!,
       onChanged: (value) {
         if (value.isNotEmpty) {
           removeError(error: kEmailNullError);
@@ -299,7 +310,7 @@ class _SignUpFormState extends State<SignUpForm> {
         return null;
       },
       validator: (value) {
-        if (value.isEmpty) {
+        if (value!.isEmpty) {
           addError(error: kEmailNullError);
           return "";
         } else if (!emailValidatorRegExp.hasMatch(value)) {

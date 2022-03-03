@@ -4,8 +4,8 @@ import 'package:flutter/material.dart';
 
 class FormError extends StatelessWidget {
   const FormError({
-    Key key,
-    this.errors,
+    Key? key,
+    required this.errors,
   }) : super(key: key);
 
   final List<String> errors;
@@ -18,7 +18,7 @@ class FormError extends StatelessWidget {
     );
   }
 
-  Row formErrorText({String error}) {
+  Row formErrorText({String? error}) {
     return Row(
       children: [
         // SvgPicture.asset(
@@ -29,7 +29,7 @@ class FormError extends StatelessWidget {
         SizedBox(
           width: getProportionateScreenWidth(10),
         ),
-        Text(error),
+        Text(error!),
       ],
     );
   }
