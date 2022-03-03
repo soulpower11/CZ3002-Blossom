@@ -16,7 +16,7 @@ class PresentFlower extends StatefulWidget {
 }
 
 class _PresentFlowerState extends State<PresentFlower> {
-  var flowerName = "",
+  late String flowerName = "",
       scientificName = "",
       nativeTo = "",
       funFact1 = "",
@@ -26,19 +26,18 @@ class _PresentFlowerState extends State<PresentFlower> {
 
   @override
   void initState() {
+    super.initState();
     getFlowerInfo("colts_foot").then((flower) {
       setState(() {
-        print(flower);
         flowerName = flower!["display_name"];
         scientificName = flower["scientific_name_origin"];
         nativeTo = flower["native_to"];
         funFact1 = flower["fun_facts_1"];
         funFact2 = flower["fun_facts_2"];
         funFact3 = flower["fun_facts_3"];
-        numScans = flower["num_scans"];
+        numScans = flower["num_scans"].toString();
       });
     });
-    super.initState();
   }
 
   Future<Map?> getFlowerInfo(String name) async {
@@ -60,7 +59,17 @@ class _PresentFlowerState extends State<PresentFlower> {
             style: TextStyle(fontSize: 30),
             textAlign: TextAlign.left,
           ),
-          Text("Details to be here..............................."),
+          Text("I have been scanned " + numScans + " times!\n"),
+          Text(
+            "Scientific Name",
+            style: TextStyle(fontWeight: FontWeight.bold),
+          ),
+          Text(scientificName + "\n"),
+          Text(
+            "Native to ",
+            style: TextStyle(fontWeight: FontWeight.bold),
+          ),
+          Text(nativeTo),
         ],
       ),
     );
