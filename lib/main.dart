@@ -1,8 +1,29 @@
+import 'package:blossom/present_flower.dart';
+import 'package:blossom/scan_flower.dart';
+import 'package:blossom/view_history.dart';
 import 'package:flutter/material.dart';
 import './backend/authentication.dart';
 
 void main() async {
   runApp(const MyApp());
+}
+
+void _navigateTo(BuildContext context, page) {
+  switch (page) {
+    case "PresentFlower":
+      Navigator.of(context)
+          .push(MaterialPageRoute(builder: (context) => PresentFlower()));
+      break;
+    case "ScanFlower":
+      Navigator.of(context)
+          .push(MaterialPageRoute(builder: (context) => ScanFlower()));
+      break;
+
+    case "ViewHistory":
+      Navigator.of(context)
+          .push(MaterialPageRoute(builder: (context) => ViewHistory()));
+      break;
+  }
 }
 
 class MyApp extends StatelessWidget {
@@ -59,6 +80,33 @@ class _MyHomePageState extends State<MyHomePage> {
             Text(
               '$_counter',
               style: Theme.of(context).textTheme.headline4,
+            ),
+            RaisedButton(
+              child: Text(
+                'Navigate to present flower >>',
+                style: TextStyle(fontSize: 24.0),
+              ),
+              onPressed: () {
+                _navigateTo(context, 'PresentFlower');
+              },
+            ),
+            RaisedButton(
+              child: Text(
+                'Navigate to Scan Flower >>',
+                style: TextStyle(fontSize: 24.0),
+              ),
+              onPressed: () {
+                _navigateTo(context, 'ScanFlower');
+              },
+            ),
+            RaisedButton(
+              child: Text(
+                'Navigate to View History >>',
+                style: TextStyle(fontSize: 24.0),
+              ),
+              onPressed: () {
+                _navigateTo(context, 'ViewHistory');
+              },
             ),
           ],
         ),
