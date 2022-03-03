@@ -1,7 +1,7 @@
 # blossom
 
 1. Clone the repository
-2. Create a .env file in root folder with MONGO_URI=<insert connection_string from our Telegram group> 
+2. Download the .env file from our Telegram group chat
 3. Run the app
 
 ## Getting Started
