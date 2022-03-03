@@ -13,24 +13,6 @@ void main() {
   runApp(const MyApp());
 }
 
-void _navigateTo(BuildContext context, page) {
-  switch (page) {
-    case "PresentFlower":
-      Navigator.of(context)
-          .push(MaterialPageRoute(builder: (context) => PresentFlower()));
-      break;
-    case "ScanFlower":
-      Navigator.of(context)
-          .push(MaterialPageRoute(builder: (context) => ScanFlower()));
-      break;
-
-    case "ViewHistory":
-      Navigator.of(context)
-          .push(MaterialPageRoute(builder: (context) => ViewHistory()));
-      break;
-  }
-}
-
 class MyApp extends StatelessWidget {
   const MyApp({Key? key}) : super(key: key);
 
@@ -52,9 +34,6 @@ class MyApp extends StatelessWidget {
 
           ),
       home: SplashScreen(),
-        primarySwatch: Colors.blue,
-      ),
-      home: const MyHomePage(title: 'Flutter Demo Home Page'),
     );
   }
 }
