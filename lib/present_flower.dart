@@ -2,13 +2,49 @@ import 'dart:io';
 
 import 'package:blossom/social_media.dart';
 import 'package:flutter/material.dart';
+import 'backend/flower.dart';
 import 'components/bottombar.dart';
 import 'package:http/http.dart' as http;
 import 'package:path_provider/path_provider.dart';
 import 'package:share_plus/share_plus.dart';
 
-class PresentFlower extends StatelessWidget {
+class PresentFlower extends StatefulWidget {
   const PresentFlower({Key? key}) : super(key: key);
+
+  @override
+  State<PresentFlower> createState() => _PresentFlowerState();
+}
+
+class _PresentFlowerState extends State<PresentFlower> {
+  var flowerName = "",
+      scientificName = "",
+      nativeTo = "",
+      funFact1 = "",
+      funFact2 = "",
+      funFact3 = "",
+      numScans = "";
+
+  @override
+  void initState() {
+    getFlowerInfo("colts_foot").then((flower) {
+      setState(() {
+        print(flower);
+        flowerName = flower!["display_name"];
+        scientificName = flower["scientific_name_origin"];
+        nativeTo = flower["native_to"];
+        funFact1 = flower["fun_facts_1"];
+        funFact2 = flower["fun_facts_2"];
+        funFact3 = flower["fun_facts_3"];
+        numScans = flower["num_scans"];
+      });
+    });
+    super.initState();
+  }
+
+  Future<Map?> getFlowerInfo(String name) async {
+    final flower = await Flower().getFlower(name);
+    return flower;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -20,7 +56,7 @@ class PresentFlower extends StatelessWidget {
         children: [
           Text("The flower is..."),
           Text(
-            "Sunflower!",
+            flowerName,
             style: TextStyle(fontSize: 30),
             textAlign: TextAlign.left,
           ),
@@ -40,14 +76,11 @@ class PresentFlower extends StatelessWidget {
             textAlign: TextAlign.left,
           ),
           SizedBox(height: 10),
-          Text(
-              "1: The name Iris comes from the Greek word for rainbow. The name of the Greek goddess of the rainbow is also Iris."),
+          Text("1: " + funFact1),
           SizedBox(height: 10),
-          Text(
-              "2: The name Iris comes from the Greek word for rainbow. The name of the Greek goddess of the rainbow is also Iris."),
+          Text("2: " + funFact2),
           SizedBox(height: 10),
-          Text(
-              "2: The name Iris comes from the Greek word for rainbow. The name of the Greek goddess of the rainbow is also Iris."),
+          Text("3: " + funFact3),
         ],
       ),
     );

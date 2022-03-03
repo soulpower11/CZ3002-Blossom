@@ -3,7 +3,9 @@ import 'package:blossom/present_flower.dart';
 import 'package:blossom/scan_flower.dart';
 import 'package:blossom/view_history.dart';
 import 'package:flutter/material.dart';
+import 'package:email_auth/email_auth.dart';
 import './backend/authentication.dart';
+import 'auth.config.dart';
 
 void main() async {
   runApp(const MyApp());
@@ -54,6 +56,20 @@ class MyHomePage extends StatefulWidget {
 class _MyHomePageState extends State<MyHomePage> {
   int _counter = 0;
 
+  // Declare the object
+  late EmailAuth emailAuth;
+  @override
+  void initState() {
+    super.initState();
+    // Initialize the package
+    emailAuth = new EmailAuth(
+      sessionName: "Blossom",
+    );
+
+    /// Configuring the remote server
+    emailAuth.config(remoteServerConfiguration);
+  }
+
   void _incrementCounter() async {
     setState(() {
       _counter++;
@@ -65,6 +81,16 @@ class _MyHomePageState extends State<MyHomePage> {
     final flower = await Flower().getFlower("colts_foot");
     print(login);
     print(flower);
+  }
+
+  void sendOtp() async {
+    bool result = await emailAuth.sendOtp(
+        recipientMail: "weicheng1997@live.com.sg", otpLength: 5);
+    if (result) {
+      // using a void function because i am using a
+      // stateful widget and seting the state from here.
+      setState(() {});
+    }
   }
 
   @override
@@ -109,6 +135,15 @@ class _MyHomePageState extends State<MyHomePage> {
               ),
               onPressed: () {
                 _navigateTo(context, 'ViewHistory');
+              },
+            ),
+            RaisedButton(
+              child: Text(
+                'Send OTP',
+                style: TextStyle(fontSize: 24.0),
+              ),
+              onPressed: () {
+                sendOtp();
               },
             ),
           ],
