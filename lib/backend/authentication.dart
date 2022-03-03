@@ -1,3 +1,4 @@
+import 'package:blossom/backend/database.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:mongo_dart/mongo_dart.dart';
 
@@ -8,13 +9,6 @@ import 'package:flutter/services.dart';
 import 'package:dart_jsonwebtoken/dart_jsonwebtoken.dart';
 
 class Authentication {
-  Future<Db> connect() async {
-    await dotenv.load(fileName: ".env");
-    String mongoUri = dotenv.get('MONGO_URI');
-    var db = await Db.create(mongoUri);
-    await db.open();
-    return db;
-  }
 
   String generateJWT(String username, String email) {
     final jwt = JWT({
@@ -32,7 +26,7 @@ class Authentication {
 
   Future<String> register(
       String email, String password, String username) async {
-    var db = await connect();
+    var db = await Database().connect();
     var collection = db.collection('users');
 
     var salt10 = await FlutterBcrypt.saltWithRounds(rounds: 10);
@@ -47,7 +41,7 @@ class Authentication {
   }
 
   Future<String> login(String email, String password) async {
-    var db = await connect();
+    var db = await Database().connect();
     var usersCollection = db.collection('users');
 
     String output = "";

@@ -1,9 +1,34 @@
+import 'package:blossom/backend/flower.dart';
+import 'package:blossom/present_flower.dart';
+import 'package:blossom/scan_flower.dart';
+import 'package:blossom/view_history.dart';
 import 'package:blossom/splash_screen.dart';
 import 'package:blossom/splash/welcome_screen.dart';
+import './backend/authentication.dart';
+import 'package:email_auth/email_auth.dart';
 import 'package:flutter/material.dart';
+import 'auth.config.dart';
 
 void main() {
   runApp(const MyApp());
+}
+
+void _navigateTo(BuildContext context, page) {
+  switch (page) {
+    case "PresentFlower":
+      Navigator.of(context)
+          .push(MaterialPageRoute(builder: (context) => PresentFlower()));
+      break;
+    case "ScanFlower":
+      Navigator.of(context)
+          .push(MaterialPageRoute(builder: (context) => ScanFlower()));
+      break;
+
+    case "ViewHistory":
+      Navigator.of(context)
+          .push(MaterialPageRoute(builder: (context) => ViewHistory()));
+      break;
+  }
 }
 
 class MyApp extends StatelessWidget {
@@ -27,6 +52,9 @@ class MyApp extends StatelessWidget {
 
           ),
       home: SplashScreen(),
+        primarySwatch: Colors.blue,
+      ),
+      home: const MyHomePage(title: 'Flutter Demo Home Page'),
     );
   }
 }
