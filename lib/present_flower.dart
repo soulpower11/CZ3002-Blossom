@@ -2,9 +2,10 @@ import 'dart:io';
 
 import 'package:blossom/social_media.dart';
 import 'package:flutter/material.dart';
-import 'package:share_plus/share_plus.dart';
 import 'components/bottombar.dart';
 import 'package:http/http.dart' as http;
+import 'package:path_provider/path_provider.dart';
+import 'package:share_plus/share_plus.dart';
 
 class PresentFlower extends StatelessWidget {
   const PresentFlower({Key? key}) : super(key: key);
@@ -53,10 +54,8 @@ class PresentFlower extends StatelessWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text("Hello"),
-        leading: BackButton(
-          onPressed: () {},
-        ),
+        title: const Text(''),
+        centerTitle: true,
         actions: [
           IconButton(
             icon: Icon(Icons.share),
@@ -66,21 +65,22 @@ class PresentFlower extends StatelessWidget {
                   builder: (context) {
                     return new ShareSocialMedia();
                   });
-              // final urlImage = "https://picsum.photos/200/300";
-              // final url = Uri.parse(urlImage);
-              // final response = await http.get(url);
-              // final bytes = response.bodyBytes;
-
-              // final temp = await getTemporaryDirectory();
-              // final path = '${temp.path}/image.jpg';
-
-              // File(path).writeAsBytesSync(bytes);
-              // await Share.shareFiles([path], text: "This lion is cute!");
             },
           ),
           IconButton(
             icon: Icon(Icons.favorite_border),
-            onPressed: () {},
+            onPressed: () async {
+              final urlImage = "https://picsum.photos/200/300";
+              final url = Uri.parse(urlImage);
+              final response = await http.get(url);
+              final bytes = response.bodyBytes;
+
+              final temp = await getTemporaryDirectory();
+              final path = '${temp.path}/image.jpg';
+
+              File(path).writeAsBytesSync(bytes);
+              await Share.shareFiles([path], text: "This lion is cute!");
+            },
           )
         ],
       ),

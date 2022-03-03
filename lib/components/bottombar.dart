@@ -32,8 +32,8 @@ class _BottomBarState extends State<BottomBar> {
               onPressed: () {}),
           IconButton(
               icon: Icon(
-                Icons.camera,
-                color: Colors.red,
+                Icons.photo_camera,
+                color: Colors.white,
               ),
               onPressed: () {}),
           IconButton(

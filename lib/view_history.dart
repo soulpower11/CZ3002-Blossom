@@ -15,10 +15,8 @@ class _ViewHistoryState extends State<ViewHistory> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text("View History"),
-        leading: BackButton(
-          onPressed: () {},
-        ),
+        title: const Text(''),
+        centerTitle: true,
         actions: [
           IconButton(
             icon: Icon(Icons.create_new_folder_rounded),
