@@ -1,3 +1,4 @@
+import 'package:blossom/backend/flower.dart';
 import 'package:blossom/present_flower.dart';
 import 'package:blossom/scan_flower.dart';
 import 'package:blossom/view_history.dart';
@@ -61,7 +62,9 @@ class _MyHomePageState extends State<MyHomePage> {
     //     await Authentication().register("chris@123.com","123123123", "chris");
 
     final login = await Authentication().login("chris@123.com", "123123123");
+    final flower = await Flower().getFlower("colts_foot");
     print(login);
+    print(flower);
   }
 
   @override
