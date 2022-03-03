@@ -9,7 +9,6 @@ import 'package:flutter/services.dart';
 import 'package:dart_jsonwebtoken/dart_jsonwebtoken.dart';
 
 class Authentication {
-
   String generateJWT(String username, String email) {
     final jwt = JWT({
       "alg": "HS256",
@@ -22,6 +21,21 @@ class Authentication {
 
     final token = jwt.sign(SecretKey('awesomeblossom'));
     return token;
+  }
+
+   static Future<bool> checkUserExist(String email) async {
+    var db = await Database().connect();
+    var collection = db.collection('users');
+
+    var user = await collection.findOne(where.eq('email', email));
+
+    db.close();
+
+    if (user != null) {
+      return true;
+    }
+
+    return false;
   }
 
   Future<String> register(
