@@ -3,7 +3,6 @@ import 'dart:io';
 import 'package:blossom/social_media.dart';
 import 'package:flutter/material.dart';
 import 'backend/flower.dart';
-import 'components/bottombar.dart';
 import 'package:http/http.dart' as http;
 import 'package:path_provider/path_provider.dart';
 import 'package:share_plus/share_plus.dart';
@@ -161,7 +160,6 @@ class _PresentFlowerState extends State<PresentFlower> {
               ]),
         ),
       ),
-      bottomNavigationBar: BottomBar(),
     );
   }
 }
