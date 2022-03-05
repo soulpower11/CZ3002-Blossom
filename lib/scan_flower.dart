@@ -1,6 +1,9 @@
+import 'dart:collection';
+
 import 'package:flutter/material.dart';
 import 'dart:io';
 import 'package:image_picker/image_picker.dart';
+import 'package:exif/exif.dart';
 
 class ScanFlower extends StatefulWidget {
   const ScanFlower({Key? key}) : super(key: key);
@@ -87,6 +90,21 @@ class _ScanFlowerState extends State<ScanFlower> {
         maxHeight: 480,
         imageQuality: 100 //0 - 100
         );
+
+    var bytes = await file?.readAsBytes();
+    var tags = await readExifFromBytes(bytes!);
+
+    if (tags.isEmpty) {
+      print("No EXIF information found");
+    }
+
+    if (tags.containsKey('TAG_GPS_LATITUDE')) {
+      print('File has JPEG thumbnail');
+    }
+    if (tags.containsKey('TIFFThumbnail')) {
+      print('File has TIFF thumbnail');
+      tags.remove('TIFFThumbnail');
+    }
 
     if (file?.path != null) {
       setState(() {
