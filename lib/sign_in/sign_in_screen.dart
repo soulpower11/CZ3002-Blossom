@@ -3,6 +3,7 @@ import 'package:blossom/components/form_error.dart';
 import 'package:blossom/components/no_account_text.dart';
 import 'package:blossom/components/rounded_button.dart';
 import 'package:blossom/components/size_config.dart';
+import 'package:blossom/dashboard.dart';
 import 'package:blossom/forgot_password/forgot_password_screen.dart';
 import 'package:blossom/present_flower.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -196,7 +197,7 @@ class _SignFormState extends State<SignInForm> {
 
                       Navigator.of(context).push(
                         MaterialPageRoute(
-                          builder: (context) => const PresentFlower(),
+                          builder: (context) => const Dashboard(),
                         ),
                       );
                     }

@@ -2,6 +2,7 @@ import 'package:blossom/components/constants.dart';
 import 'package:blossom/components/form_error.dart';
 import 'package:blossom/components/rounded_button.dart';
 import 'package:blossom/components/size_config.dart';
+import 'package:blossom/dashboard.dart';
 import 'package:flutter/material.dart';
 
 import '../backend/authentication.dart';
@@ -174,7 +175,7 @@ class _SignUpFormState extends State<SignUpForm> {
                           emailController.text, passwordController.text, "");
                       Navigator.of(context).push(
                         MaterialPageRoute(
-                          builder: (context) => const PresentFlower(),
+                          builder: (context) => const Dashboard(),
                         ),
                       );
                     } else {

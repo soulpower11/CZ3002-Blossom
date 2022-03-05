@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:blossom/dashboard.dart';
 import 'package:blossom/present_flower.dart';
 import 'package:blossom/sign_in/sign_in_screen.dart';
 import 'package:blossom/splash/welcome_screen.dart';
@@ -21,7 +22,7 @@ class SplashScreen extends StatelessWidget {
       final success = await prefs.remove('jwt');
       if (jwt != null) {
         Navigator.of(context)
-            .push(MaterialPageRoute(builder: (context) => PresentFlower()));
+            .push(MaterialPageRoute(builder: (context) => Dashboard()));
       } else {
         Navigator.of(context)
             .push(MaterialPageRoute(builder: (context) => WelcomeScreen()));
