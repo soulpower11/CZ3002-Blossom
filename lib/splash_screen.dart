@@ -22,10 +22,10 @@ class SplashScreen extends StatelessWidget {
       final success = await prefs.remove('jwt');
       if (jwt != null) {
         Navigator.of(context)
-            .push(MaterialPageRoute(builder: (context) => Dashboard()));
+            .pushReplacement(MaterialPageRoute(builder: (context) => Dashboard()));
       } else {
         Navigator.of(context)
-            .push(MaterialPageRoute(builder: (context) => WelcomeScreen()));
+            .pushReplacement(MaterialPageRoute(builder: (context) => WelcomeScreen()));
       }
     });
 

@@ -173,11 +173,10 @@ class _SignUpFormState extends State<SignUpForm> {
                     if (!exist) {
                       final result = await Authentication().register(
                           emailController.text, passwordController.text, "");
-                      Navigator.of(context).push(
-                        MaterialPageRoute(
-                          builder: (context) => const Dashboard(),
-                        ),
-                      );
+                      Navigator.of(context).pushAndRemoveUntil(
+                          MaterialPageRoute(
+                              builder: (context) => const Dashboard()),
+                          (Route<dynamic> route) => false);
                     } else {
                       addError(error: kUserExistError);
                     }

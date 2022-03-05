@@ -195,11 +195,10 @@ class _SignFormState extends State<SignInForm> {
                       await prefs.setString('jwt', login);
                       print(prefs);
 
-                      Navigator.of(context).push(
-                        MaterialPageRoute(
-                          builder: (context) => const Dashboard(),
-                        ),
-                      );
+                      Navigator.of(context).pushAndRemoveUntil(
+                          MaterialPageRoute(
+                              builder: (context) => const Dashboard()),
+                          (Route<dynamic> route) => false);
                     }
                   }
                 },
