@@ -1,17 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
-import 'package:permission_handler/permission_handler.dart';
+import 'package:geolocator/geolocator.dart';
 import 'src/locations.dart' as locations;
-
-enum PermissionGroup {
-  /// Android: Fine and Coarse Location
-  /// iOS: CoreLocation - Always
-  locationAlways,
-
-  /// Android: Fine and Coarse Location
-  /// iOS: CoreLocation - WhenInUse
-  locationWhenInUse
-}
 
 class Parks extends StatefulWidget {
   @override
@@ -22,18 +12,57 @@ class _ParksState extends State<Parks> {
   late GoogleMapController mapController;
 
   final Map<String, Marker> _markers = {};
+  
+  late CameraPosition cameraPosition;
+  late Position currentPositon;
+  var geoLocator = Geolocator();
 
   @override
   void initState() {
     super.initState();
-    Permission.location.serviceStatus.isEnabled.then((value) async {
-      print(value);
-      if (!value) {
-        Map<Permission, PermissionStatus> statuses =
-            await [Permission.location].request();
-        print(statuses[Permission.location]);
+  }
+
+  void locatePosition() async {
+    bool serviceEnabled;
+    LocationPermission permission;
+
+    // Test if location services are enabled.
+    serviceEnabled = await Geolocator.isLocationServiceEnabled();
+    if (!serviceEnabled) {
+      // Location services are not enabled don't continue
+      // accessing the position and request users of the
+      // App to enable the location services.
+      return Future.error('Location services are disabled.');
+    }
+
+    permission = await Geolocator.checkPermission();
+    if (permission == LocationPermission.denied) {
+      permission = await Geolocator.requestPermission();
+      if (permission == LocationPermission.denied) {
+        // Permissions are denied, next time you could try
+        // requesting permissions again (this is also where
+        // Android's shouldShowRequestPermissionRationale
+        // returned true. According to Android guidelines
+        // your App should show an explanatory UI now.
+        return Future.error('Location permissions are denied');
       }
-    });
+    }
+
+    if (permission == LocationPermission.deniedForever) {
+      // Permissions are denied forever, handle appropriately.
+      return Future.error(
+          'Location permissions are permanently denied, we cannot request permissions.');
+    }
+    
+    Position position = await Geolocator.getCurrentPosition(
+        desiredAccuracy: LocationAccuracy.high);
+    currentPositon = position;
+
+    LatLng latLngPosition = LatLng(position.latitude, position.longitude);
+
+    cameraPosition = CameraPosition(target: latLngPosition, zoom: 15.0);
+
+    mapController.moveCamera(CameraUpdate.newCameraPosition(cameraPosition));
   }
 
   Future<void> _onMapCreated(GoogleMapController controller) async {
@@ -68,15 +97,20 @@ class _ParksState extends State<Parks> {
           title: const Text('Parks'),
           backgroundColor: Colors.blue,
         ),
-        body: GoogleMap(
-          onMapCreated: _onMapCreated,
-          myLocationEnabled: true,
-          initialCameraPosition: const CameraPosition(
-            target: LatLng(1.3139843, 103.5640535),
-            zoom: 11.0,
-          ),
-          markers: _markers.values.toSet(),
-        ),
+        body:  GoogleMap(
+                onMapCreated: (GoogleMapController controller) {
+                  _onMapCreated(controller);
+                  mapController = controller;
+
+                  locatePosition();
+                },
+                myLocationEnabled: true,
+                initialCameraPosition: const CameraPosition(
+                  target: LatLng(1.3139843, 103.5640535),
+                  zoom: 15.0,
+                ),
+                markers: _markers.values.toSet(),
+              ),
       ),
     );
   }
