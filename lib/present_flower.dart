@@ -32,9 +32,8 @@ class _PresentFlowerState extends State<PresentFlower> {
       funFact2 = "",
       funFact3 = "",
       numScans = "";
-  // var scannedImage = 'https://picsum.photos/id/237/480/640';
   File? scannedImage;
-  var databaseImage = 'https://picsum.photos/id/237/480/640';
+  File? databaseImage;
   bool favourite = false;
   bool isLoading = true;
 
@@ -48,6 +47,7 @@ class _PresentFlowerState extends State<PresentFlower> {
     final jwt = await Authentication.verifyJWT();
     if (jwt != null) {
       await Flower().saveFlowerPhoto(scannedImage, name, jwt.payload["email"]);
+      databaseImage = await Flower().getStockFlowerImage(name);
       return await Flower().getFlower(name);
     }
   }
@@ -131,7 +131,7 @@ class PresentFlowerScrollView extends StatelessWidget {
   final bool isLoading;
   Map<dynamic, dynamic> flower;
   File? scannedImage;
-  var databaseImage = 'https://picsum.photos/id/237/480/640';
+  File? databaseImage;
 
   PresentFlowerScrollView(
       {Key? key,
@@ -255,7 +255,8 @@ class PresentFlowerScrollView extends StatelessWidget {
                             flex: 4,
                             child: Container(
                                 padding: EdgeInsets.only(top: 25),
-                                child: Image.network(databaseImage))),
+                                child:
+                                    Image(image: FileImage(databaseImage!)))),
                       ],
                     ),
                   ]),
