@@ -37,7 +37,7 @@ class Flower {
     return image;
   }
 
-  Future<Map?> saveFlowerPhoto(final file, String flower_name, String email) async {
+  Future<Map?> saveFlowerPhoto(final file, String flower_name, String email, double lat, double long) async {
     var db = await Database().connect();
     var scannedHistory = db.collection('user_scanned_history');
     var flowersCollection = db.collection('flower_database');
@@ -58,7 +58,9 @@ class Flower {
     var res = await scannedHistory.insert({
       "email": email,
       "display_name": flower!["display_name"],
-      "filename": filename
+      "filename": filename,
+      "lat": lat,
+      "long": long
     });
 
     db.close();

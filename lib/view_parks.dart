@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:geolocator/geolocator.dart';
+import 'package:geocoding/geocoding.dart';
 import 'src/locations.dart' as locations;
 
 class Parks extends StatefulWidget {
@@ -68,20 +69,24 @@ class _ParksState extends State<Parks> {
   Future<void> _onMapCreated(GoogleMapController controller) async {
     mapController = controller;
 
+
     final parkLocations = await locations.getParksLocation();
-    setState(() {
+    setState((){
       _markers.clear();
       for (final feature in parkLocations.features) {
         var html = feature.properties.Description;
         var name = html.substring(html.indexOf("<th>NAME</th> <td>") + 18,
             html.indexOf("<th>PHOTOURL</th>") - 27);
 
+        var address = html.substring(html.indexOf("<th>DESCRIPTION<\/th> <td>") + 25,
+            html.indexOf("<th>ADDRESSSTREETNAME</th>") - 34);
+      
         final marker = Marker(
           markerId: MarkerId(name),
-          position: LatLng(
-              feature.geometry.coordinates[1], feature.geometry.coordinates[0]),
+          position: LatLng(feature.geometry.coordinates[1], feature.geometry.coordinates[0]),
           infoWindow: InfoWindow(
             title: name,
+            snippet: address,
           ),
         );
         _markers[name] = marker;
