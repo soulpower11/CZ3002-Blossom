@@ -12,7 +12,7 @@ class _ParksState extends State<Parks> {
   late GoogleMapController mapController;
 
   final Map<String, Marker> _markers = {};
-  
+
   late CameraPosition cameraPosition;
   late Position currentPositon;
   var geoLocator = Geolocator();
@@ -53,7 +53,7 @@ class _ParksState extends State<Parks> {
       return Future.error(
           'Location permissions are permanently denied, we cannot request permissions.');
     }
-    
+
     Position position = await Geolocator.getCurrentPosition(
         desiredAccuracy: LocationAccuracy.high);
     currentPositon = position;
@@ -97,20 +97,20 @@ class _ParksState extends State<Parks> {
           title: const Text('Parks'),
           backgroundColor: Colors.blue,
         ),
-        body:  GoogleMap(
-                onMapCreated: (GoogleMapController controller) {
-                  _onMapCreated(controller);
-                  mapController = controller;
+        body: GoogleMap(
+          onMapCreated: (GoogleMapController controller) {
+            _onMapCreated(controller);
+            mapController = controller;
 
-                  locatePosition();
-                },
-                myLocationEnabled: true,
-                initialCameraPosition: const CameraPosition(
-                  target: LatLng(1.3139843, 103.5640535),
-                  zoom: 15.0,
-                ),
-                markers: _markers.values.toSet(),
-              ),
+            locatePosition();
+          },
+          myLocationEnabled: true,
+          initialCameraPosition: const CameraPosition(
+            target: LatLng(1.3139843, 103.5640535),
+            zoom: 15.0,
+          ),
+          markers: _markers.values.toSet(),
+        ),
       ),
     );
   }

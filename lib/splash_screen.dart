@@ -19,7 +19,7 @@ class SplashScreen extends StatelessWidget {
       final prefs = await SharedPreferences.getInstance();
       final String? jwt = prefs.getString('jwt');
       //Remove jwt first cause there is no logout button yet
-      final success = await prefs.remove('jwt');
+      // final success = await prefs.remove('jwt');
       if (jwt != null) {
         Navigator.of(context)
             .pushReplacement(MaterialPageRoute(builder: (context) => Dashboard()));
