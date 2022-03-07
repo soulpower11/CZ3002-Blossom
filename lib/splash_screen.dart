@@ -1,8 +1,10 @@
 import 'dart:async';
+import 'package:blossom/backend/authentication.dart';
 import 'package:blossom/dashboard.dart';
 import 'package:blossom/present_flower.dart';
 import 'package:blossom/sign_in/sign_in_screen.dart';
 import 'package:blossom/splash/welcome_screen.dart';
+import 'package:dart_jsonwebtoken/src/jwt.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -16,10 +18,8 @@ class SplashScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     Timer(const Duration(seconds: 2), () async {
-      final prefs = await SharedPreferences.getInstance();
-      final String? jwt = prefs.getString('jwt');
-      //Remove jwt first cause there is no logout button yet
-      final success = await prefs.remove('jwt');
+      final JWT? jwt  = await Authentication.verifyJWT();
+      
       if (jwt != null) {
         Navigator.of(context)
             .pushReplacement(MaterialPageRoute(builder: (context) => Dashboard()));

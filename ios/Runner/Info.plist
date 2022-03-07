@@ -48,5 +48,10 @@
 	<string>To take photo for flower identification</string>
 	<key>NSCameraUsageDescription</key>
 	<string>To take a photo of a flower</string> 
+
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string>This app needs access to location when open.</string>
+	<key>NSLocationAlwaysUsageDescription</key>
+	<string>This app needs access to location when in the background.</string>
 </dict>
 </plist>

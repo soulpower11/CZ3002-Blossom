@@ -105,7 +105,7 @@ class _ScanFlowerState extends State<ScanFlower> {
 
     if (imageFile != null) {
       Navigator.of(context)
-          .push(MaterialPageRoute(builder: (context) => PresentFlower()));
+          .push(MaterialPageRoute(builder: (context) => PresentFlower(scannedImage: imageFile)));
     } else {
       Navigator.of(context)
           .push(MaterialPageRoute(builder: (context) => Dashboard()));

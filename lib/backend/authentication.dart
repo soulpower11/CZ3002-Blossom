@@ -7,6 +7,7 @@ import 'package:flutter_bcrypt/flutter_bcrypt.dart';
 import 'package:flutter/services.dart';
 
 import 'package:dart_jsonwebtoken/dart_jsonwebtoken.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class Authentication {
   String generateJWT(String username, String email) {
@@ -23,7 +24,26 @@ class Authentication {
     return token;
   }
 
-   static Future<bool> checkUserExist(String email) async {
+  static Future<JWT?> verifyJWT() async {
+    final prefs = await SharedPreferences.getInstance();
+    final String? token = prefs.getString('jwt');
+
+    try {
+
+      final jwt = JWT.verify(token!, SecretKey('awesomeblossom'));
+      return jwt;
+    } on JWTExpiredError {
+
+      await prefs.remove('jwt');
+      return null;
+    } on JWTError catch (ex) {
+
+      await prefs.remove('jwt');
+      return null;
+    }
+  }
+
+  static Future<bool> checkUserExist(String email) async {
     var db = await Database().connect();
     var collection = db.collection('users');
 

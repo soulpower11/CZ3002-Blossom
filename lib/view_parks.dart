@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:geolocator/geolocator.dart';
+import 'package:geocoding/geocoding.dart';
 import 'src/locations.dart' as locations;
 
 class Parks extends StatefulWidget {
@@ -12,7 +13,7 @@ class _ParksState extends State<Parks> {
   late GoogleMapController mapController;
 
   final Map<String, Marker> _markers = {};
-  
+
   late CameraPosition cameraPosition;
   late Position currentPositon;
   var geoLocator = Geolocator();
@@ -53,7 +54,7 @@ class _ParksState extends State<Parks> {
       return Future.error(
           'Location permissions are permanently denied, we cannot request permissions.');
     }
-    
+
     Position position = await Geolocator.getCurrentPosition(
         desiredAccuracy: LocationAccuracy.high);
     currentPositon = position;
@@ -68,20 +69,24 @@ class _ParksState extends State<Parks> {
   Future<void> _onMapCreated(GoogleMapController controller) async {
     mapController = controller;
 
+
     final parkLocations = await locations.getParksLocation();
-    setState(() {
+    setState((){
       _markers.clear();
       for (final feature in parkLocations.features) {
         var html = feature.properties.Description;
         var name = html.substring(html.indexOf("<th>NAME</th> <td>") + 18,
             html.indexOf("<th>PHOTOURL</th>") - 27);
 
+        var address = html.substring(html.indexOf("<th>DESCRIPTION<\/th> <td>") + 25,
+            html.indexOf("<th>ADDRESSSTREETNAME</th>") - 34);
+      
         final marker = Marker(
           markerId: MarkerId(name),
-          position: LatLng(
-              feature.geometry.coordinates[1], feature.geometry.coordinates[0]),
+          position: LatLng(feature.geometry.coordinates[1], feature.geometry.coordinates[0]),
           infoWindow: InfoWindow(
             title: name,
+            snippet: address,
           ),
         );
         _markers[name] = marker;
@@ -97,20 +102,20 @@ class _ParksState extends State<Parks> {
           title: const Text('Parks'),
           backgroundColor: Colors.blue,
         ),
-        body:  GoogleMap(
-                onMapCreated: (GoogleMapController controller) {
-                  _onMapCreated(controller);
-                  mapController = controller;
+        body: GoogleMap(
+          onMapCreated: (GoogleMapController controller) {
+            _onMapCreated(controller);
+            mapController = controller;
 
-                  locatePosition();
-                },
-                myLocationEnabled: true,
-                initialCameraPosition: const CameraPosition(
-                  target: LatLng(1.3139843, 103.5640535),
-                  zoom: 15.0,
-                ),
-                markers: _markers.values.toSet(),
-              ),
+            locatePosition();
+          },
+          myLocationEnabled: true,
+          initialCameraPosition: const CameraPosition(
+            target: LatLng(1.3139843, 103.5640535),
+            zoom: 15.0,
+          ),
+          markers: _markers.values.toSet(),
+        ),
       ),
     );
   }
