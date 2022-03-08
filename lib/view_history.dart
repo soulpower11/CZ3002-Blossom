@@ -75,6 +75,9 @@ class _ViewHistoryState extends State<ViewHistory> {
                     onPressed: () async {
                       final name = await openDialog();
                       print(name);
+                      if(name != null){
+                        context.read<ViewHistoryProvider>().toggleSelectionMode();
+                      }
                     },
                   ),
             IconButton(

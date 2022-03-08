@@ -18,7 +18,6 @@ class ViewHistoryProvider with ChangeNotifier {
   void resetSelection(){
     _selectionMode = false;
     _selectedIndexList.clear();
-    notifyListeners();
   }
 
   void addSelected(int index) {
@@ -37,7 +36,6 @@ class ViewHistoryProvider with ChangeNotifier {
   }
 
   bool contains(int index) {
-    notifyListeners();
     return _selectedIndexList.contains(index);
   }
 
