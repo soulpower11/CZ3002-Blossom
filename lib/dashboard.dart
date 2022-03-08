@@ -131,7 +131,10 @@ class _DashboardState extends State<Dashboard> {
         width: 70,
         height: 70,
         child: FittedBox(
-          child: FloatingActionButton(
+          child:
+          // Check if keyboard if open if true hide FAB
+           MediaQuery.of(context).viewInsets.bottom != 0.0 ? null :
+          FloatingActionButton(
             backgroundColor: Color(0xffa2a5a4),
             child: Image.asset('assets/images/camera_icon.png'),
               onPressed: () {
