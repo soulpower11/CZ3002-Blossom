@@ -29,15 +29,16 @@ class Authentication {
     final String? token = prefs.getString('jwt');
 
     try {
-
-      final jwt = JWT.verify(token!, SecretKey('awesomeblossom'));
-      return jwt;
+      if (token != null) {
+        final jwt = JWT.verify(token, SecretKey('awesomeblossom'));
+        return jwt;
+      } else {
+        return null;
+      }
     } on JWTExpiredError {
-
       await prefs.remove('jwt');
       return null;
     } on JWTError catch (ex) {
-
       await prefs.remove('jwt');
       return null;
     }
