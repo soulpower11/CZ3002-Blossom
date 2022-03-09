@@ -75,15 +75,24 @@ class _ViewHistoryState extends State<ViewHistory> {
                     onPressed: () async {
                       final name = await openDialog();
                       print(name);
-                      if(name != null){
-                        context.read<ViewHistoryProvider>().toggleSelectionMode();
+                      if (name != null) {
+                        context
+                            .read<ViewHistoryProvider>()
+                            .toggleSelectionMode();
                       }
                     },
                   ),
             IconButton(
               icon: Icon(Icons.photo_size_select_actual),
               onPressed: () {
-                context.read<ViewHistoryProvider>().toggleSelectionMode();
+                print(context.read<ViewHistoryProvider>().selectedIndexList);
+                context
+                    .read<ViewHistoryProvider>()
+                    .selectedIndexList
+                    .forEach((index) {
+                  print(context.read<ViewHistoryProvider>().items[index]);
+                });
+                // context.read<ViewHistoryProvider>().toggleSelectionMode();
               },
             )
           ],
@@ -103,9 +112,9 @@ class _ViewHistoryState extends State<ViewHistory> {
               future: future,
               builder: (context, snapshot) {
                 if (snapshot.connectionState == ConnectionState.done) {
-                  List<Map?> _items = [];
-                  _items.addAll(snapshot.data as List<Map?>);
-                  return MemoryGridView(isLoading: false, items: _items);
+                  return MemoryGridView(
+                      isLoading: false,
+                      items: context.watch<ViewHistoryProvider>().items);
                 }
                 return MemoryGridView(isLoading: true, items: []);
               },
@@ -125,10 +134,13 @@ class _ViewHistoryState extends State<ViewHistory> {
               future: future,
               builder: (context, snapshot) {
                 if (snapshot.connectionState == ConnectionState.done) {
-                  List<Map?> _items = [];
-                  _items.addAll(snapshot.data as List<Map?>);
+                  context
+                      .read<ViewHistoryProvider>()
+                      .setAllPhotos(snapshot.data as List<Map?>);
                   return HistoryGridView(
-                      key: historyGridViewKey, isLoading: false, items: _items);
+                      key: historyGridViewKey,
+                      isLoading: false,
+                      items: context.watch<ViewHistoryProvider>().items);
                 }
                 return HistoryGridView(isLoading: true, items: []);
               },

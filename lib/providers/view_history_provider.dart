@@ -15,7 +15,7 @@ class ViewHistoryProvider with ChangeNotifier {
     notifyListeners();
   }
 
-  void resetSelection(){
+  void resetSelection() {
     _selectionMode = false;
     _selectedIndexList.clear();
   }
@@ -35,13 +35,17 @@ class ViewHistoryProvider with ChangeNotifier {
     notifyListeners();
   }
 
+  List<int> readSelected() {
+    return _selectedIndexList;
+  }
+
   bool contains(int index) {
     return _selectedIndexList.contains(index);
   }
 
   void setAllPhotos(List<Map?> photos) {
-    _items = List<Map?>.from(photos);
-    notifyListeners();
+    _items.addAll(photos);
+    // notifyListeners();
   }
 
   void changeSelection({required bool enable, required int index}) {
