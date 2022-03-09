@@ -28,7 +28,6 @@ class _ViewHistoryState extends State<ViewHistory> {
   @override
   void initState() {
     historyFuture = getUserHistory();
-    memoryFuture = getUserMemory();
     context.read<ViewHistoryProvider>().resetSelection();
     checkMemoryExist().then(((value) {
       context.read<ViewHistoryProvider>().setHaveMemory(value);
@@ -125,6 +124,7 @@ class _ViewHistoryState extends State<ViewHistory> {
                 context.read<ViewHistoryProvider>().setHaveMemory(true);
                 context.read<ViewHistoryProvider>().addedMemory();
                 context.read<ViewHistoryProvider>().setMemoryName("");
+                memoryFuture = getUserMemory();
               }
             },
             tooltip: "Done"),

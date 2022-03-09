@@ -14,7 +14,8 @@ import 'package:image_watermark/image_watermark.dart';
 class Memories extends StatefulWidget {
   List<Map?> items = [];
   String name;
-  Memories({Key? key, required this.items, required this.name}) : super(key: key);
+  Memories({Key? key, required this.items, required this.name})
+      : super(key: key);
 
   @override
   State<Memories> createState() => _MemoriesState();
@@ -44,7 +45,7 @@ class _MemoriesState extends State<Memories> {
             IconButton(
               icon: Icon(Icons.share),
               onPressed: () async {
-                // share(flowerName, scannedImage);
+                share(widget.name, widget.items);
                 print('Ran share');
               },
             )
@@ -149,23 +150,26 @@ class FlowerImage extends StatelessWidget {
   }
 }
 
-void share(String flowerName, File? scannedImage) async {
-  final bytes = await scannedImage!.readAsBytes();
-  final watermarked =
-      await image_watermark.addTextWatermarkCentered(bytes, 'Taken by Blossom');
+void share(String memoryName, List<Map?> items) async {
+  List<String> files = [];
   final appurl = "google.com";
 
-  final temp = await getTemporaryDirectory();
-  final path = '${temp.path}/image.jpg';
+  for (int index = 0; index < items.length; index++) {
+    final bytes = await items[index]!["file"].readAsBytes();
+    final watermarked = await image_watermark.addTextWatermarkCentered(
+        bytes, 'Taken by Blossom');
 
-  File(path).writeAsBytesSync(watermarked);
+    final name = items[index]!["file"].path.split("/").last;
+
+    final temp = await getTemporaryDirectory();
+    final path = '${temp.path}/$name';
+
+    File(path).writeAsBytesSync(watermarked);
+
+    files.add(path);
+  }
 
   // await Share.share(
   //     "I identified " + flowerName + " using the Blossom app!" + appurl);
-  await Share.shareFiles([path],
-      text: "I identified " +
-          flowerName +
-          " using the Blossom app!" +
-          "Find out more about Blossom at: " +
-          appurl);
+  await Share.shareFiles(files, text: memoryName + appurl);
 }
