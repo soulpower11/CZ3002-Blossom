@@ -4,6 +4,7 @@ import 'package:blossom/components/rounded_button.dart';
 import 'package:blossom/components/size_config.dart';
 import 'package:blossom/dashboard.dart';
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../backend/authentication.dart';
 import '../present_flower.dart';
@@ -173,6 +174,10 @@ class _SignUpFormState extends State<SignUpForm> {
                     if (!exist) {
                       final result = await Authentication().register(
                           emailController.text, passwordController.text, "");
+                                                // Obtain shared preferences.
+                      final prefs = await SharedPreferences.getInstance();
+                      // Save an String value to 'action' key.
+                      await prefs.setString('jwt', result);
                       Navigator.of(context).pushAndRemoveUntil(
                           MaterialPageRoute(
                               builder: (context) => const Dashboard()),

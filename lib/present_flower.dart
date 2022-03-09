@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:blossom/backend/authentication.dart';
+import 'package:blossom/favorites.dart';
 import 'package:blossom/scan_flower.dart';
 import 'package:blossom/social_media.dart';
 import 'package:dart_jsonwebtoken/dart_jsonwebtoken.dart';
@@ -35,13 +36,21 @@ class _PresentFlowerState extends State<PresentFlower> {
       numScans = "";
   File? scannedImage;
   File? databaseImage;
-  bool favourite = false;
+  late bool favourite = false;
   bool isLoading = true;
+  Future<Map?>? future;
+  late String email = "";
 
   @override
   void initState() {
     super.initState();
+    future = getFlowerInfo("colts_foot");
     scannedImage = widget.scannedImage;
+    getEmail().then((value) {
+      setState(() => email = value);
+      getFavouriteToggle("colts_foot")
+          .then((value) => {setState(() => favourite = value)});
+    });
   }
 
   Future<Position> locatePosition() async {
@@ -76,16 +85,31 @@ class _PresentFlowerState extends State<PresentFlower> {
           'Location permissions are permanently denied, we cannot request permissions.');
     }
 
-    return await Geolocator.getCurrentPosition(desiredAccuracy: LocationAccuracy.high);
+    return await Geolocator.getCurrentPosition(
+        desiredAccuracy: LocationAccuracy.high);
   }
 
   Future<Map?> getFlowerInfo(String name) async {
     final jwt = await Authentication.verifyJWT();
     if (jwt != null) {
       Position position = await locatePosition();
-      await Flower().saveFlowerPhoto(scannedImage, name, jwt.payload["email"], position.latitude, position.longitude);
+      await Flower().saveFlowerPhoto(scannedImage, name, jwt.payload["email"],
+          position.latitude, position.longitude);
       databaseImage = await Flower().getStockFlowerImage(name);
       return await Flower().getFlower(name);
+    }
+  }
+
+  Future<bool> getFavouriteToggle(String name) async {
+    return await Flower().getOneFavourite(name, email);
+  }
+
+  Future<String> getEmail() async {
+    final jwt = await Authentication.verifyJWT();
+    if (jwt != null) {
+      return jwt.payload["email"];
+    } else {
+      return "";
     }
   }
 
@@ -111,6 +135,8 @@ class _PresentFlowerState extends State<PresentFlower> {
                   : Icon(Icons.favorite_border),
               onPressed: () async {
                 setState(() => favourite = !favourite);
+                Flower().toggleFavourite(
+                    "colts_foot", flowerName, email, favourite);
               },
             ),
             IconButton(
@@ -123,10 +149,11 @@ class _PresentFlowerState extends State<PresentFlower> {
           ],
         ),
         body: FutureBuilder(
-            future: getFlowerInfo("colts_foot"),
+            future: future,
             builder: (context, snapshot) {
               if (snapshot.connectionState == ConnectionState.done) {
                 var flower = snapshot.data as Map<dynamic, dynamic>;
+                flowerName = flower["display_name"];
 
                 return PresentFlowerScrollView(
                     flower: flower,
