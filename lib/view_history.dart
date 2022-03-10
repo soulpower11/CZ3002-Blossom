@@ -137,7 +137,6 @@ class _ViewHistoryState extends State<ViewHistory> {
           icon: Icon(Icons.create_new_folder_rounded),
           onPressed: () async {
             final name = await openDialog();
-            print(name);
             if (name != null) {
               context.read<ViewHistoryProvider>().toggleSelectionMode();
               context.read<ViewHistoryProvider>().setMemoryName(name);
@@ -173,7 +172,6 @@ class _ViewHistoryState extends State<ViewHistory> {
                     builder: (context, snapshot) {
                       if (snapshot.connectionState == ConnectionState.done) {
                         if (snapshot.data != null) {
-                          print(snapshot.data);
                           List<Map?> memory = snapshot.data as List<Map?>;
                           context
                               .read<ViewHistoryProvider>()
@@ -255,17 +253,9 @@ class MemoryGridView extends StatelessWidget {
                 },
                 child: Column(
                   children: [
-                    Container(
-                        padding: EdgeInsets.all(kDefaultPadding),
-                        width: 100,
-                        height: 100,
-                        decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(10),
-                            image: DecorationImage(
-                              fit: BoxFit.cover,
-                              image: FileImage(
-                                  items[index]!["photo_list"]![0]!["file"]),
-                            ))),
+                    MemoryThumbnail(
+                      items: items[index]!["photo_list"],
+                    ),
                     Text(items[index]!["memory_name"],
                         style: TextStyle(
                             color: kTextColor,
@@ -275,6 +265,208 @@ class MemoryGridView extends StatelessWidget {
                 ),
               );
             });
+  }
+}
+
+class MemoryThumbnail extends StatelessWidget {
+  final bool isLoading;
+  List<Map?> items = [];
+
+  MemoryThumbnail({Key? key, required this.items, this.isLoading = false})
+      : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    Widget _widget = Column();
+    if (items.length >= 4) {
+      _widget = Container(
+        width: 100,
+        height: 100,
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(10),
+          child: Column(
+            children: [
+              Row(
+                children: [
+                  Container(
+                      width: 50,
+                      height: 50,
+                      decoration: BoxDecoration(
+                          border: const Border(
+                            right: BorderSide(
+                                color: Colors.white,
+                                width: 1,
+                                style: BorderStyle.solid),
+                            bottom: BorderSide(
+                                color: Colors.white,
+                                width: 1,
+                                style: BorderStyle.solid),
+                          ),
+                          image: DecorationImage(
+                            fit: BoxFit.cover,
+                            image: FileImage(items[0]!["file"]),
+                          ))),
+                  Container(
+                      width: 50,
+                      height: 50,
+                      decoration: BoxDecoration(
+                          border: const Border(
+                            bottom: BorderSide(
+                                color: Colors.white,
+                                width: 1,
+                                style: BorderStyle.solid),
+                          ),
+                          image: DecorationImage(
+                            fit: BoxFit.cover,
+                            image: FileImage(items[1]!["file"]),
+                          ))),
+                ],
+              ),
+              Row(
+                children: [
+                  Container(
+                      width: 50,
+                      height: 50,
+                      decoration: BoxDecoration(
+                          border: const Border(
+                            right: BorderSide(
+                                color: Colors.white,
+                                width: 1,
+                                style: BorderStyle.solid),
+                          ),
+                          image: DecorationImage(
+                            fit: BoxFit.cover,
+                            image: FileImage(items[2]!["file"]),
+                          ))),
+                  Container(
+                      width: 50,
+                      height: 50,
+                      decoration: BoxDecoration(
+                          image: DecorationImage(
+                        fit: BoxFit.cover,
+                        image: FileImage(items[3]!["file"]),
+                      ))),
+                ],
+              )
+            ],
+          ),
+        ),
+      );
+    } else if (items.length == 3) {
+      _widget = SizedBox(
+        width: 100,
+        height: 100,
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(10),
+          child: Column(
+            children: [
+              Row(
+                children: [
+                  Container(
+                      width: 50,
+                      height: 50,
+                      decoration: BoxDecoration(
+                          border: const Border(
+                            right: BorderSide(
+                                color: Colors.white,
+                                width: 1,
+                                style: BorderStyle.solid),
+                            bottom: BorderSide(
+                                color: Colors.white,
+                                width: 1,
+                                style: BorderStyle.solid),
+                          ),
+                          image: DecorationImage(
+                            fit: BoxFit.cover,
+                            image: FileImage(items[0]!["file"]),
+                          ))),
+                  Container(
+                      width: 50,
+                      height: 50,
+                      decoration: BoxDecoration(
+                          border: const Border(
+                            bottom: BorderSide(
+                                color: Colors.white,
+                                width: 1,
+                                style: BorderStyle.solid),
+                          ),
+                          image: DecorationImage(
+                            fit: BoxFit.cover,
+                            image: FileImage(items[1]!["file"]),
+                          ))),
+                ],
+              ),
+              Row(
+                children: [
+                  Container(
+                      width: 100,
+                      height: 50,
+                      decoration: BoxDecoration(
+                          image: DecorationImage(
+                        fit: BoxFit.cover,
+                        image: FileImage(items[2]!["file"]),
+                      ))),
+                ],
+              )
+            ],
+          ),
+        ),
+      );
+    } else if (items.length == 2) {
+      _widget = SizedBox(
+        width: 100,
+        height: 100,
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(10),
+          child: Column(
+            children: [
+              Row(
+                children: [
+                  Container(
+                      width: 50,
+                      height: 100,
+                      decoration: BoxDecoration(
+                          border: const Border(
+                            right: BorderSide(
+                                color: Colors.white,
+                                width: 1,
+                                style: BorderStyle.solid),
+                          ),
+                          image: DecorationImage(
+                            fit: BoxFit.cover,
+                            image: FileImage(items[0]!["file"]),
+                          ))),
+                  Container(
+                      width: 50,
+                      height: 100,
+                      decoration: BoxDecoration(
+                          image: DecorationImage(
+                        fit: BoxFit.cover,
+                        image: FileImage(items[1]!["file"]),
+                      ))),
+                ],
+              ),
+            ],
+          ),
+        ),
+      );
+    } else if (items.length == 1) {
+      _widget = SizedBox(
+        height: 100,
+        width: 100,
+        child: Container(
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(10),
+            image: DecorationImage(
+              fit: BoxFit.cover,
+              image: FileImage(items[0]!["file"]),
+            ),
+          ),
+        ),
+      );
+    }
+
+    return _widget;
   }
 }
 

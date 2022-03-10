@@ -27,14 +27,6 @@ class _MemoriesState extends State<Memories> {
     super.initState();
   }
 
-  Future<List<Map?>?> getUserHistory() async {
-    final jwt = await Authentication.verifyJWT();
-    if (jwt != null) {
-      return await Flower().getUserHistory(jwt.payload["email"]);
-    }
-    return null;
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -62,17 +54,16 @@ class _MemoriesState extends State<Memories> {
                         widget.name,
                         style: TextStyle(fontSize: 26),
                       ))),
-              Expanded(
-                  child: HistoryGridView(isLoading: false, items: widget.items))
+              Expanded(child: PhotoGridView(items: widget.items))
             ]));
   }
 }
 
-class HistoryGridView extends StatelessWidget {
+class PhotoGridView extends StatelessWidget {
   final bool isLoading;
   List<Map?> items = [];
 
-  HistoryGridView({Key? key, required this.items, this.isLoading = false})
+  PhotoGridView({Key? key, required this.items, this.isLoading = false})
       : super(key: key);
 
   @override
