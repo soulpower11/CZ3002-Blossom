@@ -159,7 +159,7 @@ class _DashboardState extends State<Dashboard> {
           builder: (context) => PresentFlower(scannedImage: imageFile)));
     } else {
       Navigator.of(context)
-          .push(MaterialPageRoute(builder: (context) => LandingPage()));
+          .push(MaterialPageRoute(builder: (context) => Dashboard()));
     }
   }
 }

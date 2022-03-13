@@ -433,6 +433,28 @@ class FlowerInfo extends StatelessWidget {
                 AppTextNormal(
                     size: 12, text: "Native to", color: kAppBrownColor),
                 AppTextBold(size: 14, text: nativeTo + '\n'),
+                SizedBox(
+                    height: 50,
+                    child: Container(
+                        padding: EdgeInsets.all(5),
+                        decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(15),
+                            color: kAppPinkColor),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.start,
+                          children: [
+                            Padding(
+                                padding: EdgeInsets.only(left: 5, right: 10),
+                                child: Icon(Icons.pin_drop_outlined)),
+                            Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  AppTextNormal(
+                                      size: 12, text: "I was taken at"),
+                                  AppTextBold(size: 14, text: "Yishun Park")
+                                ])
+                          ],
+                        )))
               ],
             ),
           );
