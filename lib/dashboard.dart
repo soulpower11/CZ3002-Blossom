@@ -1,11 +1,15 @@
+import 'dart:io';
+
 import 'package:blossom/constants.dart';
 import 'package:blossom/favorites.dart';
 import 'package:blossom/home.dart';
+import 'package:blossom/present_flower.dart';
 import 'package:blossom/scan_flower.dart';
 import 'package:blossom/view_history.dart';
 import 'package:blossom/view_parks.dart';
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
+import 'package:image_picker/image_picker.dart';
 
 class Dashboard extends StatefulWidget {
   const Dashboard({Key? key}) : super(key: key);
@@ -125,11 +129,37 @@ class _DashboardState extends State<Dashboard> {
               child: Image.asset('assets/images/camera_icon.png'),
               onPressed: () {
                 setState(() {
-                  _selectedIndex = 2;
+                  getImage(source: ImageSource.camera);
+                  // _selectedIndex = 2;
                 });
               }),
         ),
       ),
     );
+  }
+
+  void getImage({required ImageSource source}) async {
+    File? imageFile;
+    final navigator = Navigator.of(context);
+    final file = await ImagePicker().pickImage(
+        source: source,
+        maxWidth: 640,
+        maxHeight: 480,
+        imageQuality: 100 //0 - 100
+        );
+
+    if (file?.path != null) {
+      setState(() {
+        imageFile = File(file!.path);
+      });
+    }
+
+    if (imageFile != null) {
+      Navigator.of(context).push(MaterialPageRoute(
+          builder: (context) => PresentFlower(scannedImage: imageFile)));
+    } else {
+      Navigator.of(context)
+          .push(MaterialPageRoute(builder: (context) => LandingPage()));
+    }
   }
 }

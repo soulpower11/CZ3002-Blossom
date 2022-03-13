@@ -98,9 +98,10 @@ class _PresentFlowerState extends State<PresentFlower> {
     return WillPopScope(
       onWillPop: () async {
         print("Back Button is pressed.");
-        Navigator.of(context)
-            .push(new MaterialPageRoute(builder: (context) => ScanFlower()))
-            .then((value) => setState(() {}));
+        // Navigator.of(context)
+        //     .push(new MaterialPageRoute(builder: (context) => ScanFlower()))
+        //     .then((value) => setState(() {}));
+        Navigator.pop(context);
         return true;
       },
       child: Scaffold(
@@ -109,10 +110,11 @@ class _PresentFlowerState extends State<PresentFlower> {
             leading: IconButton(
               icon: Icon(Icons.arrow_back),
               onPressed: () {
-                Navigator.of(context)
-                    .push(new MaterialPageRoute(
-                        builder: (context) => ScanFlower()))
-                    .then((value) => setState(() {}));
+                Navigator.pop(context);
+                // Navigator.of(context)
+                //     .push(new MaterialPageRoute(
+                //         builder: (context) => ScanFlower()))
+                //     .then((value) => setState(() {}));
               },
             ),
             backgroundColor: Colors.white,
