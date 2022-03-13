@@ -117,56 +117,66 @@ class _PresentFlowerState extends State<PresentFlower> {
   Widget build(BuildContext context) {
     double height = MediaQuery.of(context).size.height;
 
-    return Scaffold(
-        appBar: AppBar(
-          iconTheme: IconThemeData(color: Colors.black),
-          leading: IconButton(
-            icon: Icon(Icons.arrow_back),
-            onPressed: () {
-              Navigator.of(context)
-                  .push(MaterialPageRoute(builder: (context) => ScanFlower()));
-            },
-          ),
-          backgroundColor: Colors.white,
-          actions: [
-            IconButton(
-              icon: favourite
-                  ? Icon(Icons.favorite, color: kButtonColor1)
-                  : Icon(Icons.favorite_border),
-              onPressed: () async {
-                setState(() => favourite = !favourite);
-                Flower().toggleFavourite(
-                    "colts_foot", flowerName, email, favourite);
+    return WillPopScope(
+      onWillPop: () async {
+        print("Back Button is pressed.");
+        // Navigator.of(context)
+        //     .push(new MaterialPageRoute(builder: (context) => ScanFlower()))
+        //     .then((value) => setState(() {}));
+        Navigator.pop(context);
+        return true;
+      },
+      child: Scaffold(
+          appBar: AppBar(
+            iconTheme: IconThemeData(color: Colors.black),
+            leading: IconButton(
+              icon: Icon(Icons.arrow_back),
+              onPressed: () {
+                Navigator.pop(context);
+                // Navigator.of(context)
+                //     .push(new MaterialPageRoute(
+                //         builder: (context) => ScanFlower()))
+                //     .then((value) => setState(() {}));
               },
             ),
-            IconButton(
-              icon: Icon(Icons.share),
-              onPressed: () async {
-                share(flowerName, scannedImage);
-                print('Ran share');
-              },
-            )
-          ],
-        ),
-        body: FutureBuilder(
-            future: future,
-            builder: (context, snapshot) {
-              if (snapshot.connectionState == ConnectionState.done) {
-                var flower = snapshot.data as Map<dynamic, dynamic>;
-                flowerName = flower["display_name"];
+            backgroundColor: Colors.white,
+            actions: [
+              IconButton(
+                icon: favourite
+                    ? Icon(Icons.favorite, color: kButtonColor1)
+                    : Icon(Icons.favorite_border),
+                onPressed: () async {
+                  setState(() => favourite = !favourite);
+                },
+              ),
+              IconButton(
+                icon: Icon(Icons.share),
+                onPressed: () async {
+                  share(flowerName, scannedImage);
+                  print('Ran share');
+                },
+              )
+            ],
+          ),
+          body: FutureBuilder(
+              future: getFlowerInfo("colts_foot"),
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.done) {
+                  var flower = snapshot.data as Map<dynamic, dynamic>;
 
+                  return PresentFlowerScrollView(
+                      flower: flower,
+                      databaseImage: databaseImage,
+                      scannedImage: scannedImage,
+                      isLoading: false);
+                }
                 return PresentFlowerScrollView(
-                    flower: flower,
+                    flower: const {},
                     databaseImage: databaseImage,
                     scannedImage: scannedImage,
-                    isLoading: false);
-              }
-              return PresentFlowerScrollView(
-                  flower: const {},
-                  databaseImage: databaseImage,
-                  scannedImage: scannedImage,
-                  isLoading: true);
-            }));
+                    isLoading: true);
+              })),
+    );
   }
 }
 
@@ -445,6 +455,28 @@ class FlowerInfo extends StatelessWidget {
                 AppTextNormal(
                     size: 12, text: "Native to", color: kAppBrownColor),
                 AppTextBold(size: 14, text: nativeTo + '\n'),
+                SizedBox(
+                    height: 50,
+                    child: Container(
+                        padding: EdgeInsets.all(5),
+                        decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(15),
+                            color: kAppPinkColor),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.start,
+                          children: [
+                            Padding(
+                                padding: EdgeInsets.only(left: 5, right: 10),
+                                child: Icon(Icons.pin_drop_outlined)),
+                            Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  AppTextNormal(
+                                      size: 12, text: "I was taken at"),
+                                  AppTextBold(size: 14, text: "Yishun Park")
+                                ])
+                          ],
+                        )))
               ],
             ),
           );
