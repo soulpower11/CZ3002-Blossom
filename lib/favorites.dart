@@ -1,12 +1,207 @@
-import 'package:flutter/material.dart';
+// import 'package:flutter/material.dart';
 
-class Favorites extends StatelessWidget {
-  const Favorites({ Key? key }) : super(key: key);
+// class Favorites extends StatelessWidget {
+//   const Favorites({ Key? key }) : super(key: key);
+
+//   @override
+//   Widget build(BuildContext context) {
+//     return Container(
+//       child: Center(child: Text('My Favorites')),
+//     );
+//   }
+// }
+
+import 'dart:ffi';
+
+import 'package:blossom/components/app_text.dart';
+import 'package:blossom/memories.dart';
+import 'package:blossom/present_flower.dart';
+import 'package:dart_jsonwebtoken/dart_jsonwebtoken.dart';
+import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'backend/authentication.dart';
+import 'backend/flower.dart';
+import 'constants.dart';
+import 'package:shimmer/shimmer.dart';
+import 'package:provider/provider.dart';
+import 'providers/view_history_provider.dart';
+
+class Favorites extends StatefulWidget {
+  const Favorites({Key? key}) : super(key: key);
+
+  @override
+  State<Favorites> createState() => _ViewHistoryState();
+}
+
+class _ViewHistoryState extends State<Favorites> {
+  final GlobalKey<_FavouriteGridViewState> favouriteGridViewKey =
+      GlobalKey<_FavouriteGridViewState>();
+  TextEditingController controller = TextEditingController();
+  Future<List<Map?>?>? favoritesFuture;
+  Future<List<Map?>?>? historyFuture;
+
+  @override
+  void initState() {
+    historyFuture = getUserHistory();
+    // memoryFuture = getUserMemory();
+    // context.read<ViewHistoryProvider>().resetSelection();
+    // checkMemoryExist().then(((value) {
+    //   context.read<ViewHistoryProvider>().setHaveMemory(value);
+    // }));
+    favoritesFuture = getUserFavorites();
+    super.initState();
+  }
+
+  Future<List<Map?>?> getUserFavorites() async {
+    final jwt = await Authentication.verifyJWT();
+    if (jwt != null) {
+      return await Flower().getUserFavourites(jwt.payload["email"]);
+    }
+    return null;
+  }
+
+  Future<List<Map?>?> getUserHistory() async {
+    final jwt = await Authentication.verifyJWT();
+    if (jwt != null) {
+      return await Flower().getUserHistory(jwt.payload["email"]);
+    }
+    return null;
+  }
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      child: Center(child: Text('My Favorites')),
+    return Scaffold(
+        appBar: AppBar(
+          title: const Text(''),
+          centerTitle: true,
+          backgroundColor: Colors.white,
+          // leading: _selectionButton,
+          // actions: _buttons,
+        ),
+        body: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+          Divider(height: 20),
+          Padding(
+              padding: EdgeInsets.only(top: 15, bottom: 30, left: 20),
+              child: Container(
+                  alignment: Alignment.topLeft,
+                  child: AppTextBold(text: "Favourites", size: 26))),
+          Expanded(
+            child: FutureBuilder(
+              future: historyFuture,
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.done) {
+                  if (snapshot.data != null) {
+                    context
+                        .read<ViewHistoryProvider>()
+                        .setAllPhotos(snapshot.data as List<Map?>);
+                  }
+                  return FavouriteGridView(
+                      key: favouriteGridViewKey,
+                      isLoading: false,
+                      items: context.watch<ViewHistoryProvider>().historyItems);
+                }
+                return FavouriteGridView(isLoading: true, items: []);
+              },
+            ),
+          )
+        ]));
+  }
+}
+
+class FavouriteGridView extends StatefulWidget {
+  final bool isLoading;
+  List<Map?> items = [];
+
+  FavouriteGridView({Key? key, required this.items, this.isLoading = false})
+      : super(key: key);
+
+  @override
+  State<FavouriteGridView> createState() => _FavouriteGridViewState();
+}
+
+class _FavouriteGridViewState extends State<FavouriteGridView> {
+  @override
+  void initState() {
+    super.initState();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return widget.isLoading
+        ? GridView.builder(
+            physics: NeverScrollableScrollPhysics(),
+            gridDelegate:
+                SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 2),
+            itemBuilder: (context, index) =>
+                FlowerImage(isLoading: widget.isLoading),
+          )
+        : GridView.builder(
+            gridDelegate:
+                SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 2),
+            itemCount: widget.items.length,
+            itemBuilder: (context, index) {
+              return GridTile(
+                  child: GestureDetector(
+                onTap: () {
+                  Navigator.of(context).push(MaterialPageRoute(
+                      builder: (context) => PresentFlower(
+                          scannedImage: widget.items[index]!["file"])));
+                },
+                child: Column(
+                  children: [
+                    Container(
+                      padding: EdgeInsets.all(kDefaultPadding),
+                      height: 180,
+                      width: 160,
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(10),
+                        image: DecorationImage(
+                          fit: BoxFit.cover,
+                          image: FileImage(widget.items[index]!["file"]),
+                        ),
+                      ),
+                    ),
+                    Text(widget.items[index]!["display_name"],
+                        style: const TextStyle(
+                            color: kTextColor, fontWeight: FontWeight.bold)),
+                  ],
+                ),
+              ));
+            });
+  }
+}
+
+class FlowerImage extends StatelessWidget {
+  final bool isLoading;
+  const FlowerImage({Key? key, this.isLoading = false}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        Shimmer.fromColors(
+          baseColor: Colors.grey[300]!,
+          highlightColor: Colors.grey[100]!,
+          child: Container(
+              padding: EdgeInsets.all(kDefaultPadding),
+              height: 180,
+              width: 160,
+              decoration: BoxDecoration(
+                  color: Colors.grey[300],
+                  borderRadius: BorderRadius.circular(10))),
+        ),
+        SizedBox(height: 2),
+        Shimmer.fromColors(
+          baseColor: Colors.grey[300]!,
+          highlightColor: Colors.grey[100]!,
+          child: Container(
+            padding: EdgeInsets.all(kDefaultPadding),
+            height: 12.0,
+            width: 130.0,
+            color: Colors.grey[300],
+          ),
+        ),
+      ],
     );
   }
 }
