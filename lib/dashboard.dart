@@ -16,7 +16,7 @@ class Dashboard extends StatefulWidget {
 
 class _DashboardState extends State<Dashboard> {
   static List<Widget> _pages = <Widget>[
-    Home(),
+    LandingPage(),
     Favorites(),
     ScanFlower(),
     ViewHistory(),
@@ -71,33 +71,21 @@ class _DashboardState extends State<Dashboard> {
   }
 
   var items = const <BottomNavigationBarItem>[
+    BottomNavigationBarItem(icon: Icon(Icons.home_outlined), label: "Home"),
     BottomNavigationBarItem(
-      icon: Icon(Icons.home_outlined),
-      label: "Home"
-    ),
+        icon: Icon(Icons.favorite_border), label: "Favorites"),
     BottomNavigationBarItem(
-      icon: Icon(Icons.favorite_border),
-      label: "Favorites"
-    ),
+        icon: Icon(Icons.photo_camera, color: Colors.transparent), label: ""),
     BottomNavigationBarItem(
-      icon: Icon(Icons.photo_camera, color: Colors.transparent),
-      label: ""
-    ),
-    BottomNavigationBarItem(
-      icon: Icon(Icons.book_online_outlined),
-      label: "History"
-    ),
-    BottomNavigationBarItem(
-      icon: Icon(Icons.map_outlined),
-      label: "Parks"
-    ),
+        icon: Icon(Icons.book_online_outlined), label: "History"),
+    BottomNavigationBarItem(icon: Icon(Icons.map_outlined), label: "Parks"),
   ];
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-          body: Center(
-          child: _pages.elementAt(_selectedIndex), //New
+      body: Center(
+        child: _pages.elementAt(_selectedIndex), //New
       ),
       bottomNavigationBar: Container(
         // add a top right border radius
@@ -117,7 +105,8 @@ class _DashboardState extends State<Dashboard> {
               type: BottomNavigationBarType.fixed,
               backgroundColor: Colors.black,
               iconSize: 25,
-              selectedIconTheme: IconThemeData(color: Colors.yellow[200], size: 30),
+              selectedIconTheme:
+                  IconThemeData(color: Colors.yellow[200], size: 30),
               unselectedIconTheme: IconThemeData(
                 color: Colors.white,
               ),
@@ -132,8 +121,8 @@ class _DashboardState extends State<Dashboard> {
         height: 70,
         child: FittedBox(
           child: FloatingActionButton(
-            backgroundColor: Color(0xffa2a5a4),
-            child: Image.asset('assets/images/camera_icon.png'),
+              backgroundColor: Color(0xffa2a5a4),
+              child: Image.asset('assets/images/camera_icon.png'),
               onPressed: () {
                 setState(() {
                   _selectedIndex = 2;

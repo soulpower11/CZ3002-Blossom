@@ -76,14 +76,16 @@ class _PresentFlowerState extends State<PresentFlower> {
           'Location permissions are permanently denied, we cannot request permissions.');
     }
 
-    return await Geolocator.getCurrentPosition(desiredAccuracy: LocationAccuracy.high);
+    return await Geolocator.getCurrentPosition(
+        desiredAccuracy: LocationAccuracy.high);
   }
 
   Future<Map?> getFlowerInfo(String name) async {
     final jwt = await Authentication.verifyJWT();
     if (jwt != null) {
       Position position = await locatePosition();
-      await Flower().saveFlowerPhoto(scannedImage, name, jwt.payload["email"], position.latitude, position.longitude);
+      await Flower().saveFlowerPhoto(scannedImage, name, jwt.payload["email"],
+          position.latitude, position.longitude);
       databaseImage = await Flower().getStockFlowerImage(name);
       return await Flower().getFlower(name);
     }
@@ -93,53 +95,64 @@ class _PresentFlowerState extends State<PresentFlower> {
   Widget build(BuildContext context) {
     double height = MediaQuery.of(context).size.height;
 
-    return Scaffold(
-        appBar: AppBar(
-          iconTheme: IconThemeData(color: Colors.black),
-          leading: IconButton(
-            icon: Icon(Icons.arrow_back),
-            onPressed: () {
-              Navigator.of(context)
-                  .push(MaterialPageRoute(builder: (context) => ScanFlower()));
-            },
-          ),
-          backgroundColor: Colors.white,
-          actions: [
-            IconButton(
-              icon: favourite
-                  ? Icon(Icons.favorite, color: kButtonColor1)
-                  : Icon(Icons.favorite_border),
-              onPressed: () async {
-                setState(() => favourite = !favourite);
+    return WillPopScope(
+      onWillPop: () async {
+        print("Back Button is pressed.");
+        Navigator.of(context)
+            .push(new MaterialPageRoute(builder: (context) => ScanFlower()))
+            .then((value) => setState(() {}));
+        return true;
+      },
+      child: Scaffold(
+          appBar: AppBar(
+            iconTheme: IconThemeData(color: Colors.black),
+            leading: IconButton(
+              icon: Icon(Icons.arrow_back),
+              onPressed: () {
+                Navigator.of(context)
+                    .push(new MaterialPageRoute(
+                        builder: (context) => ScanFlower()))
+                    .then((value) => setState(() {}));
               },
             ),
-            IconButton(
-              icon: Icon(Icons.share),
-              onPressed: () async {
-                share(flowerName, scannedImage);
-                print('Ran share');
-              },
-            )
-          ],
-        ),
-        body: FutureBuilder(
-            future: getFlowerInfo("colts_foot"),
-            builder: (context, snapshot) {
-              if (snapshot.connectionState == ConnectionState.done) {
-                var flower = snapshot.data as Map<dynamic, dynamic>;
+            backgroundColor: Colors.white,
+            actions: [
+              IconButton(
+                icon: favourite
+                    ? Icon(Icons.favorite, color: kButtonColor1)
+                    : Icon(Icons.favorite_border),
+                onPressed: () async {
+                  setState(() => favourite = !favourite);
+                },
+              ),
+              IconButton(
+                icon: Icon(Icons.share),
+                onPressed: () async {
+                  share(flowerName, scannedImage);
+                  print('Ran share');
+                },
+              )
+            ],
+          ),
+          body: FutureBuilder(
+              future: getFlowerInfo("colts_foot"),
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.done) {
+                  var flower = snapshot.data as Map<dynamic, dynamic>;
 
+                  return PresentFlowerScrollView(
+                      flower: flower,
+                      databaseImage: databaseImage,
+                      scannedImage: scannedImage,
+                      isLoading: false);
+                }
                 return PresentFlowerScrollView(
-                    flower: flower,
+                    flower: const {},
                     databaseImage: databaseImage,
                     scannedImage: scannedImage,
-                    isLoading: false);
-              }
-              return PresentFlowerScrollView(
-                  flower: const {},
-                  databaseImage: databaseImage,
-                  scannedImage: scannedImage,
-                  isLoading: true);
-            }));
+                    isLoading: true);
+              })),
+    );
   }
 }
 
