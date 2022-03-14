@@ -90,12 +90,14 @@ class SignUpForm extends StatefulWidget {
 
 class _SignUpFormState extends State<SignUpForm> {
   final _formKey = GlobalKey<FormState>();
+  late String username;
   late String email;
   late String password;
   late String conform_password;
   bool remember = false;
   final List<String> errors = [];
 
+  TextEditingController usernameController = TextEditingController();
   TextEditingController emailController = TextEditingController();
   TextEditingController passwordController = TextEditingController();
   TextEditingController confirmPasswordController = TextEditingController();
@@ -121,6 +123,19 @@ class _SignUpFormState extends State<SignUpForm> {
       child: AutofillGroup(
         child: Column(
           children: [
+            Padding(
+              padding: EdgeInsets.only(left: 0, bottom: 20, right: 240),
+              //apply padding horizontal or vertical only
+              child: Text(
+                "USERNAME",
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ),
+            buildUsernameFormField(),
+            SizedBox(height: getProportionateScreenHeight(20)),
             Padding(
               padding: EdgeInsets.only(left: 0, bottom: 20, right: 280),
               //apply padding horizontal or vertical only
@@ -173,8 +188,8 @@ class _SignUpFormState extends State<SignUpForm> {
                         emailController.text);
                     if (!exist) {
                       final result = await Authentication().register(
-                          emailController.text, passwordController.text, "");
-                                                // Obtain shared preferences.
+                          emailController.text, passwordController.text, usernameController.text);
+                      // Obtain shared preferences.
                       final prefs = await SharedPreferences.getInstance();
                       // Save an String value to 'action' key.
                       await prefs.setString('jwt', result);
@@ -356,6 +371,62 @@ class _SignUpFormState extends State<SignUpForm> {
           heightFactor: 1.0,
           child: Icon(
             Icons.mail,
+            color: Colors.grey,
+          ),
+        ),
+        //suffixIcon: CustomSurffixIcon(svgIcon: "assets/icons/Mail.svg"),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(25.0),
+          borderSide: BorderSide(
+            color: Colors.blue,
+          ),
+        ),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(25.0),
+          borderSide: BorderSide(
+            color: Colors.black12,
+            width: 2.0,
+          ),
+        ),
+        labelStyle: TextStyle(
+          color: Color(0xFF212121),
+        ),
+      ),
+    );
+  }
+
+  TextFormField buildUsernameFormField() {
+    return TextFormField(
+      controller: usernameController,
+      autofillHints: const [AutofillHints.newUsername],
+      keyboardType: TextInputType.emailAddress,
+      onSaved: (newValue) => username = newValue!,
+      onChanged: (value) {
+        removeError(error: kUserExistError);
+        if (value.isNotEmpty) {
+          removeError(error: kUsernameNullError);
+        }
+        return null;
+      },
+      validator: (value) {
+        if (value!.isEmpty) {
+          addError(error: kUsernameNullError);
+          return "";
+        }
+        return null;
+      },
+      decoration: InputDecoration(
+        // labelText: "Username",
+        hintText: "Enter your username",
+        fillColor: Colors.white, filled: true,
+        // If  you are using latest version of flutter then lable text and hint text shown like this
+        // if you r using flutter less then 1.20.* then maybe this is not working properly
+        floatingLabelBehavior: FloatingLabelBehavior.always,
+        suffixIcon: Align(
+          widthFactor: 1.0,
+          heightFactor: 1.0,
+          child: Icon(
+            Icons.account_circle_rounded,
             color: Colors.grey,
           ),
         ),

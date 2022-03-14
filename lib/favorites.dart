@@ -38,16 +38,9 @@ class _ViewHistoryState extends State<Favorites> {
       GlobalKey<_FavouriteGridViewState>();
   TextEditingController controller = TextEditingController();
   Future<List<Map?>?>? favoritesFuture;
-  Future<List<Map?>?>? historyFuture;
 
   @override
   void initState() {
-    historyFuture = getUserHistory();
-    // memoryFuture = getUserMemory();
-    // context.read<ViewHistoryProvider>().resetSelection();
-    // checkMemoryExist().then(((value) {
-    //   context.read<ViewHistoryProvider>().setHaveMemory(value);
-    // }));
     favoritesFuture = getUserFavorites();
     super.initState();
   }
@@ -87,7 +80,7 @@ class _ViewHistoryState extends State<Favorites> {
                   child: AppTextBold(text: "Favourites", size: 26))),
           Expanded(
             child: FutureBuilder(
-              future: historyFuture,
+              future: favoritesFuture,
               builder: (context, snapshot) {
                 if (snapshot.connectionState == ConnectionState.done) {
                   if (snapshot.data != null) {
@@ -145,7 +138,7 @@ class _FavouriteGridViewState extends State<FavouriteGridView> {
                 onTap: () {
                   Navigator.of(context).push(MaterialPageRoute(
                       builder: (context) => PresentFlower(
-                          scannedImage: widget.items[index]!["file"])));
+                          scannedImage: widget.items[index]!["file"], comingFrom: "favorites", flowerName: widget.items[index]!["flower_name"], location: widget.items[index]!["location"])));
                 },
                 child: Column(
                   children: [
