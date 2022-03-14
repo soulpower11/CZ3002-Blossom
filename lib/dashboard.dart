@@ -1,11 +1,15 @@
+import 'dart:io';
+
 import 'package:blossom/constants.dart';
 import 'package:blossom/favorites.dart';
 import 'package:blossom/home.dart';
+import 'package:blossom/present_flower.dart';
 import 'package:blossom/scan_flower.dart';
 import 'package:blossom/view_history.dart';
 import 'package:blossom/view_parks.dart';
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
+import 'package:image_picker/image_picker.dart';
 
 class Dashboard extends StatefulWidget {
   const Dashboard({Key? key}) : super(key: key);
@@ -16,7 +20,7 @@ class Dashboard extends StatefulWidget {
 
 class _DashboardState extends State<Dashboard> {
   static List<Widget> _pages = <Widget>[
-    Home(),
+    LandingPage(),
     Favorites(),
     ScanFlower(),
     ViewHistory(),
@@ -71,33 +75,21 @@ class _DashboardState extends State<Dashboard> {
   }
 
   var items = const <BottomNavigationBarItem>[
+    BottomNavigationBarItem(icon: Icon(Icons.home_outlined), label: "Home"),
     BottomNavigationBarItem(
-      icon: Icon(Icons.home_outlined),
-      label: "Home"
-    ),
+        icon: Icon(Icons.favorite_border), label: "Favorites"),
     BottomNavigationBarItem(
-      icon: Icon(Icons.favorite_border),
-      label: "Favorites"
-    ),
+        icon: Icon(Icons.photo_camera, color: Colors.transparent), label: ""),
     BottomNavigationBarItem(
-      icon: Icon(Icons.photo_camera, color: Colors.transparent),
-      label: ""
-    ),
-    BottomNavigationBarItem(
-      icon: Icon(Icons.book_online_outlined),
-      label: "History"
-    ),
-    BottomNavigationBarItem(
-      icon: Icon(Icons.map_outlined),
-      label: "Parks"
-    ),
+        icon: Icon(Icons.book_online_outlined), label: "History"),
+    BottomNavigationBarItem(icon: Icon(Icons.map_outlined), label: "Parks"),
   ];
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-          body: Center(
-          child: _pages.elementAt(_selectedIndex), //New
+      body: Center(
+        child: _pages.elementAt(_selectedIndex), //New
       ),
       bottomNavigationBar: Container(
         // add a top right border radius
@@ -117,7 +109,8 @@ class _DashboardState extends State<Dashboard> {
               type: BottomNavigationBarType.fixed,
               backgroundColor: Colors.black,
               iconSize: 25,
-              selectedIconTheme: IconThemeData(color: Colors.yellow[200], size: 30),
+              selectedIconTheme:
+                  IconThemeData(color: Colors.yellow[200], size: 30),
               unselectedIconTheme: IconThemeData(
                 color: Colors.white,
               ),
@@ -131,16 +124,45 @@ class _DashboardState extends State<Dashboard> {
         width: 70,
         height: 70,
         child: FittedBox(
-          child: FloatingActionButton(
+          child:
+          // Check if keyboard if open if true hide FAB
+           MediaQuery.of(context).viewInsets.bottom != 0.0 ? null :
+          FloatingActionButton(
             backgroundColor: Color(0xffa2a5a4),
             child: Image.asset('assets/images/camera_icon.png'),
               onPressed: () {
                 setState(() {
-                  _selectedIndex = 2;
+                  getImage(source: ImageSource.camera);
+                  // _selectedIndex = 2;
                 });
               }),
         ),
       ),
     );
+  }
+
+  void getImage({required ImageSource source}) async {
+    File? imageFile;
+    final navigator = Navigator.of(context);
+    final file = await ImagePicker().pickImage(
+        source: source,
+        maxWidth: 640,
+        maxHeight: 480,
+        imageQuality: 100 //0 - 100
+        );
+
+    if (file?.path != null) {
+      setState(() {
+        imageFile = File(file!.path);
+      });
+    }
+
+    if (imageFile != null) {
+      Navigator.of(context).push(MaterialPageRoute(
+          builder: (context) => PresentFlower(scannedImage: imageFile, comingFrom: "scan_flower", flowerName: "colts_foot")));
+    } else {
+      Navigator.of(context)
+          .push(MaterialPageRoute(builder: (context) => Dashboard()));
+    }
   }
 }

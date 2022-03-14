@@ -7,3 +7,4 @@ const kDefaultPadding = 20.0;
 const kBarColor = Color.fromARGB(255, 39, 44, 41);
 const kButtonColor1 = Color.fromARGB(255, 143, 32, 49);
 const kAppBrownColor = Color.fromARGB(255, 87, 66, 54);
+const kAppPinkColor = Color.fromARGB(255, 255, 234, 234);

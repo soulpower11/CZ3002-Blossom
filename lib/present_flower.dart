@@ -1,10 +1,12 @@
 import 'dart:io';
 
 import 'package:blossom/backend/authentication.dart';
+import 'package:blossom/favorites.dart';
 import 'package:blossom/scan_flower.dart';
 import 'package:blossom/social_media.dart';
 import 'package:dart_jsonwebtoken/dart_jsonwebtoken.dart';
 import 'package:flutter/material.dart';
+import 'package:geocoding/geocoding.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:shimmer/shimmer.dart';
@@ -18,8 +20,16 @@ import 'package:image_watermark/image_watermark.dart';
 
 class PresentFlower extends StatefulWidget {
   final File? scannedImage;
+  final String comingFrom, flowerName;
+  final String? location;
 
-  const PresentFlower({Key? key, required this.scannedImage}) : super(key: key);
+  const PresentFlower(
+      {Key? key,
+      required this.scannedImage,
+      required this.comingFrom,
+      required this.flowerName,
+      this.location})
+      : super(key: key);
 
   @override
   State<PresentFlower> createState() => _PresentFlowerState();
@@ -35,13 +45,27 @@ class _PresentFlowerState extends State<PresentFlower> {
       numScans = "";
   File? scannedImage;
   File? databaseImage;
-  bool favourite = false;
+  late bool favourite = false;
   bool isLoading = true;
+  Future<Map?>? future;
+  late String email = "";
 
   @override
   void initState() {
     super.initState();
+    if (widget.comingFrom == "scan_flower") {
+      future = saveAndGetFlowerInfo(widget.flowerName);
+    } else if (widget.comingFrom == "view_history" ||
+        widget.comingFrom == "favorites" ||
+        widget.comingFrom == "memories") {
+      future = getFlowerInfo(widget.flowerName, widget.location);
+    }
     scannedImage = widget.scannedImage;
+    getEmail().then((value) {
+      setState(() => email = value);
+      getFavouriteToggle(widget.flowerName)
+          .then((value) => {setState(() => favourite = value)});
+    });
   }
 
   Future<Position> locatePosition() async {
@@ -76,16 +100,46 @@ class _PresentFlowerState extends State<PresentFlower> {
           'Location permissions are permanently denied, we cannot request permissions.');
     }
 
-    return await Geolocator.getCurrentPosition(desiredAccuracy: LocationAccuracy.high);
+    return await Geolocator.getCurrentPosition(
+        desiredAccuracy: LocationAccuracy.high);
   }
 
-  Future<Map?> getFlowerInfo(String name) async {
+  Future<Map?> saveAndGetFlowerInfo(String name) async {
     final jwt = await Authentication.verifyJWT();
     if (jwt != null) {
       Position position = await locatePosition();
-      await Flower().saveFlowerPhoto(scannedImage, name, jwt.payload["email"], position.latitude, position.longitude);
+      await Flower().saveFlowerPhoto(scannedImage, name, jwt.payload["email"],
+          position.latitude, position.longitude);
       databaseImage = await Flower().getStockFlowerImage(name);
-      return await Flower().getFlower(name);
+      List<Placemark> placemarks =
+          await placemarkFromCoordinates(position.latitude, position.longitude);
+      var flower = await Flower().getFlower(name);
+      flower!["location"] = placemarks[0].name;
+      return flower;
+    }
+  }
+
+  Future<Map?> getFlowerInfo(String name, String? location) async {
+    databaseImage = await Flower().getStockFlowerImage(name);
+    var flower = await Flower().getFlower(name);
+    if (location != null) {
+      flower!["location"] = location;
+    } else {
+      flower!["location"] = '';
+    }
+    return flower;
+  }
+
+  Future<bool> getFavouriteToggle(String name) async {
+    return await Flower().getOneFavourite(name, email);
+  }
+
+  Future<String> getEmail() async {
+    final jwt = await Authentication.verifyJWT();
+    if (jwt != null) {
+      return jwt.payload["email"];
+    } else {
+      return "";
     }
   }
 
@@ -93,53 +147,71 @@ class _PresentFlowerState extends State<PresentFlower> {
   Widget build(BuildContext context) {
     double height = MediaQuery.of(context).size.height;
 
-    return Scaffold(
-        appBar: AppBar(
-          iconTheme: IconThemeData(color: Colors.black),
-          leading: IconButton(
-            icon: Icon(Icons.arrow_back),
-            onPressed: () {
-              Navigator.of(context)
-                  .push(MaterialPageRoute(builder: (context) => ScanFlower()));
-            },
-          ),
-          backgroundColor: Colors.white,
-          actions: [
-            IconButton(
-              icon: favourite
-                  ? Icon(Icons.favorite, color: kButtonColor1)
-                  : Icon(Icons.favorite_border),
-              onPressed: () async {
-                setState(() => favourite = !favourite);
+    return WillPopScope(
+      onWillPop: () async {
+        print("Back Button is pressed.");
+        // Navigator.of(context)
+        //     .push(new MaterialPageRoute(builder: (context) => ScanFlower()))
+        //     .then((value) => setState(() {}));
+        Navigator.pop(context);
+        return true;
+      },
+      child: Scaffold(
+          appBar: AppBar(
+            iconTheme: IconThemeData(color: Colors.black),
+            leading: IconButton(
+              icon: Icon(Icons.arrow_back),
+              onPressed: () {
+                Navigator.pop(context);
+                // Navigator.of(context)
+                //     .push(new MaterialPageRoute(
+                //         builder: (context) => ScanFlower()))
+                //     .then((value) => setState(() {}));
               },
             ),
-            IconButton(
-              icon: Icon(Icons.share),
-              onPressed: () async {
-                share(flowerName, scannedImage);
-                print('Ran share');
-              },
-            )
-          ],
-        ),
-        body: FutureBuilder(
-            future: getFlowerInfo("colts_foot"),
-            builder: (context, snapshot) {
-              if (snapshot.connectionState == ConnectionState.done) {
-                var flower = snapshot.data as Map<dynamic, dynamic>;
+            backgroundColor: Colors.white,
+            actions: [
+              IconButton(
+                icon: favourite
+                    ? Icon(Icons.favorite, color: kButtonColor1)
+                    : Icon(Icons.favorite_border),
+                onPressed: () async {
+                  setState(() => favourite = !favourite);
+                  Flower().toggleFavourite(
+                      widget.flowerName, flowerName, email, favourite);
+                },
+              ),
+              IconButton(
+                icon: Icon(Icons.share),
+                onPressed: () async {
+                  share(flowerName, scannedImage);
+                  print('Ran share');
+                },
+              )
+            ],
+          ),
+          body: FutureBuilder(
+              future: future,
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.done) {
+                  var flower = snapshot.data as Map<dynamic, dynamic>;
+                  flowerName = flower["display_name"];
 
+                  return PresentFlowerScrollView(
+                      flower: flower,
+                      databaseImage: databaseImage,
+                      scannedImage: scannedImage,
+                      comeFrom: widget.comingFrom,
+                      isLoading: false);
+                }
                 return PresentFlowerScrollView(
-                    flower: flower,
+                    flower: const {},
                     databaseImage: databaseImage,
                     scannedImage: scannedImage,
-                    isLoading: false);
-              }
-              return PresentFlowerScrollView(
-                  flower: const {},
-                  databaseImage: databaseImage,
-                  scannedImage: scannedImage,
-                  isLoading: true);
-            }));
+                    comeFrom: widget.comingFrom,
+                    isLoading: true);
+              })),
+    );
   }
 }
 
@@ -169,12 +241,14 @@ class PresentFlowerScrollView extends StatelessWidget {
   Map<dynamic, dynamic> flower;
   File? scannedImage;
   File? databaseImage;
+  String comeFrom;
 
   PresentFlowerScrollView(
       {Key? key,
       required this.flower,
       required this.scannedImage,
       required this.databaseImage,
+      required this.comeFrom,
       this.isLoading = false})
       : super(key: key);
 
@@ -212,6 +286,8 @@ class PresentFlowerScrollView extends StatelessWidget {
                               nativeTo: '',
                               numScans: '',
                               scientificName: '',
+                              location: '',
+                              comeFrom: comeFrom,
                               isLoading: isLoading,
                             )),
                       ],
@@ -272,6 +348,8 @@ class PresentFlowerScrollView extends StatelessWidget {
                               nativeTo: flower["native_to"],
                               numScans: flower["num_scans"].toString(),
                               scientificName: flower["scientific_name_origin"],
+                              location: flower["location"],
+                              comeFrom: comeFrom,
                               isLoading: isLoading,
                             )),
                       ],
@@ -304,7 +382,7 @@ class PresentFlowerScrollView extends StatelessWidget {
 
 class FlowerInfo extends StatelessWidget {
   final bool isLoading;
-  String flowerName, scientificName, nativeTo, numScans;
+  String flowerName, scientificName, nativeTo, numScans, location, comeFrom;
 
   FlowerInfo(
       {Key? key,
@@ -312,6 +390,8 @@ class FlowerInfo extends StatelessWidget {
       required this.scientificName,
       required this.nativeTo,
       required this.numScans,
+      required this.location,
+      required this.comeFrom,
       this.isLoading = false})
       : super(key: key);
 
@@ -399,6 +479,19 @@ class FlowerInfo extends StatelessWidget {
                     color: Colors.grey[300],
                   ),
                 ),
+                SizedBox(height: 8),
+                comeFrom != 'favorites'
+                    ? Shimmer.fromColors(
+                        baseColor: Colors.grey[300]!,
+                        highlightColor: Colors.grey[100]!,
+                        child: Container(
+                          padding: EdgeInsets.all(kDefaultPadding),
+                          height: 50.0,
+                          width: 162.0,
+                          color: Colors.grey[300],
+                        ),
+                      )
+                    : Row(),
               ],
             ),
           )
@@ -418,6 +511,31 @@ class FlowerInfo extends StatelessWidget {
                 AppTextNormal(
                     size: 12, text: "Native to", color: kAppBrownColor),
                 AppTextBold(size: 14, text: nativeTo + '\n'),
+                comeFrom != 'favorites'
+                    ? SizedBox(
+                        height: 50,
+                        child: Container(
+                            padding: EdgeInsets.all(5),
+                            decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(15),
+                                color: kAppPinkColor),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.start,
+                              children: [
+                                Padding(
+                                    padding:
+                                        EdgeInsets.only(left: 5, right: 10),
+                                    child: Icon(Icons.pin_drop_outlined)),
+                                Column(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      AppTextNormal(
+                                          size: 12, text: "I was taken at"),
+                                      AppTextBold(size: 14, text: location)
+                                    ])
+                              ],
+                            )))
+                    : Row()
               ],
             ),
           );
