@@ -159,7 +159,7 @@ class _DashboardState extends State<Dashboard> {
 
     if (imageFile != null) {
       Navigator.of(context).push(MaterialPageRoute(
-          builder: (context) => PresentFlower(scannedImage: imageFile)));
+          builder: (context) => PresentFlower(scannedImage: imageFile, comingFrom: "scan_flower", flowerName: "colts_foot")));
     } else {
       Navigator.of(context)
           .push(MaterialPageRoute(builder: (context) => Dashboard()));

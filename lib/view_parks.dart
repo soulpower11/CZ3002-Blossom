@@ -69,21 +69,22 @@ class _ParksState extends State<Parks> {
   Future<void> _onMapCreated(GoogleMapController controller) async {
     mapController = controller;
 
-
     final parkLocations = await locations.getParksLocation();
-    setState((){
+    setState(() {
       _markers.clear();
       for (final feature in parkLocations.features) {
         var html = feature.properties.Description;
         var name = html.substring(html.indexOf("<th>NAME</th> <td>") + 18,
             html.indexOf("<th>PHOTOURL</th>") - 27);
 
-        var address = html.substring(html.indexOf("<th>DESCRIPTION<\/th> <td>") + 25,
+        var address = html.substring(
+            html.indexOf("<th>DESCRIPTION<\/th> <td>") + 25,
             html.indexOf("<th>ADDRESSSTREETNAME</th>") - 34);
-      
+
         final marker = Marker(
           markerId: MarkerId(name),
-          position: LatLng(feature.geometry.coordinates[1], feature.geometry.coordinates[0]),
+          position: LatLng(
+              feature.geometry.coordinates[1], feature.geometry.coordinates[0]),
           infoWindow: InfoWindow(
             title: name,
             snippet: address,
@@ -98,10 +99,6 @@ class _ParksState extends State<Parks> {
   Widget build(BuildContext context) {
     return MaterialApp(
       home: Scaffold(
-        appBar: AppBar(
-          title: const Text('Parks'),
-          backgroundColor: Colors.blue,
-        ),
         body: GoogleMap(
           onMapCreated: (GoogleMapController controller) {
             _onMapCreated(controller);

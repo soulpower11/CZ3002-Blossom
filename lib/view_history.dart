@@ -1,6 +1,8 @@
 import 'dart:ffi';
 
+import 'package:blossom/components/app_text.dart';
 import 'package:blossom/memories.dart';
+import 'package:blossom/present_flower.dart';
 import 'package:dart_jsonwebtoken/dart_jsonwebtoken.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -150,19 +152,18 @@ class _ViewHistoryState extends State<ViewHistory> {
         appBar: AppBar(
           title: const Text(''),
           centerTitle: true,
+          backgroundColor: Colors.white,
+          iconTheme: const IconThemeData(color: Colors.black),
           leading: _selectionButton,
           actions: _buttons,
         ),
         body: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           context.watch<ViewHistoryProvider>().haveMemories
               ? Padding(
-                  padding: EdgeInsets.only(top: 15, bottom: 30, left: 15),
+                  padding: EdgeInsets.only(top: 15, bottom: 30, left: 20),
                   child: Container(
                       alignment: Alignment.topLeft,
-                      child: Text(
-                        "Memories",
-                        style: TextStyle(fontSize: 26),
-                      )))
+                      child: AppTextBold(text: "Memories", size: 26)))
               : Row(),
           context.watch<ViewHistoryProvider>().haveMemories
               ? SizedBox(
@@ -191,13 +192,10 @@ class _ViewHistoryState extends State<ViewHistory> {
               ? Divider(height: 20)
               : Row(),
           Padding(
-              padding: EdgeInsets.only(top: 15, bottom: 30, left: 15),
+              padding: EdgeInsets.only(top: 15, bottom: 30, left: 20),
               child: Container(
                   alignment: Alignment.topLeft,
-                  child: Text(
-                    "Past Captures",
-                    style: TextStyle(fontSize: 26),
-                  ))),
+                  child: AppTextBold(text: "Past Captures", size: 26))),
           Expanded(
             child: FutureBuilder(
               future: historyFuture,
@@ -561,7 +559,14 @@ class _HistoryGridViewState extends State<HistoryGridView> {
               } else {
                 return GridTile(
                     child: GestureDetector(
-                  onTap: () {},
+                  onTap: () {
+                    Navigator.of(context).push(MaterialPageRoute(
+                        builder: (context) => PresentFlower(
+                            scannedImage: widget.items[index]!["file"],
+                            comingFrom: "view_history",
+                            flowerName: widget.items[index]!["flower_name"],
+                            location: widget.items[index]!["location"])));
+                  },
                   onLongPress: () {
                     // context
                     //     .read<ViewHistoryProvider>()

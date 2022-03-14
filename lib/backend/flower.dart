@@ -5,6 +5,7 @@ import 'dart:typed_data';
 import 'package:blossom/backend/database.dart';
 import 'package:mongo_dart/mongo_dart.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:geocoding/geocoding.dart';
 
 class Flower {
   Future<Map?> getFlower(String flower_name) async {
@@ -54,14 +55,14 @@ class Flower {
         ModifierBuilder().inc('num_scans', 1));
 
     var flower = await flowersCollection.findOne(where.eq('flower_name', flower_name));
+    List<Placemark> placemarks =await placemarkFromCoordinates(lat, long);
 
     var res = await scannedHistory.insert({
       "email": email,
       "display_name": flower!["display_name"],
       "flower_name": flower["flower_name"],
       "filename": filename,
-      "lat": lat,
-      "long": long
+      "location": placemarks[0].name,
     });
 
     db.close();
@@ -103,11 +104,11 @@ class Flower {
     final Directory directory = await getTemporaryDirectory();
 
     List<Map?> userFavourites = [];
-    var favourites = await favouritedFlowers.find(where.eq('email', email)).toList();
+    var favourites = await favouritedFlowers.find(where.eq('email', email).eq('favourited', true)).toList();
 
     for (var favourite in favourites) {
-      var gridOut = await gridFS.findOne(where.eq('filename', favourite["filename"]));
-      File image = File(directory.path + "/" + favourite["filename"]);
+      var gridOut = await gridFS.findOne(where.eq('filename', favourite["flower_name"] + ".jpg"));
+      File image = File(directory.path + "/" + favourite["flower_name"]);
       await gridOut?.writeToFile(image);
       userFavourites.add({
         "display_name":favourite["display_name"],
@@ -137,6 +138,7 @@ class Flower {
       userHistory.add({
         "display_name":history["display_name"],
         "flower_name": history["flower_name"],
+        "location": history["location"],
         "file": image,
       });
     }
@@ -156,6 +158,7 @@ class Flower {
       photo_list.add({
         "display_name":photos[index]!["display_name"],
         "flower_name": photos[index]!["flower_name"],
+        "location": photos[index]!["location"],
         "filename": photos[index]!["file"].path.split("/").last,
       });
     }
@@ -191,6 +194,7 @@ class Flower {
         memoryPhotos.add({
           "display_name":memory["photo_list"][index]["display_name"],
           "flower_name": memory["photo_list"][index]["flower_name"],
+          "location": memory["photo_list"][index]["location"],
           "file": image,
           });
       }

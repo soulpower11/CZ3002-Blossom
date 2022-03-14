@@ -1,5 +1,7 @@
 import 'dart:io';
 
+import 'package:blossom/components/app_text.dart';
+import 'package:blossom/present_flower.dart';
 import 'package:dart_jsonwebtoken/dart_jsonwebtoken.dart';
 import 'package:flutter/material.dart';
 import 'package:path_provider/path_provider.dart';
@@ -33,6 +35,8 @@ class _MemoriesState extends State<Memories> {
         appBar: AppBar(
           title: const Text(''),
           centerTitle: true,
+          backgroundColor: Colors.white,
+          iconTheme: const IconThemeData(color: Colors.black),
           actions: [
             IconButton(
               icon: Icon(Icons.share),
@@ -47,13 +51,10 @@ class _MemoriesState extends State<Memories> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: <Widget>[
               Padding(
-                  padding: EdgeInsets.only(top: 15, bottom: 30, left: 15),
+                  padding: EdgeInsets.only(top: 15, bottom: 30, left: 20),
                   child: Container(
                       alignment: Alignment.topLeft,
-                      child: Text(
-                        widget.name,
-                        style: TextStyle(fontSize: 26),
-                      ))),
+                      child: AppTextBold(text: widget.name, size: 26))),
               Expanded(child: PhotoGridView(items: widget.items))
             ]));
   }
@@ -80,8 +81,15 @@ class PhotoGridView extends StatelessWidget {
                 SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 2),
             itemCount: items.length,
             itemBuilder: (context, index) {
-              return new GestureDetector(
-                onTap: () {},
+              return GestureDetector(
+                onTap: () {
+                  Navigator.of(context).push(MaterialPageRoute(
+                      builder: (context) => PresentFlower(
+                          scannedImage: items[index]!["file"],
+                          comingFrom: "memories",
+                          flowerName: items[index]!["flower_name"],
+                          location: items[index]!["location"])));
+                },
                 child: Column(
                   children: [
                     Container(
