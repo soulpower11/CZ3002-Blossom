@@ -7,7 +7,8 @@ import 'package:image_picker/image_picker.dart';
 import 'home.dart';
 
 class ScanFlower extends StatefulWidget {
-  const ScanFlower({Key? key}) : super(key: key);
+  final Function setPage;
+  const ScanFlower({Key? key, required this.setPage}) : super(key: key);
 
   @override
   State<ScanFlower> createState() => _ScanFlowerState();
@@ -104,8 +105,10 @@ class _ScanFlowerState extends State<ScanFlower> {
     }
 
     if (imageFile != null) {
-      Navigator.of(context)
-          .push(MaterialPageRoute(builder: (context) => PresentFlower(scannedImage: imageFile, comingFrom: "scan_flower", flowerName: "colts_foot")));
+      widget.setPage(PresentFlower(
+          scannedImage: imageFile,
+          comingFrom: "scan_flower",
+          flowerName: "colts_foot"));
     } else {
       Navigator.of(context)
           .push(MaterialPageRoute(builder: (context) => Dashboard()));

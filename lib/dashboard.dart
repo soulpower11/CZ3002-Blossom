@@ -93,7 +93,7 @@ class _PageState extends State<Page> {
     List<Widget> _pages = <Widget>[
       LandingPage(setPage: setPage),
       Favorites(),
-      ScanFlower(),
+      ScanFlower(setPage: setPage,),
       ViewHistory(),
       Parks(),
     ];
@@ -115,14 +115,13 @@ class _PageState extends State<Page> {
       }
 
       if (imageFile != null) {
-        Navigator.of(context).push(MaterialPageRoute(
-            builder: (context) => PresentFlower(
-                scannedImage: imageFile,
-                comingFrom: "scan_flower",
-                flowerName: "colts_foot")));
-      } else {
-        Navigator.of(context)
-            .push(MaterialPageRoute(builder: (context) => Dashboard()));
+        setPage(PresentFlower(
+            scannedImage: imageFile,
+            comingFrom: "scan_flower",
+            flowerName: "colts_foot"));
+      // } else {
+      //   Navigator.of(context)
+      //       .push(MaterialPageRoute(builder: (context) => Dashboard()));
       }
     }
 
