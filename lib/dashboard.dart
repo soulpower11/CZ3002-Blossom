@@ -119,9 +119,9 @@ class _PageState extends State<Page> {
             scannedImage: imageFile,
             comingFrom: "scan_flower",
             flowerName: "colts_foot"));
-      // } else {
-      //   Navigator.of(context)
-      //       .push(MaterialPageRoute(builder: (context) => Dashboard()));
+      } else {
+        Navigator.of(context)
+            .push(MaterialPageRoute(builder: (context) => Dashboard()));
       }
     }
 
