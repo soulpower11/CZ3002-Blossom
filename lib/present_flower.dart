@@ -147,71 +147,51 @@ class _PresentFlowerState extends State<PresentFlower> {
   Widget build(BuildContext context) {
     double height = MediaQuery.of(context).size.height;
 
-    return WillPopScope(
-      onWillPop: () async {
-        print("Back Button is pressed.");
-        // Navigator.of(context)
-        //     .push(new MaterialPageRoute(builder: (context) => ScanFlower()))
-        //     .then((value) => setState(() {}));
-        Navigator.pop(context);
-        return true;
-      },
-      child: Scaffold(
-          appBar: AppBar(
-            iconTheme: IconThemeData(color: Colors.black),
-            leading: IconButton(
-              icon: Icon(Icons.arrow_back),
-              onPressed: () {
-                Navigator.pop(context);
-                // Navigator.of(context)
-                //     .push(new MaterialPageRoute(
-                //         builder: (context) => ScanFlower()))
-                //     .then((value) => setState(() {}));
+    return Scaffold(
+        appBar: AppBar(
+          iconTheme: IconThemeData(color: Colors.black),
+          backgroundColor: Colors.white,
+          actions: [
+            IconButton(
+              icon: favourite
+                  ? Icon(Icons.favorite, color: kButtonColor1)
+                  : Icon(Icons.favorite_border),
+              onPressed: () async {
+                setState(() => favourite = !favourite);
+                Flower().toggleFavourite(
+                    widget.flowerName, flowerName, email, favourite);
               },
             ),
-            backgroundColor: Colors.white,
-            actions: [
-              IconButton(
-                icon: favourite
-                    ? Icon(Icons.favorite, color: kButtonColor1)
-                    : Icon(Icons.favorite_border),
-                onPressed: () async {
-                  setState(() => favourite = !favourite);
-                  Flower().toggleFavourite(
-                      widget.flowerName, flowerName, email, favourite);
-                },
-              ),
-              IconButton(
-                icon: Icon(Icons.share),
-                onPressed: () async {
-                  share(flowerName, scannedImage);
-                  print('Ran share');
-                },
-              )
-            ],
-          ),
-          body: FutureBuilder(
-              future: future,
-              builder: (context, snapshot) {
-                if (snapshot.connectionState == ConnectionState.done) {
-                  var flower = snapshot.data as Map<dynamic, dynamic>;
-                  flowerName = flower["display_name"];
+            IconButton(
+              icon: Icon(Icons.share),
+              onPressed: () async {
+                share(flowerName, scannedImage);
+                print('Ran share');
+              },
+            )
+          ],
+        ),
+        body: FutureBuilder(
+            future: future,
+            builder: (context, snapshot) {
+              if (snapshot.connectionState == ConnectionState.done) {
+                var flower = snapshot.data as Map<dynamic, dynamic>;
+                flowerName = flower["display_name"];
 
-                  return PresentFlowerScrollView(
-                      flower: flower,
-                      databaseImage: databaseImage,
-                      scannedImage: scannedImage,
-                      comeFrom: widget.comingFrom,
-                      isLoading: false);
-                }
                 return PresentFlowerScrollView(
-                    flower: const {},
+                    flower: flower,
                     databaseImage: databaseImage,
                     scannedImage: scannedImage,
                     comeFrom: widget.comingFrom,
-                    isLoading: true);
-              })),
-    );
+                    isLoading: false);
+              }
+              return PresentFlowerScrollView(
+                  flower: const {},
+                  databaseImage: databaseImage,
+                  scannedImage: scannedImage,
+                  comeFrom: widget.comingFrom,
+                  isLoading: true);
+            }));
   }
 }
 

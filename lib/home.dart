@@ -41,11 +41,10 @@ class LandingPage extends StatelessWidget {
       }
 
       if (imageFile != null) {
-        Navigator.of(context).push(MaterialPageRoute(
-            builder: (context) => PresentFlower(
+        setPage(PresentFlower(
                 scannedImage: imageFile,
                 comingFrom: "scan_flower",
-                flowerName: "colts_foot")));
+                flowerName: "colts_foot"));
       } else {
         Navigator.of(context)
             .push(MaterialPageRoute(builder: (context) => Dashboard()));
