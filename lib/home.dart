@@ -7,12 +7,15 @@ import 'package:blossom/redeem_voucher.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/material.dart';
 import 'dart:ui';
+import 'package:provider/provider.dart';
 
 import 'package:image_picker/image_picker.dart';
 
 import 'dashboard.dart';
 
 class LandingPage extends StatelessWidget {
+  final Function(Widget) setPage;
+  const LandingPage({Key? key, required this.setPage}) : super(key: key);
   @override
   Widget build(BuildContext context) {
     var name = 'Jane';
@@ -69,8 +72,7 @@ class LandingPage extends StatelessWidget {
                       Container(
                         child: IconButton(
                           onPressed: () {
-                            Navigator.of(context).push(MaterialPageRoute(
-                                builder: (context) => const Profile()));
+                            setPage(Profile());
                           },
                           iconSize: 40,
                           icon: Icon(Icons.account_circle_rounded),
@@ -207,10 +209,7 @@ class LandingPage extends StatelessWidget {
                                     )),
                                 ElevatedButton(
                                   onPressed: () {
-                                    Navigator.of(context).push(
-                                        MaterialPageRoute(
-                                            builder: (context) =>
-                                                const RedeemVoucher()));
+                                    setPage(RedeemVoucher());
                                   },
                                   child: const Text(
                                     'Redeem',

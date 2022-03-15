@@ -4,29 +4,25 @@ import 'package:blossom/constants.dart';
 import 'package:blossom/favorites.dart';
 import 'package:blossom/home.dart';
 import 'package:blossom/present_flower.dart';
+import 'package:blossom/profile.dart';
+import 'package:blossom/redeem_voucher.dart';
 import 'package:blossom/scan_flower.dart';
 import 'package:blossom/view_history.dart';
 import 'package:blossom/view_parks.dart';
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:provider/provider.dart';
 
 class Dashboard extends StatefulWidget {
-  const Dashboard({Key? key}) : super(key: key);
+  final Widget? widget;
+  const Dashboard({Key? key, this.widget}) : super(key: key);
 
   @override
   State<Dashboard> createState() => _DashboardState();
 }
 
 class _DashboardState extends State<Dashboard> {
-  static List<Widget> _pages = <Widget>[
-    LandingPage(),
-    Favorites(),
-    ScanFlower(),
-    ViewHistory(),
-    Parks(),
-  ];
-
   int _selectedIndex = 0;
 
   @override
@@ -68,29 +64,87 @@ class _DashboardState extends State<Dashboard> {
     }
   }
 
-  void _onItemTapped(int index) {
+  @override
+  Widget build(BuildContext context) {
+    return ChangeNotifierProvider<ValueNotifier<int>>.value(
+      value: ValueNotifier<int>(0),
+      child: Page(widget: widget.widget),
+    );
+  }
+}
+
+class Page extends StatefulWidget {
+  Widget? widget;
+  Page({Key? key, this.widget}) : super(key: key);
+
+  @override
+  State<Page> createState() => _PageState();
+}
+
+class _PageState extends State<Page> {
+  void setPage(Widget? widget) {
     setState(() {
-      _selectedIndex = index;
+      this.widget.widget = widget;
     });
   }
 
-  var items = const <BottomNavigationBarItem>[
-    BottomNavigationBarItem(icon: Icon(Icons.home_outlined), label: "Home"),
-    BottomNavigationBarItem(
-        icon: Icon(Icons.favorite_border), label: "Favorites"),
-    BottomNavigationBarItem(
-        icon: Icon(Icons.photo_camera, color: Colors.transparent), label: ""),
-    BottomNavigationBarItem(
-        icon: Icon(Icons.book_online_outlined), label: "History"),
-    BottomNavigationBarItem(icon: Icon(Icons.map_outlined), label: "Parks"),
-  ];
-
   @override
   Widget build(BuildContext context) {
+    List<Widget> _pages = <Widget>[
+      LandingPage(setPage: setPage),
+      Favorites(),
+      ScanFlower(),
+      ViewHistory(),
+      Parks(),
+    ];
+
+    void getImage({required ImageSource source}) async {
+      File? imageFile;
+      final navigator = Navigator.of(context);
+      final file = await ImagePicker().pickImage(
+          source: source,
+          maxWidth: 640,
+          maxHeight: 480,
+          imageQuality: 100 //0 - 100
+          );
+
+      if (file?.path != null) {
+        setState(() {
+          imageFile = File(file!.path);
+        });
+      }
+
+      if (imageFile != null) {
+        Navigator.of(context).push(MaterialPageRoute(
+            builder: (context) => PresentFlower(
+                scannedImage: imageFile,
+                comingFrom: "scan_flower",
+                flowerName: "colts_foot")));
+      } else {
+        Navigator.of(context)
+            .push(MaterialPageRoute(builder: (context) => Dashboard()));
+      }
+    }
+
+    void _onItemTapped(int index) {
+      setPage(null);
+      Provider.of<ValueNotifier<int>>(context, listen: false).value = index;
+    }
+
+    var items = const <BottomNavigationBarItem>[
+      BottomNavigationBarItem(icon: Icon(Icons.home_outlined), label: "Home"),
+      BottomNavigationBarItem(
+          icon: Icon(Icons.favorite_border), label: "Favorites"),
+      BottomNavigationBarItem(
+          icon: Icon(Icons.photo_camera, color: Colors.transparent), label: ""),
+      BottomNavigationBarItem(
+          icon: Icon(Icons.book_online_outlined), label: "History"),
+      BottomNavigationBarItem(icon: Icon(Icons.map_outlined), label: "Parks"),
+    ];
+
     return Scaffold(
-      body: Center(
-        child: _pages.elementAt(_selectedIndex), //New
-      ),
+      body: widget.widget ??
+          Center(child: _pages[Provider.of<ValueNotifier<int>>(context).value]),
       bottomNavigationBar: Container(
         // add a top right border radius
         decoration: BoxDecoration(
@@ -104,7 +158,7 @@ class _DashboardState extends State<Dashboard> {
             topRight: Radius.circular(25),
           ),
           child: BottomNavigationBar(
-              currentIndex: _selectedIndex, //New
+              currentIndex: Provider.of<ValueNotifier<int>>(context).value,
               onTap: _onItemTapped,
               type: BottomNavigationBarType.fixed,
               backgroundColor: Colors.black,
@@ -125,44 +179,20 @@ class _DashboardState extends State<Dashboard> {
         height: 70,
         child: FittedBox(
           child:
-          // Check if keyboard if open if true hide FAB
-           MediaQuery.of(context).viewInsets.bottom != 0.0 ? null :
-          FloatingActionButton(
-            backgroundColor: Color(0xffa2a5a4),
-            child: Image.asset('assets/images/camera_icon.png'),
-              onPressed: () {
-                setState(() {
-                  getImage(source: ImageSource.camera);
-                  // _selectedIndex = 2;
-                });
-              }),
+              // Check if keyboard if open if true hide FAB
+              MediaQuery.of(context).viewInsets.bottom != 0.0
+                  ? null
+                  : FloatingActionButton(
+                      backgroundColor: Color(0xffa2a5a4),
+                      child: Image.asset('assets/images/camera_icon.png'),
+                      onPressed: () {
+                        setState(() {
+                          getImage(source: ImageSource.camera);
+                          // _selectedIndex = 2;
+                        });
+                      }),
         ),
       ),
     );
-  }
-
-  void getImage({required ImageSource source}) async {
-    File? imageFile;
-    final navigator = Navigator.of(context);
-    final file = await ImagePicker().pickImage(
-        source: source,
-        maxWidth: 640,
-        maxHeight: 480,
-        imageQuality: 100 //0 - 100
-        );
-
-    if (file?.path != null) {
-      setState(() {
-        imageFile = File(file!.path);
-      });
-    }
-
-    if (imageFile != null) {
-      Navigator.of(context).push(MaterialPageRoute(
-          builder: (context) => PresentFlower(scannedImage: imageFile, comingFrom: "scan_flower", flowerName: "colts_foot")));
-    } else {
-      Navigator.of(context)
-          .push(MaterialPageRoute(builder: (context) => Dashboard()));
-    }
   }
 }
