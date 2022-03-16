@@ -1,7 +1,11 @@
 import 'package:blossom/backend/authentication.dart';
+import 'package:blossom/redeem_voucher.dart';
 import 'package:blossom/splash/welcome_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:blossom/components/app_text.dart';
+import 'package:blossom/constants.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 class Profile extends StatefulWidget {
   const Profile({Key? key}) : super(key: key);
@@ -49,26 +53,21 @@ class _ProfileState extends State<Profile> {
               Row(children: [
                 const Icon(
                   Icons.account_circle_outlined,
-                  size: 60,
+                  size: 70,
+                  color: kTextColor,
                 ), //profile photo
-                Text(
-                  accountName!,
-                  style: TextStyle(
-                    fontWeight: FontWeight.bold,
-                    fontSize: 30,
-                  ),
+                AppTextBold(
+                  text: accountName!,
+                  size: 35,
                 ),
               ]),
               Container(
                 child: Column(
                   children: [
-                    const Text("My Points"),
-                    Text(
-                      pointNumber.toString() + " pts",
-                      style: TextStyle(
-                        fontWeight: FontWeight.bold,
-                        fontSize: 30,
-                      ),
+                    AppTextNormal(text: "My Points", size: 17),
+                    AppTextBold(
+                      text: pointNumber.toString() + " pts",
+                      size: 30,
                     ),
                   ],
                 ),
@@ -77,18 +76,13 @@ class _ProfileState extends State<Profile> {
           ),
           Row(
             children: [
-              const Text(
-                "Email: ",
-                style: TextStyle(
-                  fontWeight: FontWeight.bold,
-                  fontSize: 20,
-                ),
+              AppTextBold(
+                text: "Email: ",
+                size: 20,
               ),
-              Text(
-                emailAddress!,
-                style: const TextStyle(
-                  fontSize: 20,
-                ),
+              AppTextNormal(
+                text: emailAddress!,
+                size: 20,
               ),
             ],
           )
@@ -111,18 +105,33 @@ class _ProfileState extends State<Profile> {
             ),
           ),
         ),
+        const SizedBox(width: 10), //add spacing
         Center(
           //voucher info
-          child: Text("Voucher " +
-              (index + 1).toString() +
-              " info\n" +
-              points.toString() +
-              " points"),
+          child: AppTextNormal(
+            text: "Voucher " +
+                (index + 1).toString() +
+                " info\n" +
+                points.toString() +
+                " points",
+            size: 15,
+          ),
         ),
-        Center(
-          //redeem button
-          child: Text(voucherCode),
+        const SizedBox(width: 10),
+        //vouchercode
+        ////Center(
+        //child:
+        Expanded(
+          child: SelectableText(
+            voucherCode,
+            style: GoogleFonts.montserrat(
+                textStyle: const TextStyle(
+                    fontSize: 15,
+                    color: kTextColor,
+                    fontWeight: FontWeight.w400)),
+          ), //selectable so that user can copy the code ,)
         ),
+        //),
       ]);
     }
 
@@ -133,14 +142,9 @@ class _ProfileState extends State<Profile> {
           Align(
             //to make text in column left-aligned
             alignment: Alignment.centerLeft,
-            child: Container(
-              child: const Text(
-                "My Vouchers",
-                style: TextStyle(
-                  fontWeight: FontWeight.bold,
-                  fontSize: 20,
-                ),
-              ),
+            child: AppTextBold(
+              text: "My Vouchers",
+              size: 20,
             ),
           ),
           Expanded(
@@ -157,10 +161,17 @@ class _ProfileState extends State<Profile> {
           Center(
             child: ElevatedButton(
               onPressed: () {
-                Navigator.pushNamed(context,
-                    'RedeemVoucher'); // Respond to button press: go to Redeem Voucher page
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) => const RedeemVoucher()),
+                ); // Respond to button press: go to Redeem Voucher page
               },
               child: const Text('Redeem More >'),
+              style: ElevatedButton.styleFrom(
+                primary: kButtonColor1, // Background color
+                onPrimary: Colors.white, // Text Color (Foreground color)
+              ),
             ),
           ),
         ],
@@ -176,12 +187,35 @@ class _ProfileState extends State<Profile> {
         actions: [
           IconButton(
             icon: Icon(Icons.logout_rounded),
-            onPressed: () async {
-              final prefs = await SharedPreferences.getInstance();
-              final success = await prefs.remove('jwt');
-              Navigator.of(context).pushAndRemoveUntil(
-                  MaterialPageRoute(builder: (context) => WelcomeScreen()),
-                  (Route<dynamic> route) => false);
+            onPressed: () {
+              showDialog(
+                context: context,
+                //barrierDismissible: false,//user must tap button to dismiss
+                builder: (_) => AlertDialog(
+                  title: const Text("Confirm"),
+                  content: const Text('Confirm to log out?'),
+                  actions: [
+                    TextButton(
+                      child: const Text("Cancel"),
+                      onPressed: () => Navigator.pop(context, 'Cancel'),
+                    ),
+                    TextButton(
+                      child: const Text("Confirm to log out"),
+                      onPressed: () async {
+                        //log out
+                        final prefs = await SharedPreferences.getInstance();
+                        final success = await prefs.remove('jwt');
+                        Navigator.of(context).pushAndRemoveUntil(
+                            MaterialPageRoute(
+                                builder: (context) => WelcomeScreen()),
+                            (Route<dynamic> route) => false);
+                      },
+                    ),
+                  ],
+                  elevation: 24.0,
+                  //backgroundColor:
+                ),
+              );
             },
           )
         ],
