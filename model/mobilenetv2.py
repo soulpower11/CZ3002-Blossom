@@ -8,6 +8,7 @@ import os
 
 
 #Directories - NEED TO BE CHANGED BASED ON WHERE THE IMGS AND THE WEIGHTS ARE STORED
+#Most important paths are - SCANNED_IMG & WHOLE_MODEL
 RUNS_DIR = "/Users/sankeerthana/Documents/NTU/YEAR_3/CZ3002_ASE/Lab/runs"
 TEST_TRIAL_IMGS = "/Users/sankeerthana/Documents/NTU/YEAR_3/CZ3002_ASE/Lab/test_trial_imgs"
 SCANNED_IMG = os.path.join(TEST_TRIAL_IMGS,"scanned_flower_7.jpeg")
