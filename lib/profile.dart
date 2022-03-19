@@ -1,4 +1,6 @@
 import 'package:blossom/backend/authentication.dart';
+import 'package:blossom/backend/points.dart';
+import 'package:blossom/backend/vouchers.dart';
 import 'package:blossom/redeem_voucher.dart';
 import 'package:blossom/splash/welcome_screen.dart';
 import 'package:flutter/material.dart';
@@ -15,33 +17,30 @@ class Profile extends StatefulWidget {
 }
 
 class _ProfileState extends State<Profile> {
-  String? accountName = "";
-  var pointNumber = 40; //get user's number of points
-  String? emailAddress = ""; //get user's email address
-
   @override
   void initState() {
     super.initState();
-    getAccountInfo().then(((accountInfo) {
-      setState(() {
-        accountName = accountInfo["username"];
-        emailAddress = accountInfo["email"];
-      });
-    }));
   }
 
-  Future<Map<String, String>> getAccountInfo() async {
+  Future<Map?> getAccountInfo() async {
     final jwt = await Authentication.verifyJWT();
-    Map<String, String> accountInfo = {
-      "username": jwt!.payload["username"],
-      "email": jwt.payload["email"]
+    int points = await Points().getPoints(jwt!.payload["email"]);
+    List? vouchers = await Vouchers().getUserVouchers(jwt.payload["email"]);
+    Map? accountInfo = {
+      "username": jwt.payload["username"],
+      "email": jwt.payload["email"],
+      "points": points
+      "vouchers": vouchers
     };
     return accountInfo;
   }
 
   @override
   Widget build(BuildContext context) {
-    Widget profileSection = Container(
+    
+    Widget profileSection(String accountName, int pointNumber, String emailAddress) {
+      
+      return Container(
       padding: const EdgeInsets.all(30.0),
       height: 180,
       child: Column(
@@ -57,7 +56,7 @@ class _ProfileState extends State<Profile> {
                   color: kTextColor,
                 ), //profile photo
                 AppTextBold(
-                  text: accountName!,
+                  text: accountName,
                   size: 35,
                 ),
               ]),
@@ -81,7 +80,7 @@ class _ProfileState extends State<Profile> {
                 size: 20,
               ),
               AppTextNormal(
-                text: emailAddress!,
+                text: emailAddress,
                 size: 20,
               ),
             ],
@@ -89,8 +88,9 @@ class _ProfileState extends State<Profile> {
         ],
       ),
     );
+    }
 
-    Row MyVoucherTile(int index) {
+    Row MyVoucherTile(Map? voucher) {
       int points = 2; //get the number of points needed to redeem this voucher
       String voucherCode = "SampleVoucherCode"; //get the code of this voucher
       return Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
@@ -101,7 +101,7 @@ class _ProfileState extends State<Profile> {
           decoration: BoxDecoration(
             image: DecorationImage(
               fit: BoxFit.fill,
-              image: NetworkImage("https://picsum.photos/250?image=9"),
+              image: NetworkImage("https://cdn-icons-png.flaticon.com/512/3210/3210036.png"),
             ),
           ),
         ),
@@ -109,11 +109,10 @@ class _ProfileState extends State<Profile> {
         Center(
           //voucher info
           child: AppTextNormal(
-            text: "Voucher " +
-                (index + 1).toString() +
-                " info\n" +
-                points.toString() +
-                " points",
+            text:
+                voucher!["voucher_info"] +
+                "\n" +
+                voucher["date"],
             size: 15,
           ),
         ),
@@ -123,7 +122,7 @@ class _ProfileState extends State<Profile> {
         //child:
         Expanded(
           child: SelectableText(
-            voucherCode,
+            voucher["code"],
             style: GoogleFonts.montserrat(
                 textStyle: const TextStyle(
                     fontSize: 15,
@@ -135,7 +134,9 @@ class _ProfileState extends State<Profile> {
       ]);
     }
 
-    Widget voucherSection = Container(
+    Widget voucherSection(List? vouchers) {
+
+    return Container(
       padding: const EdgeInsets.all(30.0),
       child: Column(
         children: [
@@ -150,11 +151,11 @@ class _ProfileState extends State<Profile> {
           Expanded(
             child: ListView.builder(
                 padding: const EdgeInsets.all(8),
-                itemCount: 4,
+                itemCount: vouchers!.length,
                 itemBuilder: (BuildContext context, int index) {
                   return Container(
                     height: 100,
-                    child: MyVoucherTile(index),
+                    child: MyVoucherTile(vouchers[index]),
                   );
                 }),
           ),
@@ -177,7 +178,7 @@ class _ProfileState extends State<Profile> {
         ],
       ),
     );
-
+    }
     return Scaffold(
       appBar: AppBar(
         title: const Text(''),
@@ -220,10 +221,24 @@ class _ProfileState extends State<Profile> {
           )
         ],
       ),
-      body: Column(children: [
-        profileSection,
-        Expanded(child: voucherSection),
-      ]),
+      body: FutureBuilder(
+        future: getAccountInfo(),
+        builder: (context, snapshot) {
+          if (snapshot.data != null) {
+            Map? accountInfo = snapshot.data as Map?;
+            String accountName = accountInfo!["username"];
+            String emailAddress = accountInfo["email"];
+            int pointNumber = accountInfo["points"];
+            List? vouchers = accountInfo["vouchers"];
+            return Column(children: [
+              profileSection(accountName, pointNumber, emailAddress),
+              Expanded(child: voucherSection(vouchers)),
+            ]);
+          } else {
+            return Row();
+          }
+        },
+      ),
     );
   }
 }

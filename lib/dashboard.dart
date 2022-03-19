@@ -1,5 +1,8 @@
 import 'dart:io';
 
+import 'package:blossom/backend/authentication.dart';
+import 'package:blossom/backend/flower.dart';
+import 'package:blossom/backend/points.dart';
 import 'package:blossom/constants.dart';
 import 'package:blossom/favorites.dart';
 import 'package:blossom/home.dart';
@@ -99,12 +102,23 @@ class _PageState extends State<Page> {
     });
   }
 
+  Future<int> calculatePoints(String flowerName) async {
+    String fod = await Flower().getFlowerOfTheDay();
+    if (fod == flowerName) {
+      return 50;
+    } else {
+      return 10;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     List<Widget> _pages = <Widget>[
       LandingPage(setPage: setPage),
       Favorites(),
-      ScanFlower(setPage: setPage,),
+      ScanFlower(
+        setPage: setPage,
+      ),
       ViewHistory(),
       Parks(),
     ];
@@ -129,10 +143,13 @@ class _PageState extends State<Page> {
       var flower_name = _classifier?.predict(imageInput);
 
       if (imageFile != null) {
+        final jwt = await Authentication.verifyJWT();
+        int points = await calculatePoints(flower_name!.label);
+        await Points().addPoints(jwt!.payload["email"], points);
         setPage(PresentFlower(
             scannedImage: imageFile,
             comingFrom: "scan_flower",
-            flowerName: flower_name!.label));
+            flowerName: flower_name.label));
       } else {
         Navigator.of(context)
             .push(MaterialPageRoute(builder: (context) => Dashboard()));

@@ -1,7 +1,14 @@
+import 'package:blossom/backend/points.dart';
+import 'package:blossom/backend/vouchers.dart';
 import 'package:blossom/components/app_text.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:blossom/constants.dart';
+import 'package:intl/intl.dart';
+import 'package:intl/date_symbol_data_local.dart';
+import 'dart:math';
+
+import 'backend/authentication.dart';
 
 class RedeemVoucher extends StatefulWidget {
   const RedeemVoucher({Key? key}) : super(key: key);
@@ -11,9 +18,39 @@ class RedeemVoucher extends StatefulWidget {
 }
 
 class _RedeemVoucherState extends State<RedeemVoucher> {
+  late String email;
+
+  @override
+  void initState() {
+    super.initState();
+    initializeDateFormatting();
+    getEmail().then((value) {
+      setState(() => email = value);
+    });
+  }
+
+  Future<String> getEmail() async {
+    final jwt = await Authentication.verifyJWT();
+    if (jwt != null) {
+      return jwt.payload["email"];
+    } else {
+      return "";
+    }
+  }
+
+  Future<List?> getVouchers() async {
+    return await Vouchers().getVouchers();
+  }
+
+  static const _chars =
+      'AaBbCcDdEeFfGgHhIiJjKkLlMmNnOoPpQqRrSsTtUuVvWwXxYyZz1234567890';
+
+  String getRandomString(int length) => String.fromCharCodes(Iterable.generate(
+      length, (_) => _chars.codeUnitAt(Random().nextInt(_chars.length))));
+
   @override
   Widget build(BuildContext context) {
-    void _showSuccesssScreen() {
+    void _showSuccesssScreen(String code) {
       showDialog(
         context: context,
         //barrierDismissible: false,//user must tap button to dismiss
@@ -24,7 +61,7 @@ class _RedeemVoucherState extends State<RedeemVoucher> {
           ),
           content: SingleChildScrollView(
             child: Column(
-              children: const <Widget>[
+              children: <Widget>[
                 Text(
                   "Here's the code for your voucher ........",
                   textAlign: TextAlign.center,
@@ -33,7 +70,7 @@ class _RedeemVoucherState extends State<RedeemVoucher> {
                   ),
                 ),
                 SelectableText(
-                  '\nSampleVoucherCode',
+                  "\n$code",
                   style: TextStyle(
                     fontSize: 18,
                   ),
@@ -48,9 +85,7 @@ class _RedeemVoucherState extends State<RedeemVoucher> {
                 onPressed: () {
                   Navigator.pop(context, 'use');
                   //copy code to your clipboard
-                  Clipboard.setData(
-                          new ClipboardData(text: "SampleVoucherCode"))
-                      .then((_) {
+                  Clipboard.setData(new ClipboardData(text: code)).then((_) {
                     ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
                         content:
                             Text('Voucher code copied to your clipboard !')));
@@ -87,8 +122,10 @@ class _RedeemVoucherState extends State<RedeemVoucher> {
       );
     }
 
-    Row VoucherTile(int index) {
-      int points = 2; //get the number of points needed to redeem this voucher
+    Row VoucherTile(Map? voucher) {
+      String voucherInfo = voucher!["voucher_info"];
+      int points = voucher[
+          "points"]; //get the number of points needed to redeem this voucher
       return Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
         Container(
           //voucher image
@@ -97,27 +134,25 @@ class _RedeemVoucherState extends State<RedeemVoucher> {
           decoration: BoxDecoration(
             image: DecorationImage(
               fit: BoxFit.fill,
-              image: NetworkImage("https://picsum.photos/250?image=9"),
+              image: NetworkImage(
+                  "https://cdn-icons-png.flaticon.com/512/3210/3210036.png"),
             ),
           ),
         ),
         Center(
           //voucher info
           child: AppTextNormal(
-            text: "Voucher " +
-                (index + 1).toString() +
-                " info\n" +
-                points.toString() +
-                " points",
+            text: voucherInfo + "\n" + points.toString() + " points",
             size: 15,
           ),
         ),
         Center(
           //redeem button
           child: ElevatedButton(
-            onPressed: () {
+            onPressed: () async {
               //total points >= points(voucher): can redeem
-              bool canRedeem = true;
+              bool canRedeem = await Points().checkEligible(email, points);
+              // bool canRedeem = true;
               if (canRedeem) {
                 showDialog(
                   context: context,
@@ -125,7 +160,7 @@ class _RedeemVoucherState extends State<RedeemVoucher> {
                   builder: (_) => AlertDialog(
                     title: const Text("Confirm"),
                     content: Text(points.toString() +
-                        " points will be deducted from your account if you confirm to redeem Voucher xxx"),
+                        " points will be deducted from your account if you confirm to redeem $voucherInfo"),
                     actions: [
                       TextButton(
                         child: const Text("Cancel"),
@@ -133,10 +168,17 @@ class _RedeemVoucherState extends State<RedeemVoucher> {
                       ),
                       TextButton(
                         child: const Text("Confirm to Redeem"),
-                        onPressed: () {
+                        onPressed: () async {
                           //redeem voucher code: deduct points; -> my voucher list;
+                          DateTime now = DateTime.now();
+                          var format = DateFormat.yMMMMd('en_SG');
+                          String dateString = format.format(now);
+                          String code = getRandomString(8);
+                          await Points().removePoints(email, points);
+                          await Vouchers().redeemVoucher(
+                              email, voucherInfo, dateString, code);
                           Navigator.pop(context, 'Redeem');
-                          _showSuccesssScreen();
+                          _showSuccesssScreen(code);
                         },
                       ),
                     ],
@@ -165,16 +207,26 @@ class _RedeemVoucherState extends State<RedeemVoucher> {
         backgroundColor: Colors.white,
         iconTheme: const IconThemeData(color: Colors.black),
       ),
-      body: Container(
-        padding: const EdgeInsets.all(30),
-        child: ListView.builder(
-            itemCount: 15,
-            itemBuilder: (BuildContext context, int index) {
-              return SizedBox(
-                height: 90,
-                child: VoucherTile(index),
-              );
-            }),
+      body: FutureBuilder(
+        future: getVouchers(),
+        builder: (context, snapshot) {
+          if (snapshot.data != null) {
+            List? vouchers = snapshot.data as List?;
+            return Container(
+              padding: const EdgeInsets.all(30),
+              child: ListView.builder(
+                  itemCount: vouchers!.length,
+                  itemBuilder: (BuildContext context, int index) {
+                    return SizedBox(
+                      height: 90,
+                      child: VoucherTile(vouchers[index]),
+                    );
+                  }),
+            );
+          } else {
+            return Row();
+          }
+        },
       ),
     );
   }
