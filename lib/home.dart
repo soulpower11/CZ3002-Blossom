@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:blossom/backend/authentication.dart';
+import 'package:blossom/backend/points.dart';
 import 'package:blossom/present_flower.dart';
 import 'package:blossom/profile.dart';
 import 'package:blossom/redeem_voucher.dart';
@@ -21,9 +22,10 @@ class LandingPage extends StatelessWidget {
     var name = 'Jane';
     var points = 40;
 
-    Future<String> getUserName() async {
+    Future<Map?> getAccountInfo() async {
       final jwt = await Authentication.verifyJWT();
-      return jwt!.payload["username"];
+      int points = await Points().getPoints(jwt!.payload["email"]);
+      return {"username": jwt.payload["username"], "points": points};
     }
 
     void getImage({required ImageSource source}) async {
@@ -42,9 +44,9 @@ class LandingPage extends StatelessWidget {
 
       if (imageFile != null) {
         setPage(PresentFlower(
-                scannedImage: imageFile,
-                comingFrom: "scan_flower",
-                flowerName: "colts_foot"));
+            scannedImage: imageFile,
+            comingFrom: "scan_flower",
+            flowerName: "colts_foot"));
       } else {
         Navigator.of(context)
             .push(MaterialPageRoute(builder: (context) => Dashboard()));
@@ -52,11 +54,13 @@ class LandingPage extends StatelessWidget {
     }
 
     return FutureBuilder(
-        future: getUserName(),
+        future: getAccountInfo(),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.done) {
             if (snapshot.data != null) {
-              name = snapshot.data as String;
+              Map? userInfo = snapshot.data as Map?;
+              name = userInfo!["username"];
+              points = userInfo["points"];
               return Scaffold(
                   appBar: AppBar(
                     title: Text(

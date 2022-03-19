@@ -69,7 +69,7 @@ class Authentication {
         await FlutterBcrypt.hashPw(password: password, salt: salt10);
 
     await collection.insert(
-        {"email": email, "username": username, "password": hashedPassword});
+        {"email": email, "username": username, "password": hashedPassword, "points": 0});
 
     db.close();
     return generateJWT(username, email);
