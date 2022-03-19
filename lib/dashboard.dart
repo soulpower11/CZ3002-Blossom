@@ -105,9 +105,9 @@ class _PageState extends State<Page> {
   Future<int> calculatePoints(String flowerName) async {
     String fod = await Flower().getFlowerOfTheDay();
     if (fod == flowerName) {
-      return 50;
+      return 3;
     } else {
-      return 10;
+      return 1;
     }
   }
 
