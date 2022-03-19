@@ -59,6 +59,8 @@ dependencies:
   shimmer: ^2.0.0
   geocoding: ^2.0.2
   provider: ^6.0.2
+  tflite_flutter_helper: ^0.3.1
+  tflite_flutter: ^0.9.0
   
 dev_dependencies:
   flutter_test:
@@ -88,6 +90,7 @@ flutter:
     - .env
     - assets/
     - assets/images/
+    - assets/model/
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware.

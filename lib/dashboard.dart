@@ -3,6 +3,8 @@ import 'dart:io';
 import 'package:blossom/constants.dart';
 import 'package:blossom/favorites.dart';
 import 'package:blossom/home.dart';
+import 'package:blossom/image_recognition/classifier.dart';
+import 'package:blossom/image_recognition/classifier_float.dart';
 import 'package:blossom/present_flower.dart';
 import 'package:blossom/profile.dart';
 import 'package:blossom/redeem_voucher.dart';
@@ -13,6 +15,7 @@ import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
+import 'package:image/image.dart' as img;
 
 class Dashboard extends StatefulWidget {
   final Widget? widget;
@@ -82,6 +85,14 @@ class Page extends StatefulWidget {
 }
 
 class _PageState extends State<Page> {
+  Classifier? _classifier;
+
+  @override
+  void initState() {
+    super.initState();
+    _classifier = ClassifierFloat();
+  }
+
   void setPage(Widget? widget) {
     setState(() {
       this.widget.widget = widget;
@@ -114,11 +125,14 @@ class _PageState extends State<Page> {
         });
       }
 
+      img.Image imageInput = img.decodeImage(imageFile!.readAsBytesSync())!;
+      var flower_name = _classifier?.predict(imageInput);
+
       if (imageFile != null) {
         setPage(PresentFlower(
             scannedImage: imageFile,
             comingFrom: "scan_flower",
-            flowerName: "colts_foot"));
+            flowerName: flower_name!.label));
       } else {
         Navigator.of(context)
             .push(MaterialPageRoute(builder: (context) => Dashboard()));
