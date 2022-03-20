@@ -77,6 +77,7 @@ class _DashboardState extends State<Dashboard> {
         var flower_name = _classifier.predict(imageInput);
         int points = await calculatePoints(flower_name.label);
         await Points().addPoints(jwt!.payload["email"], points);
+        context.read<DashboardProvider>().setSelectedIndex(2);
         Navigator.pushReplacement(
           context,
           PageRouteBuilder(
@@ -97,45 +98,73 @@ class _DashboardState extends State<Dashboard> {
       context.read<DashboardProvider>().setSelectedIndex(index);
       switch (index) {
         case 0:
-          Navigator.pushReplacement(
-            context,
-            PageRouteBuilder(
-              pageBuilder: (context, animation1, animation2) => LandingPage(),
-              transitionDuration: Duration.zero,
-              reverseTransitionDuration: Duration.zero,
-            ),
-          );
+          Navigator.of(context).pushAndRemoveUntil(
+              PageRouteBuilder(
+                pageBuilder: (context, animation1, animation2) => LandingPage(),
+                transitionDuration: Duration.zero,
+                reverseTransitionDuration: Duration.zero,
+              ),
+              (Route<dynamic> route) => false);
+          // Navigator.pushReplacement(
+          //   context,
+          //   PageRouteBuilder(
+          //     pageBuilder: (context, animation1, animation2) => LandingPage(),
+          //     transitionDuration: Duration.zero,
+          //     reverseTransitionDuration: Duration.zero,
+          //   ),
+          // );
 
           break;
         case 1:
-          Navigator.pushReplacement(
-            context,
-            PageRouteBuilder(
-              pageBuilder: (context, animation1, animation2) => Favorites(),
-              transitionDuration: Duration.zero,
-              reverseTransitionDuration: Duration.zero,
-            ),
-          );
+          Navigator.of(context).pushAndRemoveUntil(
+              PageRouteBuilder(
+                pageBuilder: (context, animation1, animation2) => Favorites(),
+                transitionDuration: Duration.zero,
+                reverseTransitionDuration: Duration.zero,
+              ),
+              (Route<dynamic> route) => false);
+          // Navigator.pushReplacement(
+          //   context,
+          //   PageRouteBuilder(
+          //     pageBuilder: (context, animation1, animation2) => Favorites(),
+          //     transitionDuration: Duration.zero,
+          //     reverseTransitionDuration: Duration.zero,
+          //   ),
+          // );
           break;
         case 3:
-          Navigator.pushReplacement(
-            context,
-            PageRouteBuilder(
-              pageBuilder: (context, animation1, animation2) => ViewHistory(),
-              transitionDuration: Duration.zero,
-              reverseTransitionDuration: Duration.zero,
-            ),
-          );
+          Navigator.of(context).pushAndRemoveUntil(
+              PageRouteBuilder(
+                pageBuilder: (context, animation1, animation2) => ViewHistory(),
+                transitionDuration: Duration.zero,
+                reverseTransitionDuration: Duration.zero,
+              ),
+              (Route<dynamic> route) => false);
+          // Navigator.pushReplacement(
+          //   context,
+          //   PageRouteBuilder(
+          //     pageBuilder: (context, animation1, animation2) => ViewHistory(),
+          //     transitionDuration: Duration.zero,
+          //     reverseTransitionDuration: Duration.zero,
+          //   ),
+          // );
           break;
         case 4:
-          Navigator.pushReplacement(
-            context,
-            PageRouteBuilder(
-              pageBuilder: (context, animation1, animation2) => Parks(),
-              transitionDuration: Duration.zero,
-              reverseTransitionDuration: Duration.zero,
-            ),
-          );
+          Navigator.of(context).pushAndRemoveUntil(
+              PageRouteBuilder(
+                pageBuilder: (context, animation1, animation2) => Parks(),
+                transitionDuration: Duration.zero,
+                reverseTransitionDuration: Duration.zero,
+              ),
+              (Route<dynamic> route) => false);
+          // Navigator.pushReplacement(
+          //   context,
+          //   PageRouteBuilder(
+          //     pageBuilder: (context, animation1, animation2) => Parks(),
+          //     transitionDuration: Duration.zero,
+          //     reverseTransitionDuration: Duration.zero,
+          //   ),
+          // );
 
           break;
       }

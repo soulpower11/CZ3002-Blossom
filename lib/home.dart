@@ -21,6 +21,7 @@ import 'package:image_picker/image_picker.dart';
 import 'package:shimmer/shimmer.dart';
 
 import 'dashboard.dart';
+import 'providers/dashboard_provider.dart';
 
 class LandingPage extends StatelessWidget {
   const LandingPage({Key? key}) : super(key: key);
@@ -56,12 +57,26 @@ class LandingPage extends StatelessWidget {
           imageQuality: 100 //0 - 100
           );
 
+      imageFile = File(file!.path);
+
       if (imageFile != null) {
         final jwt = await Authentication.verifyJWT();
         img.Image imageInput = img.decodeImage(imageFile.readAsBytesSync())!;
         var flower_name = _classifier.predict(imageInput);
         int points = await calculatePoints(flower_name.label);
         await Points().addPoints(jwt!.payload["email"], points);
+        // Navigator.push(
+        //   context,
+        //   PageRouteBuilder(
+        //     pageBuilder: (context, animation1, animation2) => PresentFlower(
+        //         scannedImage: imageFile,
+        //         comingFrom: "scan_flower",
+        //         flowerName: flower_name.label),
+        //     transitionDuration: Duration.zero,
+        //     reverseTransitionDuration: Duration.zero,
+        //   ),
+        // );
+
         Navigator.pushReplacement(
           context,
           PageRouteBuilder(
@@ -88,7 +103,7 @@ class LandingPage extends StatelessWidget {
           Container(
             child: IconButton(
               onPressed: () {
-                Navigator.pushReplacement(
+                Navigator.push(
                   context,
                   PageRouteBuilder(
                     pageBuilder: (context, animation1, animation2) => Profile(),
@@ -268,7 +283,7 @@ class LandingPage extends StatelessWidget {
                     ),
                     ElevatedButton(
                       onPressed: () {
-                        Navigator.pushReplacement(
+                        Navigator.push(
                           context,
                           PageRouteBuilder(
                             pageBuilder: (context, animation1, animation2) =>
