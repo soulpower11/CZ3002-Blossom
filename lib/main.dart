@@ -1,5 +1,7 @@
 import 'package:blossom/backend/flower.dart';
 import 'package:blossom/present_flower.dart';
+import 'package:blossom/providers/dashboard_provider.dart';
+import 'package:blossom/providers/userinfo_provider.dart';
 import 'package:blossom/scan_flower.dart';
 import 'package:blossom/view_history.dart';
 import 'package:blossom/splash_screen.dart';
@@ -16,12 +18,13 @@ void main() {
     MultiProvider(
       providers: [
         ChangeNotifierProvider(create: (_) => ViewHistoryProvider()),
+        ChangeNotifierProvider(create: (_) => DashboardProvider()),
+        ChangeNotifierProvider(create: (_) => UserInfoProvider()),
       ],
       child: const MyApp(),
     ),
   );
 }
-
 
 class MyApp extends StatelessWidget {
   const MyApp({Key? key}) : super(key: key);

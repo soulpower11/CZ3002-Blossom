@@ -1,14 +1,19 @@
+import 'package:blossom/backend/flower.dart';
+import 'package:blossom/backend/points.dart';
 import 'package:blossom/dashboard.dart';
 import 'package:blossom/present_flower.dart';
 import 'package:flutter/material.dart';
 import 'dart:io';
 import 'package:image_picker/image_picker.dart';
 
+import 'backend/authentication.dart';
 import 'home.dart';
+import 'image_recognition/classifier.dart';
+import 'image_recognition/classifier_float.dart';
+import 'package:image/image.dart' as img;
 
 class ScanFlower extends StatefulWidget {
-  final Function setPage;
-  const ScanFlower({Key? key, required this.setPage}) : super(key: key);
+  const ScanFlower({Key? key}) : super(key: key);
 
   @override
   State<ScanFlower> createState() => _ScanFlowerState();
@@ -89,7 +94,45 @@ class _ScanFlowerState extends State<ScanFlower> {
         );
   }
 
+  // void getImage({required ImageSource source}) async {
+  //   final navigator = Navigator.of(context);
+  //   final file = await ImagePicker().pickImage(
+  //       source: source,
+  //       maxWidth: 640,
+  //       maxHeight: 480,
+  //       imageQuality: 100 //0 - 100
+  //       );
+
+  //   if (file?.path != null) {
+  //     setState(() {
+  //       imageFile = File(file!.path);
+  //     });
+  //   }
+
+  //   if (imageFile != null) {
+  //     widget.setPage(PresentFlower(
+  //         scannedImage: imageFile,
+  //         comingFrom: "scan_flower",
+  //         flowerName: "colts_foot"));
+  //   } else {
+  //     Navigator.of(context)
+  //         .push(MaterialPageRoute(builder: (context) => LandingPage()));
+  //   }
+  // }
+
+  Future<int> calculatePoints(String flowerName) async {
+    String fod = await Flower().getFlowerOfTheDay();
+    if (fod == flowerName) {
+      return 3;
+    } else {
+      return 1;
+    }
+  }
+
   void getImage({required ImageSource source}) async {
+    File? imageFile;
+    Classifier _classifier = ClassifierFloat();
+
     final navigator = Navigator.of(context);
     final file = await ImagePicker().pickImage(
         source: source,
@@ -98,20 +141,25 @@ class _ScanFlowerState extends State<ScanFlower> {
         imageQuality: 100 //0 - 100
         );
 
-    if (file?.path != null) {
-      setState(() {
-        imageFile = File(file!.path);
-      });
-    }
-
     if (imageFile != null) {
-      widget.setPage(PresentFlower(
-          scannedImage: imageFile,
-          comingFrom: "scan_flower",
-          flowerName: "colts_foot"));
+      final jwt = await Authentication.verifyJWT();
+      img.Image imageInput = img.decodeImage(imageFile.readAsBytesSync())!;
+      var flower_name = _classifier.predict(imageInput);
+      int points = await calculatePoints(flower_name.label);
+      await Points().addPoints(jwt!.payload["email"], points);
+      Navigator.pushReplacement(
+        context,
+        PageRouteBuilder(
+          pageBuilder: (context, animation1, animation2) => PresentFlower(
+              scannedImage: imageFile,
+              comingFrom: "scan_flower",
+              flowerName: flower_name.label),
+          transitionDuration: Duration.zero,
+          reverseTransitionDuration: Duration.zero,
+        ),
+      );
     } else {
-      Navigator.of(context)
-          .push(MaterialPageRoute(builder: (context) => Dashboard()));
+      // setPage(Dashboard());
     }
   }
 }

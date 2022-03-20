@@ -5,11 +5,15 @@ import 'package:blossom/components/rounded_button.dart';
 import 'package:blossom/components/size_config.dart';
 import 'package:blossom/dashboard.dart';
 import 'package:blossom/forgot_password/forgot_password_screen.dart';
+import 'package:blossom/home.dart';
 import 'package:blossom/present_flower.dart';
+import 'package:dart_jsonwebtoken/dart_jsonwebtoken.dart';
+import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter/material.dart';
 
 import '../backend/authentication.dart';
+import '../providers/userinfo_provider.dart';
 
 class SignInScreen extends StatelessWidget {
   static Route route() {
@@ -194,10 +198,16 @@ class _SignFormState extends State<SignInForm> {
                       // Save an String value to 'action' key.
                       await prefs.setString('jwt', login);
                       print(prefs);
-
+                      JWT? jwt = await Authentication.verifyJWT();
+                      context
+                          .read<UserInfoProvider>()
+                          .setUsername(jwt!.payload["username"]);
+                      context
+                          .read<UserInfoProvider>()
+                          .setEmail(jwt.payload["email"]);
                       Navigator.of(context).pushAndRemoveUntil(
                           MaterialPageRoute(
-                              builder: (context) => const Dashboard()),
+                              builder: (context) => const LandingPage()),
                           (Route<dynamic> route) => false);
                     }
                   }

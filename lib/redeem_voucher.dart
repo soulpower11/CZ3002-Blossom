@@ -1,11 +1,13 @@
 import 'package:blossom/backend/points.dart';
 import 'package:blossom/backend/vouchers.dart';
 import 'package:blossom/components/app_text.dart';
+import 'package:blossom/dashboard.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:blossom/constants.dart';
 import 'package:intl/intl.dart';
 import 'package:intl/date_symbol_data_local.dart';
+import 'package:shimmer/shimmer.dart';
 import 'dart:math';
 
 import 'backend/authentication.dart';
@@ -90,7 +92,10 @@ class _RedeemVoucherState extends State<RedeemVoucher> {
                         behavior: SnackBarBehavior.floating,
                         duration: Duration(milliseconds: 1000),
                         content:
-                            Text('Voucher code copied to your clipboard !')));
+                            Text('Voucher code copied to your clipboard !'),
+                        margin: EdgeInsets.only(
+                          bottom: 30,
+                        )));
                   });
                 },
               ),
@@ -226,10 +231,21 @@ class _RedeemVoucherState extends State<RedeemVoucher> {
                   }),
             );
           } else {
-            return Row();
+            return Container(
+              padding: const EdgeInsets.all(30),
+              child: Shimmer.fromColors(
+                baseColor: Colors.grey[300]!,
+                highlightColor: Colors.grey[100]!,
+                child: Container(
+                  height: MediaQuery.of(context).size.height,
+                  color: Colors.grey[300],
+                ),
+              ),
+            );
           }
         },
       ),
+      bottomNavigationBar: Dashboard(),
     );
   }
 }

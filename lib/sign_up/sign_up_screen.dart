@@ -3,7 +3,11 @@ import 'package:blossom/components/form_error.dart';
 import 'package:blossom/components/rounded_button.dart';
 import 'package:blossom/components/size_config.dart';
 import 'package:blossom/dashboard.dart';
+import 'package:blossom/home.dart';
+import 'package:blossom/providers/userinfo_provider.dart';
+import 'package:dart_jsonwebtoken/dart_jsonwebtoken.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../backend/authentication.dart';
@@ -188,14 +192,23 @@ class _SignUpFormState extends State<SignUpForm> {
                         emailController.text);
                     if (!exist) {
                       final result = await Authentication().register(
-                          emailController.text, passwordController.text, usernameController.text);
+                          emailController.text,
+                          passwordController.text,
+                          usernameController.text);
                       // Obtain shared preferences.
                       final prefs = await SharedPreferences.getInstance();
                       // Save an String value to 'action' key.
                       await prefs.setString('jwt', result);
+                      JWT? jwt = await Authentication.verifyJWT();
+                      context
+                          .read<UserInfoProvider>()
+                          .setUsername(jwt!.payload["username"]);
+                      context
+                          .read<UserInfoProvider>()
+                          .setEmail(jwt.payload["email"]);
                       Navigator.of(context).pushAndRemoveUntil(
                           MaterialPageRoute(
-                              builder: (context) => const Dashboard()),
+                              builder: (context) => const LandingPage()),
                           (Route<dynamic> route) => false);
                     } else {
                       addError(error: kUserExistError);

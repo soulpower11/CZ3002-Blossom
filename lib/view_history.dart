@@ -1,6 +1,7 @@
 import 'dart:ffi';
 
 import 'package:blossom/components/app_text.dart';
+import 'package:blossom/dashboard.dart';
 import 'package:blossom/memories.dart';
 import 'package:blossom/present_flower.dart';
 import 'package:dart_jsonwebtoken/dart_jsonwebtoken.dart';
@@ -149,73 +150,74 @@ class _ViewHistoryState extends State<ViewHistory> {
     }
 
     return Scaffold(
-        appBar: AppBar(
-          title: const Text(''),
-          centerTitle: true,
-          backgroundColor: Colors.white,
-          iconTheme: const IconThemeData(color: Colors.black),
-          leading: _selectionButton,
-          actions: _buttons,
-        ),
-        body: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-          context.watch<ViewHistoryProvider>().haveMemories
-              ? Padding(
-                  padding: EdgeInsets.only(top: 15, bottom: 30, left: 20),
-                  child: Container(
-                      alignment: Alignment.topLeft,
-                      child: AppTextBold(text: "Memories", size: 26)))
-              : Row(),
-          context.watch<ViewHistoryProvider>().haveMemories
-              ? SizedBox(
-                  height: 130,
-                  child: FutureBuilder(
-                    future: memoryFuture,
-                    builder: (context, snapshot) {
-                      if (snapshot.connectionState == ConnectionState.done) {
-                        if (snapshot.data != null) {
-                          List<Map?> memory = snapshot.data as List<Map?>;
-                          context
-                              .read<ViewHistoryProvider>()
-                              .setAllMemory(memory);
-                        }
-                        return MemoryGridView(
-                            isLoading: false,
-                            items: context
-                                .watch<ViewHistoryProvider>()
-                                .memoryItems);
+      appBar: AppBar(
+        title: const Text(''),
+        centerTitle: true,
+        backgroundColor: Colors.white,
+        iconTheme: const IconThemeData(color: Colors.black),
+        leading: _selectionButton,
+        actions: _buttons,
+      ),
+      body: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+        context.watch<ViewHistoryProvider>().haveMemories
+            ? Padding(
+                padding: EdgeInsets.only(top: 15, bottom: 30, left: 20),
+                child: Container(
+                    alignment: Alignment.topLeft,
+                    child: AppTextBold(text: "Memories", size: 26)))
+            : Row(),
+        context.watch<ViewHistoryProvider>().haveMemories
+            ? SizedBox(
+                height: 130,
+                child: FutureBuilder(
+                  future: memoryFuture,
+                  builder: (context, snapshot) {
+                    if (snapshot.connectionState == ConnectionState.done) {
+                      if (snapshot.data != null) {
+                        List<Map?> memory = snapshot.data as List<Map?>;
+                        context
+                            .read<ViewHistoryProvider>()
+                            .setAllMemory(memory);
                       }
-                      return MemoryGridView(isLoading: true, items: []);
-                    },
-                  ))
-              : Row(),
-          context.watch<ViewHistoryProvider>().haveMemories
-              ? Divider(height: 20)
-              : Row(),
-          Padding(
-              padding: EdgeInsets.only(top: 15, bottom: 30, left: 20),
-              child: Container(
-                  alignment: Alignment.topLeft,
-                  child: AppTextBold(text: "Past Captures", size: 26))),
-          Expanded(
-            child: FutureBuilder(
-              future: historyFuture,
-              builder: (context, snapshot) {
-                if (snapshot.connectionState == ConnectionState.done) {
-                  if (snapshot.data != null) {
-                    context
-                        .read<ViewHistoryProvider>()
-                        .setAllPhotos(snapshot.data as List<Map?>);
-                  }
-                  return HistoryGridView(
-                      key: historyGridViewKey,
-                      isLoading: false,
-                      items: context.watch<ViewHistoryProvider>().historyItems);
+                      return MemoryGridView(
+                          isLoading: false,
+                          items:
+                              context.watch<ViewHistoryProvider>().memoryItems);
+                    }
+                    return MemoryGridView(isLoading: true, items: []);
+                  },
+                ))
+            : Row(),
+        context.watch<ViewHistoryProvider>().haveMemories
+            ? Divider(height: 20)
+            : Row(),
+        Padding(
+            padding: EdgeInsets.only(top: 15, bottom: 30, left: 20),
+            child: Container(
+                alignment: Alignment.topLeft,
+                child: AppTextBold(text: "Past Captures", size: 26))),
+        Expanded(
+          child: FutureBuilder(
+            future: historyFuture,
+            builder: (context, snapshot) {
+              if (snapshot.connectionState == ConnectionState.done) {
+                if (snapshot.data != null) {
+                  context
+                      .read<ViewHistoryProvider>()
+                      .setAllPhotos(snapshot.data as List<Map?>);
                 }
-                return HistoryGridView(isLoading: true, items: []);
-              },
-            ),
-          )
-        ]));
+                return HistoryGridView(
+                    key: historyGridViewKey,
+                    isLoading: false,
+                    items: context.watch<ViewHistoryProvider>().historyItems);
+              }
+              return HistoryGridView(isLoading: true, items: []);
+            },
+          ),
+        )
+      ]),
+      bottomNavigationBar: Dashboard(),
+    );
   }
 }
 
