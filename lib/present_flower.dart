@@ -481,7 +481,7 @@ class FlowerInfo extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 AppTextBold(size: 17, text: "I am a"),
-                AppTextBold(size: 30, text: flowerName, color: kAppBrownColor),
+                AppTextBold(size: 28, text: flowerName, color: kAppBrownColor),
                 AppTextNormal(
                     size: 14,
                     text: "I have been scanned " + numScans + " times!\n"),

@@ -87,6 +87,8 @@ class _RedeemVoucherState extends State<RedeemVoucher> {
                   //copy code to your clipboard
                   Clipboard.setData(new ClipboardData(text: code)).then((_) {
                     ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+                        behavior: SnackBarBehavior.floating,
+                        duration: Duration(milliseconds: 1000),
                         content:
                             Text('Voucher code copied to your clipboard !')));
                   });
@@ -190,7 +192,7 @@ class _RedeemVoucherState extends State<RedeemVoucher> {
                 _showFailureScreen();
               }
             },
-            child: const Text('Redeem'),
+            child: AppTextBold(text: 'Redeem', size: 14, color: Colors.white),
             style: ElevatedButton.styleFrom(
               primary: kButtonColor1, // Background color
               onPrimary: Colors.white, // Text Color (Foreground color)

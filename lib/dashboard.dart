@@ -16,6 +16,7 @@ import 'package:blossom/view_history.dart';
 import 'package:blossom/view_parks.dart';
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
 import 'package:image/image.dart' as img;
@@ -139,11 +140,10 @@ class _PageState extends State<Page> {
         });
       }
 
-      img.Image imageInput = img.decodeImage(imageFile!.readAsBytesSync())!;
-      var flower_name = _classifier?.predict(imageInput);
-
       if (imageFile != null) {
         final jwt = await Authentication.verifyJWT();
+        img.Image imageInput = img.decodeImage(imageFile!.readAsBytesSync())!;
+        var flower_name = _classifier?.predict(imageInput);
         int points = await calculatePoints(flower_name!.label);
         await Points().addPoints(jwt!.payload["email"], points);
         setPage(PresentFlower(
@@ -151,8 +151,25 @@ class _PageState extends State<Page> {
             comingFrom: "scan_flower",
             flowerName: flower_name.label));
       } else {
-        Navigator.of(context)
-            .push(MaterialPageRoute(builder: (context) => Dashboard()));
+        // setPage(Dashboard());
+        switch (Provider.of<ValueNotifier<int>>(context, listen: false).value) {
+          case 0:
+            Navigator.of(context).pushReplacement(
+                MaterialPageRoute(builder: (context) => Dashboard()));
+            break;
+          case 1:
+            setPage(Favorites());
+            break;
+          case 3:
+            setPage(ViewHistory());
+            break;
+          case 4:
+            setPage(Parks());
+            break;
+        }
+
+        // Navigator.of(context)
+        //     .push(MaterialPageRoute(builder: (context) => Dashboard()));
       }
     }
 
@@ -198,6 +215,8 @@ class _PageState extends State<Page> {
               unselectedIconTheme: IconThemeData(
                 color: Colors.white,
               ),
+              selectedLabelStyle: GoogleFonts.montserrat(),
+              unselectedLabelStyle: GoogleFonts.montserrat(),
               unselectedItemColor: Colors.white,
               selectedItemColor: Colors.yellow[200],
               items: items),

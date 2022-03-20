@@ -503,7 +503,9 @@ class _HistoryGridViewState extends State<HistoryGridView> {
               if (context.watch<ViewHistoryProvider>().selectionMode) {
                 return GridTile(
                     header: GridTileBar(
-                      leading: Icon(
+                        leading: IconButton(
+                      alignment: Alignment.topLeft,
+                      icon: Icon(
                         context.read<ViewHistoryProvider>().contains(index)
                             ? Icons.check_circle_outline
                             : Icons.radio_button_unchecked,
@@ -512,7 +514,20 @@ class _HistoryGridViewState extends State<HistoryGridView> {
                                 ? Colors.green
                                 : Colors.black,
                       ),
-                    ),
+                      onPressed: () {
+                        if (context
+                            .read<ViewHistoryProvider>()
+                            .contains(index)) {
+                          context
+                              .read<ViewHistoryProvider>()
+                              .removeSelected(index);
+                        } else {
+                          context
+                              .read<ViewHistoryProvider>()
+                              .addSelected(index);
+                        }
+                      },
+                    )),
                     child: GestureDetector(
                       onTap: () {
                         if (context
