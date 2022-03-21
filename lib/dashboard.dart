@@ -224,9 +224,16 @@ class _DashboardState extends State<Dashboard> {
           child: IconButton(
               tooltip: "Scan Flower",
               onPressed: () {
-                // Navigator.of(context).push(
-                //     MaterialPageRoute(builder: (context) => ScanFlower()));
-                getImage(source: ImageSource.camera);
+                Navigator.push(
+                  context,
+                  PageRouteBuilder(
+                    pageBuilder: (context, animation1, animation2) =>
+                        ScanFlower(),
+                    transitionDuration: Duration.zero,
+                    reverseTransitionDuration: Duration.zero,
+                  ),
+                );
+                // getImage(source: ImageSource.camera);
               },
               // splashColor: Colors.transparent,
               // highlightColor: Colors.transparent,

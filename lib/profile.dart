@@ -263,15 +263,29 @@ class _ProfileState extends State<Profile> {
                 context: context,
                 //barrierDismissible: false,//user must tap button to dismiss
                 builder: (_) => AlertDialog(
-                  title: const Text("Confirm"),
-                  content: const Text('Confirm to log out?'),
+                  title: AppTextBold(
+                    text: "Confirm",
+                    size: 18,
+                  ),
+                  content: AppTextNormal(
+                    text: 'Confirm to log out?',
+                    size: 16,
+                  ),
                   actions: [
                     TextButton(
-                      child: const Text("Cancel"),
+                      child: AppTextNormal(
+                        text: 'Cancel',
+                        size: 14,
+                        color: Colors.blue,
+                      ),
                       onPressed: () => Navigator.pop(context, 'Cancel'),
                     ),
                     TextButton(
-                      child: const Text("Confirm to log out"),
+                      child: AppTextNormal(
+                        text: "Confirm to log out",
+                        size: 14,
+                        color: Colors.blue,
+                      ),
                       onPressed: () async {
                         //log out
                         final prefs = await SharedPreferences.getInstance();

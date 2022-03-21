@@ -159,9 +159,10 @@ class _FavouriteGridViewState extends State<FavouriteGridView> {
                         ),
                       ),
                     ),
-                    Text(widget.items[index]!["display_name"],
-                        style: const TextStyle(
-                            color: kTextColor, fontWeight: FontWeight.bold)),
+                    AppTextBold(
+                      text: widget.items[index]!["display_name"],
+                      size: 12,
+                    ),
                   ],
                 ),
               ));

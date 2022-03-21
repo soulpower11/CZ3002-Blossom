@@ -105,9 +105,10 @@ class PhotoGridView extends StatelessWidget {
                         ),
                       ),
                     ),
-                    Text(items[index]!["display_name"],
-                        style: TextStyle(
-                            color: kTextColor, fontWeight: FontWeight.bold)),
+                    AppTextBold(
+                      text: items[index]!["display_name"],
+                      size: 12,
+                    ),
                   ],
                 ),
               );

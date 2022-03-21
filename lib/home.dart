@@ -1,5 +1,4 @@
 import 'dart:io';
-
 import 'package:blossom/backend/authentication.dart';
 import 'package:blossom/backend/flower.dart';
 import 'package:blossom/backend/points.dart';
@@ -11,17 +10,14 @@ import 'package:blossom/present_flower.dart';
 import 'package:blossom/profile.dart';
 import 'package:blossom/providers/userinfo_provider.dart';
 import 'package:blossom/redeem_voucher.dart';
+import 'package:blossom/scan_flower.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/material.dart';
-import 'dart:ui';
 import 'package:provider/provider.dart';
 import 'package:image/image.dart' as img;
-
 import 'package:image_picker/image_picker.dart';
 import 'package:shimmer/shimmer.dart';
-
 import 'dashboard.dart';
-import 'providers/dashboard_provider.dart';
 
 class LandingPage extends StatelessWidget {
   const LandingPage({Key? key}) : super(key: key);
@@ -201,7 +197,18 @@ class LandingPage extends StatelessWidget {
                               alignment: Alignment.centerRight,
                               child: IconButton(
                                   onPressed: () {
-                                    getImage(source: ImageSource.camera);
+                                    // getImage(source: ImageSource.camera);
+                                    Navigator.push(
+                                      context,
+                                      PageRouteBuilder(
+                                        pageBuilder:
+                                            (context, animation1, animation2) =>
+                                                ScanFlower(),
+                                        transitionDuration: Duration.zero,
+                                        reverseTransitionDuration:
+                                            Duration.zero,
+                                      ),
+                                    );
                                   },
                                   iconSize: 60,
                                   color: Color.fromARGB(255, 141, 6, 63),

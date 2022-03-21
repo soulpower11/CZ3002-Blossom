@@ -6,6 +6,7 @@ import 'package:blossom/memories.dart';
 import 'package:blossom/present_flower.dart';
 import 'package:dart_jsonwebtoken/dart_jsonwebtoken.dart';
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'backend/authentication.dart';
 import 'backend/flower.dart';
@@ -66,18 +67,31 @@ class _ViewHistoryState extends State<ViewHistory> {
   Future<String?> openDialog() => showDialog<String>(
       context: context,
       builder: (context) => AlertDialog(
-            title: Text("Create Memories"),
+            title: AppTextBold(
+              size: 18,
+              text: "Create Memories",
+            ),
             content: TextField(
                 autofocus: true,
                 controller: controller,
-                decoration: InputDecoration(hintText: "Enter name")),
+                decoration: InputDecoration(
+                    hintText: "Enter name",
+                    hintStyle: GoogleFonts.montserrat(
+                        textStyle: TextStyle(
+                      color: kTextColor,
+                    )))),
             actions: [
               TextButton(
-                  onPressed: () {
-                    Navigator.of(context).pop(controller.text);
-                    controller.clear();
-                  },
-                  child: Text("SUBMIT"))
+                onPressed: () {
+                  Navigator.of(context).pop(controller.text);
+                  controller.clear();
+                },
+                child: AppTextNormal(
+                  size: 14,
+                  text: "SUBMIT",
+                  color: Colors.blue,
+                ),
+              )
             ],
           ));
 
@@ -275,11 +289,10 @@ class MemoryGridView extends StatelessWidget {
                     MemoryThumbnail(
                       items: items[index]!["photo_list"],
                     ),
-                    Text(items[index]!["memory_name"],
-                        style: TextStyle(
-                            color: kTextColor,
-                            fontWeight: FontWeight.bold,
-                            fontSize: 12)),
+                    AppTextBold(
+                      text: items[index]!["memory_name"],
+                      size: 12,
+                    ),
                   ],
                 ),
               );
@@ -585,10 +598,10 @@ class _HistoryGridViewState extends State<HistoryGridView> {
                               ),
                             ),
                           ),
-                          Text(widget.items[index]!["display_name"],
-                              style: const TextStyle(
-                                  color: kTextColor,
-                                  fontWeight: FontWeight.bold)),
+                          AppTextBold(
+                            text: widget.items[index]!["display_name"],
+                            size: 12,
+                          ),
                         ],
                       ),
                     ));
@@ -622,9 +635,10 @@ class _HistoryGridViewState extends State<HistoryGridView> {
                           ),
                         ),
                       ),
-                      Text(widget.items[index]!["display_name"],
-                          style: const TextStyle(
-                              color: kTextColor, fontWeight: FontWeight.bold)),
+                      AppTextBold(
+                        text: widget.items[index]!["display_name"],
+                        size: 12,
+                      ),
                     ],
                   ),
                 ));
