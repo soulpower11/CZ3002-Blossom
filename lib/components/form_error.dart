@@ -1,3 +1,4 @@
+import 'package:blossom/components/app_text.dart';
 import 'package:blossom/components/size_config.dart';
 import 'package:flutter/material.dart';
 // import 'package:flutter_svg/flutter_svg.dart';
@@ -29,7 +30,7 @@ class FormError extends StatelessWidget {
         SizedBox(
           width: getProportionateScreenWidth(10),
         ),
-        Text(error!),
+        AppTextNormal(text: error!, size: 14),
       ],
     );
   }

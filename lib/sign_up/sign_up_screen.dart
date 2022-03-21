@@ -1,3 +1,4 @@
+import 'package:blossom/components/app_text.dart';
 import 'package:blossom/components/constants.dart';
 import 'package:blossom/components/form_error.dart';
 import 'package:blossom/components/rounded_button.dart';
@@ -7,6 +8,7 @@ import 'package:blossom/home.dart';
 import 'package:blossom/providers/userinfo_provider.dart';
 import 'package:dart_jsonwebtoken/dart_jsonwebtoken.dart';
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -128,54 +130,30 @@ class _SignUpFormState extends State<SignUpForm> {
         child: Column(
           children: [
             Padding(
-              padding: EdgeInsets.only(left: 0, bottom: 20, right: 240),
+              padding: EdgeInsets.only(left: 0, bottom: 20, right: 230),
               //apply padding horizontal or vertical only
-              child: Text(
-                "USERNAME",
-                style: TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
+              child: AppTextBold(size: 18, text: "USERNAME"),
             ),
             buildUsernameFormField(),
             SizedBox(height: getProportionateScreenHeight(20)),
             Padding(
-              padding: EdgeInsets.only(left: 0, bottom: 20, right: 280),
+              padding: EdgeInsets.only(left: 0, bottom: 20, right: 270),
               //apply padding horizontal or vertical only
-              child: Text(
-                "EMAIL",
-                style: TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
+              child: AppTextBold(size: 18, text: "EMAIL"),
             ),
             buildEmailFormField(),
             SizedBox(height: getProportionateScreenHeight(20)),
             Padding(
-              padding: EdgeInsets.only(left: 0, bottom: 20, right: 240),
+              padding: EdgeInsets.only(left: 0, bottom: 20, right: 220),
               //apply padding horizontal or vertical only
-              child: Text(
-                "PASSWORD",
-                style: TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
+              child: AppTextBold(size: 18, text: "PASSWORD"),
             ),
             buildPasswordFormField(),
             SizedBox(height: getProportionateScreenHeight(20)),
             Padding(
-              padding: EdgeInsets.only(left: 0, bottom: 20, right: 140),
+              padding: EdgeInsets.only(left: 0, bottom: 20, right: 130),
               //apply padding horizontal or vertical only
-              child: Text(
-                "CONFIRM PASSWORD",
-                style: TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
+              child: AppTextBold(size: 18, text: "CONFIRM PASSWORD"),
             ),
             buildConformPassFormField(),
             FormError(errors: errors),
@@ -206,6 +184,14 @@ class _SignUpFormState extends State<SignUpForm> {
                       context
                           .read<UserInfoProvider>()
                           .setEmail(jwt.payload["email"]);
+                      // Navigator.of(context).pushAndRemoveUntil(
+                      //     PageRouteBuilder(
+                      //       pageBuilder: (context, animation1, animation2) =>
+                      //           LandingPage(),
+                      //       transitionDuration: Duration.zero,
+                      //       reverseTransitionDuration: Duration.zero,
+                      //     ),
+                      //     (Route<dynamic> route) => false);
                       Navigator.of(context).pushAndRemoveUntil(
                           MaterialPageRoute(
                               builder: (context) => const LandingPage()),
@@ -253,6 +239,8 @@ class _SignUpFormState extends State<SignUpForm> {
       decoration: InputDecoration(
         //labelText: "Confirm Password",
         hintText: "Re-enter your password",
+        hintStyle:
+            GoogleFonts.montserrat(textStyle: TextStyle(color: Colors.black38)),
         fillColor: Colors.white, filled: true,
         // If  you are using latest version of flutter then lable text and hint text shown like this
         // if you r using flutter less then 1.20.* then maybe this is not working properly
@@ -277,6 +265,19 @@ class _SignUpFormState extends State<SignUpForm> {
           borderSide: BorderSide(
             color: Colors.black12,
             width: 2.0,
+          ),
+        ),
+        errorBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(20.0),
+          borderSide: BorderSide(
+            color: Color.fromARGB(255, 143, 32, 49),
+            width: 2.0,
+          ),
+        ),
+        focusedErrorBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(20.0),
+          borderSide: BorderSide(
+            color: Color.fromARGB(255, 143, 32, 49),
           ),
         ),
         labelStyle: TextStyle(
@@ -313,6 +314,8 @@ class _SignUpFormState extends State<SignUpForm> {
       decoration: InputDecoration(
         //labelText: "Password",
         hintText: "Enter your password",
+        hintStyle:
+            GoogleFonts.montserrat(textStyle: TextStyle(color: Colors.black38)),
         fillColor: Colors.white, filled: true,
         // If  you are using latest version of flutter then lable text and hint text shown like this
         // if you r using flutter less then 1.20.* then maybe this is not working properly
@@ -340,6 +343,19 @@ class _SignUpFormState extends State<SignUpForm> {
             width: 2.0,
           ),
         ),
+        errorBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(20.0),
+          borderSide: BorderSide(
+            color: Color.fromARGB(255, 143, 32, 49),
+            width: 2.0,
+          ),
+        ),
+        focusedErrorBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(20.0),
+          borderSide: BorderSide(
+            color: Color.fromARGB(255, 143, 32, 49),
+          ),
+        ),
         labelStyle: TextStyle(
           color: Color(0xFF212121),
         ),
@@ -350,7 +366,7 @@ class _SignUpFormState extends State<SignUpForm> {
   TextFormField buildEmailFormField() {
     return TextFormField(
       controller: emailController,
-      autofillHints: const [AutofillHints.newUsername],
+      autofillHints: const [AutofillHints.email],
       keyboardType: TextInputType.emailAddress,
       onSaved: (newValue) => email = newValue!,
       onChanged: (value) {
@@ -375,6 +391,8 @@ class _SignUpFormState extends State<SignUpForm> {
       decoration: InputDecoration(
         // labelText: "Email",
         hintText: "Enter your email",
+        hintStyle:
+            GoogleFonts.montserrat(textStyle: TextStyle(color: Colors.black38)),
         fillColor: Colors.white, filled: true,
         // If  you are using latest version of flutter then lable text and hint text shown like this
         // if you r using flutter less then 1.20.* then maybe this is not working properly
@@ -399,6 +417,19 @@ class _SignUpFormState extends State<SignUpForm> {
           borderSide: BorderSide(
             color: Colors.black12,
             width: 2.0,
+          ),
+        ),
+        errorBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(20.0),
+          borderSide: BorderSide(
+            color: Color.fromARGB(255, 143, 32, 49),
+            width: 2.0,
+          ),
+        ),
+        focusedErrorBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(20.0),
+          borderSide: BorderSide(
+            color: Color.fromARGB(255, 143, 32, 49),
           ),
         ),
         labelStyle: TextStyle(
@@ -431,6 +462,8 @@ class _SignUpFormState extends State<SignUpForm> {
       decoration: InputDecoration(
         // labelText: "Username",
         hintText: "Enter your username",
+        hintStyle:
+            GoogleFonts.montserrat(textStyle: TextStyle(color: Colors.black38)),
         fillColor: Colors.white, filled: true,
         // If  you are using latest version of flutter then lable text and hint text shown like this
         // if you r using flutter less then 1.20.* then maybe this is not working properly
@@ -455,6 +488,19 @@ class _SignUpFormState extends State<SignUpForm> {
           borderSide: BorderSide(
             color: Colors.black12,
             width: 2.0,
+          ),
+        ),
+        errorBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(20.0),
+          borderSide: BorderSide(
+            color: Color.fromARGB(255, 143, 32, 49),
+            width: 2.0,
+          ),
+        ),
+        focusedErrorBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(20.0),
+          borderSide: BorderSide(
+            color: Color.fromARGB(255, 143, 32, 49),
           ),
         ),
         labelStyle: TextStyle(

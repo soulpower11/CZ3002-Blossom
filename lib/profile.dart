@@ -2,6 +2,7 @@ import 'package:blossom/backend/authentication.dart';
 import 'package:blossom/backend/points.dart';
 import 'package:blossom/backend/vouchers.dart';
 import 'package:blossom/dashboard.dart';
+import 'package:blossom/forgot_password/forgot_password_change.dart';
 import 'package:blossom/providers/userinfo_provider.dart';
 import 'package:blossom/redeem_voucher.dart';
 import 'package:blossom/splash/welcome_screen.dart';
@@ -253,7 +254,20 @@ class _ProfileState extends State<Profile> {
             icon: Icon(
               Icons.manage_accounts_outlined,
             ),
-            onPressed: () {},
+            onPressed: () {
+              Navigator.push(
+                context,
+                PageRouteBuilder(
+                  pageBuilder: (context, animation1, animation2) =>
+                      const ForgetChangeScreen(
+                    comingForm: 'Change Password',
+                    email: '',
+                  ),
+                  transitionDuration: Duration.zero,
+                  reverseTransitionDuration: Duration.zero,
+                ),
+              );
+            },
           ),
           IconButton(
             icon: Icon(Icons.logout_rounded),
@@ -292,6 +306,14 @@ class _ProfileState extends State<Profile> {
                         final success = await prefs.remove('jwt');
                         context.read<UserInfoProvider>().setUsername("");
                         context.read<UserInfoProvider>().setEmail("");
+                        // Navigator.of(context).pushAndRemoveUntil(
+                        //     PageRouteBuilder(
+                        //       pageBuilder: (context, animation1, animation2) =>
+                        //           WelcomeScreen(),
+                        //       transitionDuration: Duration.zero,
+                        //       reverseTransitionDuration: Duration.zero,
+                        //     ),
+                        //     (Route<dynamic> route) => false);
                         Navigator.of(context).pushAndRemoveUntil(
                             MaterialPageRoute(
                                 builder: (context) => WelcomeScreen()),

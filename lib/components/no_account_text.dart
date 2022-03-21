@@ -2,6 +2,7 @@ import 'package:blossom/components/constants.dart';
 import 'package:blossom/components/size_config.dart';
 import 'package:blossom/sign_up/sign_up_screen.dart';
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 //import 'package:bowls/screens/sign_up/sign_up_screen.dart';
 
 class NoAccountText extends StatelessWidget {
@@ -16,7 +17,10 @@ class NoAccountText extends StatelessWidget {
       children: [
         Text(
           "Don’t have an account? ",
-          style: TextStyle(fontSize: getProportionateScreenWidth(16)),
+          style: GoogleFonts.montserrat(
+              textStyle: TextStyle(
+                  fontSize: getProportionateScreenWidth(16),
+                  color: Color(0xDD303030))),
         ),
         GestureDetector(
           onTap: () => Navigator.push(
@@ -25,9 +29,10 @@ class NoAccountText extends StatelessWidget {
           ),
           child: Text(
             "Sign Up",
-            style: TextStyle(
-                fontSize: getProportionateScreenWidth(16),
-                color: kPrimaryColor),
+            style: GoogleFonts.montserrat(
+                textStyle: TextStyle(
+                    fontSize: getProportionateScreenWidth(16),
+                    color: kPrimaryColor)),
           ),
         ),
       ],

@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:blossom/backend/authentication.dart';
+import 'package:blossom/components/app_text.dart';
 import 'package:blossom/dashboard.dart';
 import 'package:blossom/home.dart';
 import 'package:blossom/present_flower.dart';
@@ -51,19 +52,12 @@ class SplashScreen extends StatelessWidget {
               height: 250,
             ),
           ),
-          Text(
-            'Blossom',
-            style: TextStyle(
-              color: Colors.black,
-              fontSize: 40,
-              fontWeight: FontWeight.bold,
-            ),
+          AppTextBold(size: 40, text: 'Blossom'),
 
-            // Theme.of(context).textTheme.headline4!.copyWith(
-            //           color: Colors.white,
+          // Theme.of(context).textTheme.headline4!.copyWith(
+          //           color: Colors.white,
 
-            //         ),
-          ),
+          //         ),
           SizedBox(height: 50),
           Stack(
             children: <Widget>[

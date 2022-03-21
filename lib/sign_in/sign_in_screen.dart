@@ -1,3 +1,4 @@
+import 'package:blossom/components/app_text.dart';
 import 'package:blossom/components/constants.dart';
 import 'package:blossom/components/form_error.dart';
 import 'package:blossom/components/no_account_text.dart';
@@ -8,6 +9,7 @@ import 'package:blossom/forgot_password/forgot_password_screen.dart';
 import 'package:blossom/home.dart';
 import 'package:blossom/present_flower.dart';
 import 'package:dart_jsonwebtoken/dart_jsonwebtoken.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter/material.dart';
@@ -42,14 +44,7 @@ class SignInScreen extends StatelessWidget {
                   SizedBox(height: SizeConfig.screenHeight! * 0.04),
                   Padding(
                     padding: EdgeInsets.only(left: 0, right: 100, top: 10),
-                    child: Text(
-                      "Welcome Back!",
-                      style: TextStyle(
-                        color: Colors.black,
-                        fontSize: 30,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
+                    child: AppTextBold(size: 30, text: "Welcome Back!"),
                   ),
                   SizedBox(height: SizeConfig.screenHeight! * 0.03),
                   const Divider(
@@ -115,27 +110,15 @@ class _SignFormState extends State<SignInForm> {
               padding:
                   EdgeInsets.only(left: 0, bottom: 20, right: 280, top: 10),
               //apply padding horizontal or vertical only
-              child: Text(
-                "EMAIL",
-                style: TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
+              child: AppTextBold(size: 18, text: "EMAIL"),
             ),
             buildEmailFormField(),
             SizedBox(height: getProportionateScreenHeight(20)),
             Padding(
               padding:
-                  EdgeInsets.only(left: 0, bottom: 10, right: 240, top: 10),
+                  EdgeInsets.only(left: 0, bottom: 10, right: 220, top: 10),
               //apply padding horizontal or vertical only
-              child: Text(
-                "PASSWORD",
-                style: TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
+              child: AppTextBold(size: 18, text: "PASSWORD"),
             ),
             buildPasswordFormField(),
             SizedBox(height: getProportionateScreenHeight(30)),
@@ -160,12 +143,11 @@ class _SignFormState extends State<SignInForm> {
                   ),
                   // Named(
                   //     context, ForgotPasswordScreen.routeName),
-                  child: Text(
-                    "Forgot Password",
-                    style: TextStyle(
-                        color: Colors.black,
-                        decoration: TextDecoration.underline),
-                  ),
+                  child: Text("Forgot Password",
+                      style: GoogleFonts.montserrat(
+                          textStyle: TextStyle(
+                              color: Color(0xDD303030),
+                              decoration: TextDecoration.underline))),
                 )
               ],
             ),
@@ -205,6 +187,15 @@ class _SignFormState extends State<SignInForm> {
                       context
                           .read<UserInfoProvider>()
                           .setEmail(jwt.payload["email"]);
+
+                      // Navigator.of(context).pushAndRemoveUntil(
+                      //     PageRouteBuilder(
+                      //       pageBuilder: (context, animation1, animation2) =>
+                      //           LandingPage(),
+                      //       transitionDuration: Duration.zero,
+                      //       reverseTransitionDuration: Duration.zero,
+                      //     ),
+                      //     (Route<dynamic> route) => false);
                       Navigator.of(context).pushAndRemoveUntil(
                           MaterialPageRoute(
                               builder: (context) => const LandingPage()),
@@ -248,7 +239,8 @@ class _SignFormState extends State<SignInForm> {
       decoration: InputDecoration(
         //labelText: "Password",
         hintText: "Enter your password",
-        hintStyle: TextStyle(color: Colors.black38),
+        hintStyle:
+            GoogleFonts.montserrat(textStyle: TextStyle(color: Colors.black38)),
         fillColor: Colors.white, filled: true,
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(20.0),
@@ -261,6 +253,19 @@ class _SignFormState extends State<SignInForm> {
           borderSide: BorderSide(
             color: Colors.black12,
             width: 2.0,
+          ),
+        ),
+        errorBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(20.0),
+          borderSide: BorderSide(
+            color: Color.fromARGB(255, 143, 32, 49),
+            width: 2.0,
+          ),
+        ),
+        focusedErrorBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(20.0),
+          borderSide: BorderSide(
+            color: Color.fromARGB(255, 143, 32, 49),
           ),
         ),
         labelStyle: TextStyle(
@@ -285,7 +290,7 @@ class _SignFormState extends State<SignInForm> {
   TextFormField buildEmailFormField() {
     return TextFormField(
       controller: emailController,
-      autofillHints: const [AutofillHints.username],
+      autofillHints: const [AutofillHints.email],
       keyboardType: TextInputType.emailAddress,
       onSaved: (newValue) => email = newValue!,
       onChanged: (value) {
@@ -310,7 +315,8 @@ class _SignFormState extends State<SignInForm> {
       decoration: InputDecoration(
         //labelText: "Email",
         hintText: "Enter your email",
-        hintStyle: TextStyle(color: Colors.black38),
+        hintStyle:
+            GoogleFonts.montserrat(textStyle: TextStyle(color: Colors.black38)),
         fillColor: Colors.white, filled: true,
         //fillColor: Color(0xFFFFC61F), filled: none,
         focusedBorder: OutlineInputBorder(
@@ -324,6 +330,19 @@ class _SignFormState extends State<SignInForm> {
           borderSide: BorderSide(
             color: Colors.black12,
             width: 2.0,
+          ),
+        ),
+        errorBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(20.0),
+          borderSide: BorderSide(
+            color: Color.fromARGB(255, 143, 32, 49),
+            width: 2.0,
+          ),
+        ),
+        focusedErrorBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(20.0),
+          borderSide: BorderSide(
+            color: Color.fromARGB(255, 143, 32, 49),
           ),
         ),
         labelStyle: TextStyle(
