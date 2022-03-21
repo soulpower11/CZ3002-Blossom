@@ -50,7 +50,7 @@ class ForgetChangeScreen extends StatelessWidget {
                 children: [
                   SizedBox(height: screenHeight * 0.03), // 4%
                   Padding(
-                    padding: const EdgeInsets.only(left: 0, right: 70, top: 10),
+                    padding: const EdgeInsets.only(left: 0, right: 60, top: 10),
                     child: AppTextBold(size: 30, text: "Change Password"),
                   ),
                   SizedBox(height: screenHeight * 0.03),

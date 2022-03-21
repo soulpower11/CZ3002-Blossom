@@ -220,7 +220,7 @@ class _DashboardState extends State<Dashboard> {
         ),
         Positioned(
           bottom: 5,
-          right: size.width / 2.45,
+          left: size.width / 2.4,
           child: IconButton(
               tooltip: "Scan Flower",
               onPressed: () {
@@ -240,7 +240,7 @@ class _DashboardState extends State<Dashboard> {
               iconSize: 58,
               color: Color.fromARGB(255, 141, 6, 63),
               icon: Image.asset('assets/images/camera_icon.png')),
-        )
+        ),
       ],
     );
   }

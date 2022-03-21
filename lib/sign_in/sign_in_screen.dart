@@ -58,7 +58,7 @@ class SignInScreen extends StatelessWidget {
                   SizedBox(height: SizeConfig.screenHeight! * 0.04),
                   SizedBox(height: getProportionateScreenHeight(20)),
                   Padding(
-                    padding: EdgeInsets.only(left: 0, right: 80, top: 10),
+                    padding: EdgeInsets.only(left: 0, right: 60, top: 10),
                     child: NoAccountText(),
                   ),
                 ],

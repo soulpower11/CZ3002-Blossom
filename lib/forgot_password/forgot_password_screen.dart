@@ -349,7 +349,7 @@ class _ForgotPassFormState extends State<ForgotPassForm> {
           ),
           SizedBox(height: 60),
           Padding(
-            padding: EdgeInsets.only(left: 0, right: 80, top: 10),
+            padding: EdgeInsets.only(left: 0, right: 50, top: 10),
             child: NoAccountText(),
           ),
         ],

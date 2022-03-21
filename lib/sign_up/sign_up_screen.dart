@@ -41,7 +41,7 @@ class SignUpScreen extends StatelessWidget {
                 children: [
                   SizedBox(height: SizeConfig.screenHeight! * 0.03), // 4%
                   Padding(
-                    padding: EdgeInsets.only(left: 0, right: 80, top: 10),
+                    padding: EdgeInsets.only(left: 0, right: 70, top: 10),
                     child: Text("Register Account", style: headingStyle),
                   ),
                   SizedBox(height: SizeConfig.screenHeight! * 0.03),
