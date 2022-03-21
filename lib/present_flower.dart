@@ -154,6 +154,7 @@ class _PresentFlowerState extends State<PresentFlower> {
         backgroundColor: Colors.white,
         actions: [
           IconButton(
+            tooltip: "Favourite",
             icon: favourite
                 ? Icon(Icons.favorite, color: kButtonColor1)
                 : Icon(Icons.favorite_border),
@@ -164,7 +165,8 @@ class _PresentFlowerState extends State<PresentFlower> {
             },
           ),
           IconButton(
-            icon: Icon(Icons.share),
+            tooltip: "Share",
+            icon: Icon(Icons.share_rounded),
             onPressed: () async {
               share(flowerName, scannedImage);
               print('Ran share');

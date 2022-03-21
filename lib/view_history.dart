@@ -89,54 +89,73 @@ class _ViewHistoryState extends State<ViewHistory> {
     if (context.watch<ViewHistoryProvider>().selectionMode) {
       _selectionButton = context.read<ViewHistoryProvider>().selectedAll
           ? IconButton(
-              icon: Icon(Icons.check_circle),
+              tooltip: "Uncheck All",
+              icon: Icon(Icons.check_circle_rounded),
               onPressed: () {
                 context.read<ViewHistoryProvider>().clearAllSelected();
               },
             )
           : IconButton(
-              icon: Icon(Icons.circle_outlined),
+              tooltip: "Check All",
+              icon: Icon(Icons.radio_button_unchecked_rounded),
               onPressed: () {
                 context.read<ViewHistoryProvider>().selectAll();
               },
             );
       _buttons = [
+        context.read<ViewHistoryProvider>().selectedIndexList.isNotEmpty
+            ? IconButton(
+                icon: Icon(Icons.done_rounded),
+                onPressed: () async {
+                  List<Map?> photos = [];
+                  if (context
+                      .read<ViewHistoryProvider>()
+                      .selectedIndexList
+                      .isNotEmpty) {
+                    context
+                        .read<ViewHistoryProvider>()
+                        .selectedIndexList
+                        .forEach((index) {
+                      photos.add(context
+                          .read<ViewHistoryProvider>()
+                          .historyItems[index]);
+                    });
+
+                    context.read<ViewHistoryProvider>().toggleSelectionMode();
+
+                    final jwt = await Authentication.verifyJWT();
+                    if (jwt != null) {
+                      await Flower().saveUserMemory(
+                          jwt.payload["email"],
+                          context.read<ViewHistoryProvider>().memoryName,
+                          photos);
+                    }
+
+                    context.read<ViewHistoryProvider>().setHaveMemory(true);
+                    context.read<ViewHistoryProvider>().addedMemory();
+                    context.read<ViewHistoryProvider>().setMemoryName("");
+                    memoryFuture = getUserMemory();
+                  }
+                },
+                tooltip: "Done")
+            : Visibility(
+                child: IconButton(icon: Icon(Icons.check), onPressed: () {}),
+                visible: false,
+              ),
         IconButton(
-            icon: Icon(Icons.check),
-            onPressed: () async {
-              List<Map?> photos = [];
-              if (context
+            icon: Icon(Icons.close_rounded),
+            onPressed: () {
+              context
                   .read<ViewHistoryProvider>()
-                  .selectedIndexList
-                  .isNotEmpty) {
-                context
-                    .read<ViewHistoryProvider>()
-                    .selectedIndexList
-                    .forEach((index) {
-                  photos.add(
-                      context.read<ViewHistoryProvider>().historyItems[index]);
-                });
-
-                context.read<ViewHistoryProvider>().toggleSelectionMode();
-
-                final jwt = await Authentication.verifyJWT();
-                if (jwt != null) {
-                  await Flower().saveUserMemory(jwt.payload["email"],
-                      context.read<ViewHistoryProvider>().memoryName, photos);
-                }
-
-                context.read<ViewHistoryProvider>().setHaveMemory(true);
-                context.read<ViewHistoryProvider>().addedMemory();
-                context.read<ViewHistoryProvider>().setMemoryName("");
-                memoryFuture = getUserMemory();
-              }
+                  .changeSelection(enable: false, index: -1);
             },
-            tooltip: "Done"),
+            tooltip: "Cancel")
       ];
     } else {
       _selectionButton = null;
       _buttons = [
         IconButton(
+          tooltip: "Create Memories",
           icon: Icon(Icons.create_new_folder_rounded),
           onPressed: () async {
             final name = await openDialog();
@@ -509,8 +528,8 @@ class _HistoryGridViewState extends State<HistoryGridView> {
                       alignment: Alignment.topLeft,
                       icon: Icon(
                         context.read<ViewHistoryProvider>().contains(index)
-                            ? Icons.check_circle_outline
-                            : Icons.radio_button_unchecked,
+                            ? Icons.check_circle_outline_rounded
+                            : Icons.radio_button_unchecked_rounded,
                         color:
                             context.read<ViewHistoryProvider>().contains(index)
                                 ? Colors.green

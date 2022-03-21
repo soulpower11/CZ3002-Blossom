@@ -45,7 +45,7 @@ dependencies:
   camera: ^0.9.4+14
   image_picker: ^0.8.4+9
   path_provider: ^2.0.9
-  share_plus: ^3.1.0
+  share_plus: ^4.0.1
   google_fonts: ^2.3.1
   image_watermark: ^0.0.3
   carousel_slider: ^4.0.0-nullsafety.0

@@ -115,6 +115,7 @@ class LandingPage extends StatelessWidget {
               iconSize: 40,
               icon: Icon(Icons.account_circle_outlined),
               color: Colors.black,
+              tooltip: "Profile",
             ),
             alignment: Alignment.topRight,
           )

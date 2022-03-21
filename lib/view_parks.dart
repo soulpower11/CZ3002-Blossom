@@ -99,6 +99,11 @@ class _ParksState extends State<Parks> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: AppBar(
+        title: const Text(''),
+        centerTitle: true,
+        backgroundColor: Colors.white,
+      ),
       body: GoogleMap(
         onMapCreated: (GoogleMapController controller) {
           _onMapCreated(controller);

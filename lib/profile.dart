@@ -249,7 +249,15 @@ class _ProfileState extends State<Profile> {
         iconTheme: const IconThemeData(color: Colors.black),
         actions: [
           IconButton(
+            tooltip: "Change Password",
+            icon: Icon(
+              Icons.manage_accounts_outlined,
+            ),
+            onPressed: () {},
+          ),
+          IconButton(
             icon: Icon(Icons.logout_rounded),
+            tooltip: "Logout",
             onPressed: () {
               showDialog(
                 context: context,
@@ -282,7 +290,7 @@ class _ProfileState extends State<Profile> {
                 ),
               );
             },
-          )
+          ),
         ],
       ),
       body: Column(children: [

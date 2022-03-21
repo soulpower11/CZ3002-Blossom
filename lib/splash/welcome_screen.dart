@@ -74,9 +74,9 @@ class WelcomeScreen extends StatelessWidget {
           // SizedBox(height: 50),
           Image(
             image: AssetImage('assets/images/logo.png'),
-            width: 260,
-            height: 260,
-            alignment: Alignment.bottomLeft,
+            width: 250,
+            height: 250,
+            alignment: Alignment.bottomCenter,
           ),
 
           // Stack(

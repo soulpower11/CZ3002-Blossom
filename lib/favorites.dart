@@ -73,7 +73,6 @@ class _ViewHistoryState extends State<Favorites> {
         // actions: _buttons,
       ),
       body: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-        Divider(height: 20),
         Padding(
             padding: EdgeInsets.only(top: 15, bottom: 30, left: 20),
             child: Container(

@@ -222,11 +222,14 @@ class _DashboardState extends State<Dashboard> {
           bottom: 5,
           right: size.width / 2.45,
           child: IconButton(
+              tooltip: "Scan Flower",
               onPressed: () {
                 // Navigator.of(context).push(
                 //     MaterialPageRoute(builder: (context) => ScanFlower()));
                 getImage(source: ImageSource.camera);
               },
+              // splashColor: Colors.transparent,
+              // highlightColor: Colors.transparent,
               iconSize: 58,
               color: Color.fromARGB(255, 141, 6, 63),
               icon: Image.asset('assets/images/camera_icon.png')),

@@ -95,6 +95,8 @@ class _RedeemVoucherState extends State<RedeemVoucher> {
                             Text('Voucher code copied to your clipboard !'),
                         margin: EdgeInsets.only(
                           bottom: 30,
+                          left: 14,
+                          right: 14,
                         )));
                   });
                 },
