@@ -32,8 +32,10 @@ class Flower {
 
     var gridOut = await gridFS.findOne(where.eq('filename', filename));
     File image = File(directory.path + "/" + filename);
-    await gridOut?.writeToFile(image);
-
+    // await gridOut?.writeToFile(image);
+    if (!await image.exists()) {
+      await gridOut?.writeToFile(image);
+    }
     db.close();
 
     return image;
@@ -151,7 +153,9 @@ class Flower {
       var gridOut =
           await gridFS.findOne(where.eq('filename', history["filename"]));
       File image = File(directory.path + "/" + history["filename"]);
-      await gridOut?.writeToFile(image);
+      if (!await image.exists()) {
+        await gridOut?.writeToFile(image);
+      }
       userHistory.add({
         "display_name": history["display_name"],
         "flower_name": history["flower_name"],
@@ -208,9 +212,14 @@ class Flower {
       for (int index = 0; index < memory["photo_list"].length; index++) {
         var gridOut = await gridFS.findOne(
             where.eq('filename', memory["photo_list"][index]["filename"]));
+
         File image = File(
             directory.path + "/" + memory["photo_list"][index]["filename"]);
-        await gridOut?.writeToFile(image);
+        if (!await image.exists()) {
+          await gridOut?.writeToFile(image);
+        }
+        // await gridOut?.writeToFile(image);
+
         memoryPhotos.add({
           "display_name": memory["photo_list"][index]["display_name"],
           "flower_name": memory["photo_list"][index]["flower_name"],

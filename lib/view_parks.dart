@@ -1,7 +1,7 @@
+import 'package:blossom/dashboard.dart';
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:geolocator/geolocator.dart';
-import 'package:geocoding/geocoding.dart';
 import 'src/locations.dart' as locations;
 
 class Parks extends StatefulWidget {
@@ -97,23 +97,27 @@ class _ParksState extends State<Parks> {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      home: Scaffold(
-        body: GoogleMap(
-          onMapCreated: (GoogleMapController controller) {
-            _onMapCreated(controller);
-            mapController = controller;
-
-            locatePosition();
-          },
-          myLocationEnabled: true,
-          initialCameraPosition: const CameraPosition(
-            target: LatLng(1.3139843, 103.5640535),
-            zoom: 15.0,
-          ),
-          markers: _markers.values.toSet(),
-        ),
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text(''),
+        centerTitle: true,
+        backgroundColor: Colors.white,
       ),
+      body: GoogleMap(
+        onMapCreated: (GoogleMapController controller) {
+          _onMapCreated(controller);
+          mapController = controller;
+
+          locatePosition();
+        },
+        myLocationEnabled: true,
+        initialCameraPosition: const CameraPosition(
+          target: LatLng(1.3139843, 103.5640535),
+          zoom: 15.0,
+        ),
+        markers: _markers.values.toSet(),
+      ),
+      bottomNavigationBar: Dashboard(),
     );
   }
 }

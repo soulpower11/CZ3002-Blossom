@@ -59,6 +59,53 @@ class Authentication {
     return false;
   }
 
+  Future<String> forgetPassword(String email, String password) async {
+    var db = await Database().connect();
+    var usersCollection = db.collection('users');
+
+    var salt10 = await FlutterBcrypt.saltWithRounds(rounds: 10);
+    var hashedPassword =
+        await FlutterBcrypt.hashPw(password: password, salt: salt10);
+
+    var result = await usersCollection.modernFindAndModify(
+        query: where.eq('email', email),
+        update: ModifierBuilder().set('password', hashedPassword),
+        returnNew: true);
+
+    var user = result.value;
+
+    db.close();
+    return generateJWT(user!["username"].toString(), email);
+  }
+
+  Future<bool> changePassword(
+      String email, String oldPassword, String newPassword) async {
+    var db = await Database().connect();
+    var usersCollection = db.collection('users');
+
+    var salt10 = await FlutterBcrypt.saltWithRounds(rounds: 10);
+
+    var hashedNewPassword =
+        await FlutterBcrypt.hashPw(password: newPassword, salt: salt10);
+
+    var user = await usersCollection.findOne(where.eq('email', email));
+
+    if (user != null) {
+      bool verify = await FlutterBcrypt.verify(
+          password: oldPassword, hash: user['password']);
+      if (verify) {
+        var result = await usersCollection.updateOne(
+          where.eq('email', email),
+          ModifierBuilder().set('password', hashedNewPassword),
+        );
+        db.close();
+        return true;
+      }
+    }
+
+    return false;
+  }
+
   Future<String> register(
       String email, String password, String username) async {
     var db = await Database().connect();
@@ -68,8 +115,12 @@ class Authentication {
     var hashedPassword =
         await FlutterBcrypt.hashPw(password: password, salt: salt10);
 
-    await collection.insert(
-        {"email": email, "username": username, "password": hashedPassword, "points": 0});
+    await collection.insert({
+      "email": email,
+      "username": username,
+      "password": hashedPassword,
+      "points": 0
+    });
 
     db.close();
     return generateJWT(username, email);

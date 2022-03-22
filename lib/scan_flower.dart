@@ -1,117 +1,114 @@
-import 'package:blossom/dashboard.dart';
+import 'package:blossom/backend/flower.dart';
+import 'package:blossom/backend/points.dart';
+import 'package:blossom/components/app_text.dart';
 import 'package:blossom/present_flower.dart';
+import 'package:blossom/providers/dashboard_provider.dart';
 import 'package:flutter/material.dart';
 import 'dart:io';
 import 'package:image_picker/image_picker.dart';
+import 'package:provider/provider.dart';
 
-import 'home.dart';
+import 'backend/authentication.dart';
+import 'image_recognition/classifier.dart';
+import 'image_recognition/classifier_float.dart';
+import 'package:image/image.dart' as img;
 
 class ScanFlower extends StatefulWidget {
-  final Function setPage;
-  const ScanFlower({Key? key, required this.setPage}) : super(key: key);
+  const ScanFlower({Key? key}) : super(key: key);
 
   @override
   State<ScanFlower> createState() => _ScanFlowerState();
 }
 
 class _ScanFlowerState extends State<ScanFlower> {
-  @override
-  File? imageFile;
+  bool photoTaken = false;
+
   @override
   void initState() {
     super.initState();
     getImage(source: ImageSource.camera);
   }
 
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
-        // body: Padding(
-        //   padding: const EdgeInsets.all(12.0),
-        //   child: Column(
-        //     mainAxisAlignment: MainAxisAlignment.center,
-        //     children: [
-        //       if (imageFile != null)
-        //         Container(
-        //           width: 640,
-        //           height: 480,
-        //           alignment: Alignment.center,
-        //           decoration: BoxDecoration(
-        //             color: Colors.grey,
-        //             image: DecorationImage(
-        //                 image: FileImage(imageFile!), fit: BoxFit.cover),
-        //             border: Border.all(width: 8, color: Colors.black),
-        //             borderRadius: BorderRadius.circular(12.0),
-        //           ),
-        //         )
-        //       else
-        //         Container(
-        //           width: 640,
-        //           height: 480,
-        //           alignment: Alignment.center,
-        //           decoration: BoxDecoration(
-        //             color: Colors.grey,
-        //             border: Border.all(width: 8, color: Colors.black12),
-        //             borderRadius: BorderRadius.circular(12.0),
-        //           ),
-        //           child: const Text(
-        //             'Image is nothing',
-        //             style: TextStyle(fontSize: 26),
-        //           ),
-        //         ),
-        //       const SizedBox(
-        //         height: 20,
-        //       ),
-        //       Row(
-        //         children: [
-        //           Expanded(
-        //             child: ElevatedButton(
-        //                 onPressed: () => getImage(source: ImageSource.camera),
-        //                 child: const Text('Capture Image',
-        //                     style: TextStyle(fontSize: 18))),
-        //           ),
-        //           const SizedBox(
-        //             width: 20,
-        //           ),
-        //           Expanded(
-        //             child: ElevatedButton(
-        //                 onPressed: () {
-        //                   Navigator.of(context).push(MaterialPageRoute(
-        //                       builder: (context) => PresentFlower()));
-        //                 },
-        //                 child:
-        //                     const Text('Next', style: TextStyle(fontSize: 18))),
-        //           )
-        //         ],
-        //       ),
-        //     ],
-        //   ),
-        // ),
-        );
+      body: Center(
+        child: photoTaken
+            ? Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  AppTextNormal(size: 18, text: "Recognition in Progress..."),
+                  const SizedBox(
+                    height: 20,
+                  ),
+                  const CircularProgressIndicator(
+                    valueColor:
+                        AlwaysStoppedAnimation(Color.fromARGB(255, 141, 6, 63)),
+                  ),
+                ],
+              )
+            : Row(),
+      ),
+    );
+  }
+
+  Future<int> calculatePoints(String flowerName) async {
+    String fod = await Flower().getFlowerOfTheDay();
+    if (fod == flowerName) {
+      return 3;
+    } else {
+      return 1;
+    }
   }
 
   void getImage({required ImageSource source}) async {
-    final navigator = Navigator.of(context);
-    final file = await ImagePicker().pickImage(
+    Classifier _classifier = ClassifierFloat();
+
+    XFile? file = await ImagePicker().pickImage(
         source: source,
         maxWidth: 640,
         maxHeight: 480,
         imageQuality: 100 //0 - 100
         );
 
-    if (file?.path != null) {
-      setState(() {
-        imageFile = File(file!.path);
-      });
-    }
-
-    if (imageFile != null) {
-      widget.setPage(PresentFlower(
-          scannedImage: imageFile,
-          comingFrom: "scan_flower",
-          flowerName: "colts_foot"));
+    if (file == null) {
+      Navigator.of(context).pop();
     } else {
-      Navigator.of(context)
-          .push(MaterialPageRoute(builder: (context) => Dashboard()));
+      setState(() {
+        photoTaken = true;
+      });
+
+      File imageFile = File(file.path);
+      final jwt = await Authentication.verifyJWT();
+      img.Image imageInput = img.decodeImage(imageFile.readAsBytesSync())!;
+
+      var flowerName = _classifier.predict(imageInput);
+      int points = await calculatePoints(flowerName.label);
+
+      await Points().addPoints(jwt!.payload["email"], points);
+
+      context.read<DashboardProvider>().setSelectedIndex(2);
+
+      Navigator.of(context).pushAndRemoveUntil(
+          PageRouteBuilder(
+            pageBuilder: (context, animation1, animation2) => PresentFlower(
+                scannedImage: imageFile,
+                comingFrom: "scan_flower",
+                flowerName: flowerName.label),
+          ),
+          (Route<dynamic> route) => false);
+
+      // Navigator.pushReplacement(
+      //   context,
+      //   PageRouteBuilder(
+      //     pageBuilder: (context, animation1, animation2) => PresentFlower(
+      //         scannedImage: imageFile,
+      //         comingFrom: "scan_flower",
+      //         flowerName: flowerName.label),
+      //     transitionDuration: Duration.zero,
+      //     reverseTransitionDuration: Duration.zero,
+      //   ),
+      // );
     }
   }
 }

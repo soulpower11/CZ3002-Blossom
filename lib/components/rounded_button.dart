@@ -1,6 +1,7 @@
 import 'package:blossom/components/constants.dart';
 import 'package:blossom/components/size_config.dart';
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 class RoundedButton extends StatelessWidget {
   final String text;
@@ -24,18 +25,31 @@ class RoundedButton extends StatelessWidget {
       height: getProportionateScreenHeight(56),
       child: ClipRRect(
         borderRadius: BorderRadius.circular(20),
-        child: FlatButton(
-          shape:
-              RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-          color: color,
+        // child: FlatButton(
+        //   shape:
+        //       RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        //   color: color,
+        //   onPressed: press,
+        //   child: Text(
+        //     text,
+        //     style: TextStyle(
+        //       color: textColor,
+        //       fontSize: getProportionateScreenWidth(20),
+        //     ),
+        //   ),
+        // ),
+        child: ElevatedButton(
           onPressed: press,
-          child: Text(
-            text,
-            style: TextStyle(
-              color: textColor,
-              fontSize: getProportionateScreenWidth(20),
-            ),
-          ),
+          child: Text(text,
+              style: GoogleFonts.montserrat(
+                  textStyle: TextStyle(
+                      fontSize: getProportionateScreenWidth(20),
+                      color: textColor,
+                      fontWeight: FontWeight.bold))),
+          style: ElevatedButton.styleFrom(
+              primary: color,
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(20))),
         ),
       ),
     );

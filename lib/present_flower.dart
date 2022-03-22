@@ -1,11 +1,13 @@
 import 'dart:io';
 
 import 'package:blossom/backend/authentication.dart';
+import 'package:blossom/dashboard.dart';
 import 'package:blossom/favorites.dart';
 import 'package:blossom/scan_flower.dart';
 import 'package:blossom/social_media.dart';
 import 'package:dart_jsonwebtoken/dart_jsonwebtoken.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/scheduler.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -148,50 +150,72 @@ class _PresentFlowerState extends State<PresentFlower> {
     double height = MediaQuery.of(context).size.height;
 
     return Scaffold(
-        appBar: AppBar(
-          iconTheme: IconThemeData(color: Colors.black),
-          backgroundColor: Colors.white,
-          actions: [
-            IconButton(
-              icon: favourite
-                  ? Icon(Icons.favorite, color: kButtonColor1)
-                  : Icon(Icons.favorite_border),
-              onPressed: () async {
-                setState(() => favourite = !favourite);
-                Flower().toggleFavourite(
-                    widget.flowerName, flowerName, email, favourite);
-              },
-            ),
-            IconButton(
-              icon: Icon(Icons.share),
-              onPressed: () async {
-                share(flowerName, scannedImage);
-                print('Ran share');
-              },
-            )
-          ],
-        ),
-        body: FutureBuilder(
-            future: future,
-            builder: (context, snapshot) {
-              if (snapshot.connectionState == ConnectionState.done) {
-                var flower = snapshot.data as Map<dynamic, dynamic>;
-                flowerName = flower["display_name"];
-
-                return PresentFlowerScrollView(
-                    flower: flower,
-                    databaseImage: databaseImage,
-                    scannedImage: scannedImage,
-                    comeFrom: widget.comingFrom,
-                    isLoading: false);
-              }
+      appBar: AppBar(
+        iconTheme: IconThemeData(color: Colors.black),
+        backgroundColor: Colors.white,
+        actions: [
+          IconButton(
+            tooltip: "Favourite",
+            icon: favourite
+                ? Icon(Icons.favorite, color: kButtonColor1)
+                : Icon(Icons.favorite_border),
+            onPressed: isLoading
+                ? null
+                : () async {
+                    setState(() => favourite = !favourite);
+                    Flower().toggleFavourite(
+                        widget.flowerName, flowerName, email, favourite);
+                    if (widget.comingFrom == "favorites") {
+                      Navigator.of(context).pushAndRemoveUntil(
+                          PageRouteBuilder(
+                            pageBuilder: (context, animation1, animation2) =>
+                                Favorites(),
+                            transitionDuration: Duration.zero,
+                            reverseTransitionDuration: Duration.zero,
+                          ),
+                          (Route<dynamic> route) => false);
+                    }
+                  },
+          ),
+          IconButton(
+            tooltip: "Share",
+            icon: Icon(Icons.share_rounded),
+            onPressed: isLoading
+                ? null
+                : () async {
+                    share(flowerName, scannedImage);
+                    print('Ran share');
+                  },
+          )
+        ],
+      ),
+      body: FutureBuilder(
+          future: future,
+          builder: (context, snapshot) {
+            if (snapshot.connectionState == ConnectionState.done) {
+              var flower = snapshot.data as Map<dynamic, dynamic>;
+              flowerName = flower["display_name"];
+              SchedulerBinding.instance
+                  ?.addPostFrameCallback((_) => setState(() {
+                        isLoading = false;
+                      }));
               return PresentFlowerScrollView(
-                  flower: const {},
+                  flower: flower,
                   databaseImage: databaseImage,
                   scannedImage: scannedImage,
                   comeFrom: widget.comingFrom,
-                  isLoading: true);
-            }));
+                  isLoading: false);
+            }
+            return PresentFlowerScrollView(
+                flower: const {},
+                databaseImage: databaseImage,
+                scannedImage: scannedImage,
+                comeFrom: widget.comingFrom,
+                isLoading: true);
+          }),
+      bottomNavigationBar:
+          widget.comingFrom == "scan_flower" ? Dashboard() : null,
+    );
   }
 }
 
@@ -481,7 +505,7 @@ class FlowerInfo extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 AppTextBold(size: 17, text: "I am a"),
-                AppTextBold(size: 30, text: flowerName, color: kAppBrownColor),
+                AppTextBold(size: 28, text: flowerName, color: kAppBrownColor),
                 AppTextNormal(
                     size: 14,
                     text: "I have been scanned " + numScans + " times!\n"),

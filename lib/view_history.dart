@@ -1,10 +1,12 @@
 import 'dart:ffi';
 
 import 'package:blossom/components/app_text.dart';
+import 'package:blossom/dashboard.dart';
 import 'package:blossom/memories.dart';
 import 'package:blossom/present_flower.dart';
 import 'package:dart_jsonwebtoken/dart_jsonwebtoken.dart';
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'backend/authentication.dart';
 import 'backend/flower.dart';
@@ -65,18 +67,31 @@ class _ViewHistoryState extends State<ViewHistory> {
   Future<String?> openDialog() => showDialog<String>(
       context: context,
       builder: (context) => AlertDialog(
-            title: Text("Create Memories"),
+            title: AppTextBold(
+              size: 18,
+              text: "Create Memories",
+            ),
             content: TextField(
                 autofocus: true,
                 controller: controller,
-                decoration: InputDecoration(hintText: "Enter name")),
+                decoration: InputDecoration(
+                    hintText: "Enter name",
+                    hintStyle: GoogleFonts.montserrat(
+                        textStyle: TextStyle(
+                      color: kTextColor,
+                    )))),
             actions: [
               TextButton(
-                  onPressed: () {
-                    Navigator.of(context).pop(controller.text);
-                    controller.clear();
-                  },
-                  child: Text("SUBMIT"))
+                onPressed: () {
+                  Navigator.of(context).pop(controller.text);
+                  controller.clear();
+                },
+                child: AppTextNormal(
+                  size: 14,
+                  text: "SUBMIT",
+                  color: Colors.blue,
+                ),
+              )
             ],
           ));
 
@@ -88,54 +103,73 @@ class _ViewHistoryState extends State<ViewHistory> {
     if (context.watch<ViewHistoryProvider>().selectionMode) {
       _selectionButton = context.read<ViewHistoryProvider>().selectedAll
           ? IconButton(
-              icon: Icon(Icons.check_circle),
+              tooltip: "Uncheck All",
+              icon: Icon(Icons.check_circle_rounded),
               onPressed: () {
                 context.read<ViewHistoryProvider>().clearAllSelected();
               },
             )
           : IconButton(
-              icon: Icon(Icons.circle_outlined),
+              tooltip: "Check All",
+              icon: Icon(Icons.radio_button_unchecked_rounded),
               onPressed: () {
                 context.read<ViewHistoryProvider>().selectAll();
               },
             );
       _buttons = [
+        context.read<ViewHistoryProvider>().selectedIndexList.isNotEmpty
+            ? IconButton(
+                icon: Icon(Icons.done_rounded),
+                onPressed: () async {
+                  List<Map?> photos = [];
+                  if (context
+                      .read<ViewHistoryProvider>()
+                      .selectedIndexList
+                      .isNotEmpty) {
+                    context
+                        .read<ViewHistoryProvider>()
+                        .selectedIndexList
+                        .forEach((index) {
+                      photos.add(context
+                          .read<ViewHistoryProvider>()
+                          .historyItems[index]);
+                    });
+
+                    context.read<ViewHistoryProvider>().toggleSelectionMode();
+
+                    final jwt = await Authentication.verifyJWT();
+                    if (jwt != null) {
+                      await Flower().saveUserMemory(
+                          jwt.payload["email"],
+                          context.read<ViewHistoryProvider>().memoryName,
+                          photos);
+                    }
+
+                    context.read<ViewHistoryProvider>().setHaveMemory(true);
+                    context.read<ViewHistoryProvider>().addedMemory();
+                    context.read<ViewHistoryProvider>().setMemoryName("");
+                    memoryFuture = getUserMemory();
+                  }
+                },
+                tooltip: "Done")
+            : Visibility(
+                child: IconButton(icon: Icon(Icons.check), onPressed: () {}),
+                visible: false,
+              ),
         IconButton(
-            icon: Icon(Icons.check),
-            onPressed: () async {
-              List<Map?> photos = [];
-              if (context
+            icon: Icon(Icons.close_rounded),
+            onPressed: () {
+              context
                   .read<ViewHistoryProvider>()
-                  .selectedIndexList
-                  .isNotEmpty) {
-                context
-                    .read<ViewHistoryProvider>()
-                    .selectedIndexList
-                    .forEach((index) {
-                  photos.add(
-                      context.read<ViewHistoryProvider>().historyItems[index]);
-                });
-
-                context.read<ViewHistoryProvider>().toggleSelectionMode();
-
-                final jwt = await Authentication.verifyJWT();
-                if (jwt != null) {
-                  await Flower().saveUserMemory(jwt.payload["email"],
-                      context.read<ViewHistoryProvider>().memoryName, photos);
-                }
-
-                context.read<ViewHistoryProvider>().setHaveMemory(true);
-                context.read<ViewHistoryProvider>().addedMemory();
-                context.read<ViewHistoryProvider>().setMemoryName("");
-                memoryFuture = getUserMemory();
-              }
+                  .changeSelection(enable: false, index: -1);
             },
-            tooltip: "Done"),
+            tooltip: "Cancel")
       ];
     } else {
       _selectionButton = null;
       _buttons = [
         IconButton(
+          tooltip: "Create Memories",
           icon: Icon(Icons.create_new_folder_rounded),
           onPressed: () async {
             final name = await openDialog();
@@ -149,73 +183,74 @@ class _ViewHistoryState extends State<ViewHistory> {
     }
 
     return Scaffold(
-        appBar: AppBar(
-          title: const Text(''),
-          centerTitle: true,
-          backgroundColor: Colors.white,
-          iconTheme: const IconThemeData(color: Colors.black),
-          leading: _selectionButton,
-          actions: _buttons,
-        ),
-        body: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-          context.watch<ViewHistoryProvider>().haveMemories
-              ? Padding(
-                  padding: EdgeInsets.only(top: 15, bottom: 30, left: 20),
-                  child: Container(
-                      alignment: Alignment.topLeft,
-                      child: AppTextBold(text: "Memories", size: 26)))
-              : Row(),
-          context.watch<ViewHistoryProvider>().haveMemories
-              ? SizedBox(
-                  height: 130,
-                  child: FutureBuilder(
-                    future: memoryFuture,
-                    builder: (context, snapshot) {
-                      if (snapshot.connectionState == ConnectionState.done) {
-                        if (snapshot.data != null) {
-                          List<Map?> memory = snapshot.data as List<Map?>;
-                          context
-                              .read<ViewHistoryProvider>()
-                              .setAllMemory(memory);
-                        }
-                        return MemoryGridView(
-                            isLoading: false,
-                            items: context
-                                .watch<ViewHistoryProvider>()
-                                .memoryItems);
+      appBar: AppBar(
+        title: const Text(''),
+        centerTitle: true,
+        backgroundColor: Colors.white,
+        iconTheme: const IconThemeData(color: Colors.black),
+        leading: _selectionButton,
+        actions: _buttons,
+      ),
+      body: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+        context.watch<ViewHistoryProvider>().haveMemories
+            ? Padding(
+                padding: EdgeInsets.only(top: 15, bottom: 30, left: 20),
+                child: Container(
+                    alignment: Alignment.topLeft,
+                    child: AppTextBold(text: "Memories", size: 26)))
+            : Row(),
+        context.watch<ViewHistoryProvider>().haveMemories
+            ? SizedBox(
+                height: 130,
+                child: FutureBuilder(
+                  future: memoryFuture,
+                  builder: (context, snapshot) {
+                    if (snapshot.connectionState == ConnectionState.done) {
+                      if (snapshot.data != null) {
+                        List<Map?> memory = snapshot.data as List<Map?>;
+                        context
+                            .read<ViewHistoryProvider>()
+                            .setAllMemory(memory);
                       }
-                      return MemoryGridView(isLoading: true, items: []);
-                    },
-                  ))
-              : Row(),
-          context.watch<ViewHistoryProvider>().haveMemories
-              ? Divider(height: 20)
-              : Row(),
-          Padding(
-              padding: EdgeInsets.only(top: 15, bottom: 30, left: 20),
-              child: Container(
-                  alignment: Alignment.topLeft,
-                  child: AppTextBold(text: "Past Captures", size: 26))),
-          Expanded(
-            child: FutureBuilder(
-              future: historyFuture,
-              builder: (context, snapshot) {
-                if (snapshot.connectionState == ConnectionState.done) {
-                  if (snapshot.data != null) {
-                    context
-                        .read<ViewHistoryProvider>()
-                        .setAllPhotos(snapshot.data as List<Map?>);
-                  }
-                  return HistoryGridView(
-                      key: historyGridViewKey,
-                      isLoading: false,
-                      items: context.watch<ViewHistoryProvider>().historyItems);
+                      return MemoryGridView(
+                          isLoading: false,
+                          items:
+                              context.watch<ViewHistoryProvider>().memoryItems);
+                    }
+                    return MemoryGridView(isLoading: true, items: []);
+                  },
+                ))
+            : Row(),
+        context.watch<ViewHistoryProvider>().haveMemories
+            ? Divider(height: 20)
+            : Row(),
+        Padding(
+            padding: EdgeInsets.only(top: 15, bottom: 30, left: 20),
+            child: Container(
+                alignment: Alignment.topLeft,
+                child: AppTextBold(text: "Past Captures", size: 26))),
+        Expanded(
+          child: FutureBuilder(
+            future: historyFuture,
+            builder: (context, snapshot) {
+              if (snapshot.connectionState == ConnectionState.done) {
+                if (snapshot.data != null) {
+                  context
+                      .read<ViewHistoryProvider>()
+                      .setAllPhotos(snapshot.data as List<Map?>);
                 }
-                return HistoryGridView(isLoading: true, items: []);
-              },
-            ),
-          )
-        ]));
+                return HistoryGridView(
+                    key: historyGridViewKey,
+                    isLoading: false,
+                    items: context.watch<ViewHistoryProvider>().historyItems);
+              }
+              return HistoryGridView(isLoading: true, items: []);
+            },
+          ),
+        )
+      ]),
+      bottomNavigationBar: Dashboard(),
+    );
   }
 }
 
@@ -254,11 +289,10 @@ class MemoryGridView extends StatelessWidget {
                     MemoryThumbnail(
                       items: items[index]!["photo_list"],
                     ),
-                    Text(items[index]!["memory_name"],
-                        style: TextStyle(
-                            color: kTextColor,
-                            fontWeight: FontWeight.bold,
-                            fontSize: 12)),
+                    AppTextBold(
+                      text: items[index]!["memory_name"],
+                      size: 12,
+                    ),
                   ],
                 ),
               );
@@ -503,16 +537,31 @@ class _HistoryGridViewState extends State<HistoryGridView> {
               if (context.watch<ViewHistoryProvider>().selectionMode) {
                 return GridTile(
                     header: GridTileBar(
-                      leading: Icon(
+                        leading: IconButton(
+                      alignment: Alignment.topLeft,
+                      icon: Icon(
                         context.read<ViewHistoryProvider>().contains(index)
-                            ? Icons.check_circle_outline
-                            : Icons.radio_button_unchecked,
+                            ? Icons.check_circle_outline_rounded
+                            : Icons.radio_button_unchecked_rounded,
                         color:
                             context.read<ViewHistoryProvider>().contains(index)
                                 ? Colors.green
                                 : Colors.black,
                       ),
-                    ),
+                      onPressed: () {
+                        if (context
+                            .read<ViewHistoryProvider>()
+                            .contains(index)) {
+                          context
+                              .read<ViewHistoryProvider>()
+                              .removeSelected(index);
+                        } else {
+                          context
+                              .read<ViewHistoryProvider>()
+                              .addSelected(index);
+                        }
+                      },
+                    )),
                     child: GestureDetector(
                       onTap: () {
                         if (context
@@ -549,10 +598,10 @@ class _HistoryGridViewState extends State<HistoryGridView> {
                               ),
                             ),
                           ),
-                          Text(widget.items[index]!["display_name"],
-                              style: const TextStyle(
-                                  color: kTextColor,
-                                  fontWeight: FontWeight.bold)),
+                          AppTextBold(
+                            text: widget.items[index]!["display_name"],
+                            size: 12,
+                          ),
                         ],
                       ),
                     ));
@@ -586,9 +635,10 @@ class _HistoryGridViewState extends State<HistoryGridView> {
                           ),
                         ),
                       ),
-                      Text(widget.items[index]!["display_name"],
-                          style: const TextStyle(
-                              color: kTextColor, fontWeight: FontWeight.bold)),
+                      AppTextBold(
+                        text: widget.items[index]!["display_name"],
+                        size: 12,
+                      ),
                     ],
                   ),
                 ));

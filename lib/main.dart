@@ -1,27 +1,22 @@
-import 'package:blossom/backend/flower.dart';
-import 'package:blossom/present_flower.dart';
-import 'package:blossom/scan_flower.dart';
-import 'package:blossom/view_history.dart';
+import 'package:blossom/providers/dashboard_provider.dart';
+import 'package:blossom/providers/userinfo_provider.dart';
+import 'package:blossom/providers/view_history_provider.dart';
 import 'package:blossom/splash_screen.dart';
-import 'package:blossom/splash/welcome_screen.dart';
 import 'package:provider/provider.dart';
-import './backend/authentication.dart';
-import 'package:email_auth/email_auth.dart';
 import 'package:flutter/material.dart';
-import 'auth.config.dart';
-import 'providers/view_history_provider.dart';
 
 void main() {
   runApp(
     MultiProvider(
       providers: [
         ChangeNotifierProvider(create: (_) => ViewHistoryProvider()),
+        ChangeNotifierProvider(create: (_) => DashboardProvider()),
+        ChangeNotifierProvider(create: (_) => UserInfoProvider()),
       ],
       child: const MyApp(),
     ),
   );
 }
-
 
 class MyApp extends StatelessWidget {
   const MyApp({Key? key}) : super(key: key);

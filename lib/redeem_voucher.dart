@@ -1,11 +1,15 @@
 import 'package:blossom/backend/points.dart';
 import 'package:blossom/backend/vouchers.dart';
 import 'package:blossom/components/app_text.dart';
+import 'package:blossom/dashboard.dart';
+import 'package:blossom/home.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:blossom/constants.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
 import 'package:intl/date_symbol_data_local.dart';
+import 'package:shimmer/shimmer.dart';
 import 'dart:math';
 
 import 'backend/authentication.dart';
@@ -55,9 +59,14 @@ class _RedeemVoucherState extends State<RedeemVoucher> {
         context: context,
         //barrierDismissible: false,//user must tap button to dismiss
         builder: (_) => AlertDialog(
-          title: const Text(
+          title: Text(
             "Congratulations",
             textAlign: TextAlign.center,
+            style: GoogleFonts.montserrat(
+                textStyle: TextStyle(
+                    fontSize: 18,
+                    color: kTextColor,
+                    fontWeight: FontWeight.bold)),
           ),
           content: SingleChildScrollView(
             child: Column(
@@ -65,15 +74,19 @@ class _RedeemVoucherState extends State<RedeemVoucher> {
                 Text(
                   "Here's the code for your voucher ........",
                   textAlign: TextAlign.center,
-                  style: TextStyle(
-                    fontSize: 20,
-                  ),
+                  style: GoogleFonts.montserrat(
+                      textStyle: TextStyle(
+                          fontSize: 20,
+                          color: kTextColor,
+                          fontWeight: FontWeight.w400)),
                 ),
                 SelectableText(
                   "\n$code",
-                  style: TextStyle(
-                    fontSize: 18,
-                  ),
+                  style: GoogleFonts.montserrat(
+                      textStyle: TextStyle(
+                          fontSize: 18,
+                          color: kTextColor,
+                          fontWeight: FontWeight.w400)),
                 ),
               ],
             ),
@@ -81,14 +94,36 @@ class _RedeemVoucherState extends State<RedeemVoucher> {
           actions: [
             Center(
               child: ElevatedButton(
-                child: const Text("Use"),
+                child: AppTextBold(text: "Use", size: 14, color: Colors.white),
+                style: ElevatedButton.styleFrom(
+                    primary: const Color.fromARGB(255, 141, 6, 63),
+                    fixedSize: const Size(100, 2),
+                    shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10))),
                 onPressed: () {
                   Navigator.pop(context, 'use');
                   //copy code to your clipboard
                   Clipboard.setData(new ClipboardData(text: code)).then((_) {
-                    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-                        content:
-                            Text('Voucher code copied to your clipboard !')));
+                    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                        behavior: SnackBarBehavior.floating,
+                        duration: const Duration(milliseconds: 1000),
+                        content: AppTextNormal(
+                            text: 'Voucher code copied to your clipboard !',
+                            color: Colors.white,
+                            size: 14),
+                        margin: const EdgeInsets.only(
+                          bottom: 30,
+                          left: 14,
+                          right: 14,
+                        )));
+                    Navigator.of(context).pushAndRemoveUntil(
+                        PageRouteBuilder(
+                          pageBuilder: (context, animation1, animation2) =>
+                              LandingPage(),
+                          transitionDuration: Duration.zero,
+                          reverseTransitionDuration: Duration.zero,
+                        ),
+                        (Route<dynamic> route) => false);
                   });
                 },
               ),
@@ -105,12 +140,18 @@ class _RedeemVoucherState extends State<RedeemVoucher> {
         context: context,
         //barrierDismissible: false,//user must tap button to dismiss
         builder: (_) => AlertDialog(
-          title: const Text("Sorry"),
-          content: const Text(
-              "You don't have enough points to redeem this voucher."),
+          title: AppTextBold(text: "Sorry", size: 18),
+          content: AppTextNormal(
+            text: "You don't have enough points to redeem this voucher.",
+            size: 16,
+          ),
           actions: [
             TextButton(
-              child: const Text("Ok"),
+              child: AppTextNormal(
+                text: "Ok",
+                size: 14,
+                color: Colors.blue,
+              ),
               onPressed: () {
                 Navigator.pop(context, 'Ok');
               },
@@ -158,16 +199,29 @@ class _RedeemVoucherState extends State<RedeemVoucher> {
                   context: context,
                   //barrierDismissible: false,//user must tap button to dismiss
                   builder: (_) => AlertDialog(
-                    title: const Text("Confirm"),
-                    content: Text(points.toString() +
-                        " points will be deducted from your account if you confirm to redeem $voucherInfo"),
+                    title: AppTextBold(
+                      text: "Confirm",
+                      size: 18,
+                    ),
+                    content: AppTextNormal(
+                        size: 14,
+                        text: points.toString() +
+                            " points will be deducted from your account if you confirm to redeem $voucherInfo"),
                     actions: [
                       TextButton(
-                        child: const Text("Cancel"),
+                        child: AppTextNormal(
+                          text: 'Cancel',
+                          size: 14,
+                          color: Colors.blue,
+                        ),
                         onPressed: () => Navigator.pop(context, 'Cancel'),
                       ),
                       TextButton(
-                        child: const Text("Confirm to Redeem"),
+                        child: AppTextNormal(
+                          text: "Confirm to Redeem",
+                          size: 14,
+                          color: Colors.blue,
+                        ),
                         onPressed: () async {
                           //redeem voucher code: deduct points; -> my voucher list;
                           DateTime now = DateTime.now();
@@ -190,7 +244,7 @@ class _RedeemVoucherState extends State<RedeemVoucher> {
                 _showFailureScreen();
               }
             },
-            child: const Text('Redeem'),
+            child: AppTextBold(text: 'Redeem', size: 14, color: Colors.white),
             style: ElevatedButton.styleFrom(
               primary: kButtonColor1, // Background color
               onPrimary: Colors.white, // Text Color (Foreground color)
@@ -224,10 +278,21 @@ class _RedeemVoucherState extends State<RedeemVoucher> {
                   }),
             );
           } else {
-            return Row();
+            return Container(
+              padding: const EdgeInsets.all(30),
+              child: Shimmer.fromColors(
+                baseColor: Colors.grey[300]!,
+                highlightColor: Colors.grey[100]!,
+                child: Container(
+                  height: MediaQuery.of(context).size.height,
+                  color: Colors.grey[300],
+                ),
+              ),
+            );
           }
         },
       ),
+      bottomNavigationBar: Dashboard(),
     );
   }
 }

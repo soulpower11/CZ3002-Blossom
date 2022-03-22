@@ -1,9 +1,10 @@
 import 'package:blossom/components/size_config.dart';
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 
-const kPrimaryColor = Color(0xFFB71C1C);
+const kPrimaryColor = Color.fromRGBO(143, 32, 48, 1);
 const kAccentColor = Colors.yellow;
-const kPrimaryLightColor = Color(0xFF3E2723);
+const kPrimaryLightColor = Color.fromRGBO(87, 66, 54, 1);
 const kPrimaryGradientColor = LinearGradient(
   begin: Alignment.topLeft,
   end: Alignment.bottomRight,
@@ -14,12 +15,19 @@ const kTextColor = Color(0xFF757575);
 
 const kAnimationDuration = Duration(milliseconds: 200);
 
-final headingStyle = TextStyle(
-  fontSize: getProportionateScreenWidth(28),
-  fontWeight: FontWeight.bold,
-  color: Colors.black,
-  height: 1.5,
-);
+// final headingStyle = TextStyle(
+//   fontSize: getProportionateScreenWidth(28),
+//   fontWeight: FontWeight.bold,
+//   color: Colors.black,
+//   height: 1.5,
+// );
+
+final headingStyle = GoogleFonts.montserrat(
+    textStyle: TextStyle(
+        fontSize: getProportionateScreenWidth(28),
+        fontWeight: FontWeight.bold,
+        height: 1.5,
+        color: Color(0xDD303030)));
 
 const defaultDuration = Duration(milliseconds: 250);
 
@@ -38,6 +46,13 @@ const String kAddressNullError = "Please enter your address";
 const String kWrongPassError = "Wrong password";
 const String kUserNotFoundError = "User not found";
 const String kUserExistError = "User already exist";
+const String kShortOTPError = "OTP is too short";
+const String kWrongOTPError = "OTP is wrong";
+const String kOTPNullError = "Please enter OTP";
+const String kOTPNotRequested = "Please request an OTP";
+const String kWrongOldPassword = "Your old password is wrong";
+const String kOldPassNullError = "Please enter your old password";
+const String kNewPassNullError = "Please enter your new password";
 
 final otpInputDecoration = InputDecoration(
   contentPadding:

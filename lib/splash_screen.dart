@@ -1,11 +1,15 @@
 import 'dart:async';
 import 'package:blossom/backend/authentication.dart';
+import 'package:blossom/components/app_text.dart';
 import 'package:blossom/dashboard.dart';
+import 'package:blossom/home.dart';
 import 'package:blossom/present_flower.dart';
+import 'package:blossom/providers/userinfo_provider.dart';
 import 'package:blossom/sign_in/sign_in_screen.dart';
 import 'package:blossom/splash/welcome_screen.dart';
 import 'package:dart_jsonwebtoken/src/jwt.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class SplashScreen extends StatelessWidget {
@@ -18,14 +22,15 @@ class SplashScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     Timer(const Duration(seconds: 2), () async {
-      final JWT? jwt  = await Authentication.verifyJWT();
-      
+      final JWT? jwt = await Authentication.verifyJWT();
       if (jwt != null) {
-        Navigator.of(context)
-            .pushReplacement(MaterialPageRoute(builder: (context) => Dashboard()));
+        context.read<UserInfoProvider>().setUsername(jwt.payload["username"]);
+        context.read<UserInfoProvider>().setEmail(jwt.payload["email"]);
+        Navigator.of(context).pushReplacement(
+            MaterialPageRoute(builder: (context) => LandingPage()));
       } else {
-        Navigator.of(context)
-            .pushReplacement(MaterialPageRoute(builder: (context) => WelcomeScreen()));
+        Navigator.of(context).pushReplacement(
+            MaterialPageRoute(builder: (context) => WelcomeScreen()));
       }
     });
 
@@ -47,27 +52,20 @@ class SplashScreen extends StatelessWidget {
               height: 250,
             ),
           ),
-          Text(
-            'Blossom',
-            style: TextStyle(
-              color: Colors.black,
-              fontSize: 40,
-              fontWeight: FontWeight.bold,
-            ),
+          AppTextBold(size: 40, text: 'Blossom'),
 
-            // Theme.of(context).textTheme.headline4!.copyWith(
-            //           color: Colors.white,
+          // Theme.of(context).textTheme.headline4!.copyWith(
+          //           color: Colors.white,
 
-            //         ),
-          ),
+          //         ),
           SizedBox(height: 50),
           Stack(
             children: <Widget>[
               Center(
                 child: Image(
                   image: AssetImage('assets/images/logo.png'),
-                  width: 260,
-                  height: 260,
+                  width: 250,
+                  height: 250,
                   alignment: Alignment.bottomLeft,
                 ),
               ),

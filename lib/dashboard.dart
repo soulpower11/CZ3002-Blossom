@@ -10,121 +10,53 @@ import 'package:blossom/image_recognition/classifier.dart';
 import 'package:blossom/image_recognition/classifier_float.dart';
 import 'package:blossom/present_flower.dart';
 import 'package:blossom/profile.dart';
+import 'package:blossom/providers/dashboard_provider.dart';
 import 'package:blossom/redeem_voucher.dart';
 import 'package:blossom/scan_flower.dart';
 import 'package:blossom/view_history.dart';
 import 'package:blossom/view_parks.dart';
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
 import 'package:image/image.dart' as img;
 
 class Dashboard extends StatefulWidget {
-  final Widget? widget;
-  const Dashboard({Key? key, this.widget}) : super(key: key);
+  Dashboard({Key? key}) : super(key: key);
 
   @override
   State<Dashboard> createState() => _DashboardState();
 }
 
 class _DashboardState extends State<Dashboard> {
-  int _selectedIndex = 0;
-
   @override
   void initState() {
     super.initState();
-    GPSPremission();
   }
 
-  void GPSPremission() async {
-    bool serviceEnabled;
-    LocationPermission permission;
+  void setPage(Widget? widget) {}
 
-    // Test if location services are enabled.
-    serviceEnabled = await Geolocator.isLocationServiceEnabled();
-    if (!serviceEnabled) {
-      // Location services are not enabled don't continue
-      // accessing the position and request users of the
-      // App to enable the location services.
-      return Future.error('Location services are disabled.');
+  @override
+  Widget build(BuildContext context) {
+    @override
+    void initState() {
+      super.initState();
     }
 
-    permission = await Geolocator.checkPermission();
-    if (permission == LocationPermission.denied) {
-      permission = await Geolocator.requestPermission();
-      if (permission == LocationPermission.denied) {
-        // Permissions are denied, next time you could try
-        // requesting permissions again (this is also where
-        // Android's shouldShowRequestPermissionRationale
-        // returned true. According to Android guidelines
-        // your App should show an explanatory UI now.
-        return Future.error('Location permissions are denied');
+    Future<int> calculatePoints(String flowerName) async {
+      String fod = await Flower().getFlowerOfTheDay();
+      if (fod == flowerName) {
+        return 3;
+      } else {
+        return 1;
       }
     }
 
-    if (permission == LocationPermission.deniedForever) {
-      // Permissions are denied forever, handle appropriately.
-      return Future.error(
-          'Location permissions are permanently denied, we cannot request permissions.');
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return ChangeNotifierProvider<ValueNotifier<int>>.value(
-      value: ValueNotifier<int>(0),
-      child: Page(widget: widget.widget),
-    );
-  }
-}
-
-class Page extends StatefulWidget {
-  Widget? widget;
-  Page({Key? key, this.widget}) : super(key: key);
-
-  @override
-  State<Page> createState() => _PageState();
-}
-
-class _PageState extends State<Page> {
-  Classifier? _classifier;
-
-  @override
-  void initState() {
-    super.initState();
-    _classifier = ClassifierFloat();
-  }
-
-  void setPage(Widget? widget) {
-    setState(() {
-      this.widget.widget = widget;
-    });
-  }
-
-  Future<int> calculatePoints(String flowerName) async {
-    String fod = await Flower().getFlowerOfTheDay();
-    if (fod == flowerName) {
-      return 3;
-    } else {
-      return 1;
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    List<Widget> _pages = <Widget>[
-      LandingPage(setPage: setPage),
-      Favorites(),
-      ScanFlower(
-        setPage: setPage,
-      ),
-      ViewHistory(),
-      Parks(),
-    ];
-
     void getImage({required ImageSource source}) async {
       File? imageFile;
+      Classifier _classifier = ClassifierFloat();
+
       final navigator = Navigator.of(context);
       final file = await ImagePicker().pickImage(
           source: source,
@@ -139,26 +71,103 @@ class _PageState extends State<Page> {
         });
       }
 
-      img.Image imageInput = img.decodeImage(imageFile!.readAsBytesSync())!;
-      var flower_name = _classifier?.predict(imageInput);
-
       if (imageFile != null) {
         final jwt = await Authentication.verifyJWT();
-        int points = await calculatePoints(flower_name!.label);
+        img.Image imageInput = img.decodeImage(imageFile!.readAsBytesSync())!;
+        var flower_name = _classifier.predict(imageInput);
+        int points = await calculatePoints(flower_name.label);
         await Points().addPoints(jwt!.payload["email"], points);
-        setPage(PresentFlower(
-            scannedImage: imageFile,
-            comingFrom: "scan_flower",
-            flowerName: flower_name.label));
+        context.read<DashboardProvider>().setSelectedIndex(2);
+        Navigator.pushReplacement(
+          context,
+          PageRouteBuilder(
+            pageBuilder: (context, animation1, animation2) => PresentFlower(
+                scannedImage: imageFile,
+                comingFrom: "scan_flower",
+                flowerName: flower_name.label),
+            transitionDuration: Duration.zero,
+            reverseTransitionDuration: Duration.zero,
+          ),
+        );
       } else {
-        Navigator.of(context)
-            .push(MaterialPageRoute(builder: (context) => Dashboard()));
+        // setPage(Dashboard());
       }
     }
 
     void _onItemTapped(int index) {
-      setPage(null);
-      Provider.of<ValueNotifier<int>>(context, listen: false).value = index;
+      context.read<DashboardProvider>().setSelectedIndex(index);
+      switch (index) {
+        case 0:
+          Navigator.of(context).pushAndRemoveUntil(
+              PageRouteBuilder(
+                pageBuilder: (context, animation1, animation2) => LandingPage(),
+                transitionDuration: Duration.zero,
+                reverseTransitionDuration: Duration.zero,
+              ),
+              (Route<dynamic> route) => false);
+          // Navigator.pushReplacement(
+          //   context,
+          //   PageRouteBuilder(
+          //     pageBuilder: (context, animation1, animation2) => LandingPage(),
+          //     transitionDuration: Duration.zero,
+          //     reverseTransitionDuration: Duration.zero,
+          //   ),
+          // );
+
+          break;
+        case 1:
+          Navigator.of(context).pushAndRemoveUntil(
+              PageRouteBuilder(
+                pageBuilder: (context, animation1, animation2) => Favorites(),
+                transitionDuration: Duration.zero,
+                reverseTransitionDuration: Duration.zero,
+              ),
+              (Route<dynamic> route) => false);
+          // Navigator.pushReplacement(
+          //   context,
+          //   PageRouteBuilder(
+          //     pageBuilder: (context, animation1, animation2) => Favorites(),
+          //     transitionDuration: Duration.zero,
+          //     reverseTransitionDuration: Duration.zero,
+          //   ),
+          // );
+          break;
+        case 3:
+          Navigator.of(context).pushAndRemoveUntil(
+              PageRouteBuilder(
+                pageBuilder: (context, animation1, animation2) => ViewHistory(),
+                transitionDuration: Duration.zero,
+                reverseTransitionDuration: Duration.zero,
+              ),
+              (Route<dynamic> route) => false);
+          // Navigator.pushReplacement(
+          //   context,
+          //   PageRouteBuilder(
+          //     pageBuilder: (context, animation1, animation2) => ViewHistory(),
+          //     transitionDuration: Duration.zero,
+          //     reverseTransitionDuration: Duration.zero,
+          //   ),
+          // );
+          break;
+        case 4:
+          Navigator.of(context).pushAndRemoveUntil(
+              PageRouteBuilder(
+                pageBuilder: (context, animation1, animation2) => Parks(),
+                transitionDuration: Duration.zero,
+                reverseTransitionDuration: Duration.zero,
+              ),
+              (Route<dynamic> route) => false);
+          // Navigator.pushReplacement(
+          //   context,
+          //   PageRouteBuilder(
+          //     pageBuilder: (context, animation1, animation2) => Parks(),
+          //     transitionDuration: Duration.zero,
+          //     reverseTransitionDuration: Duration.zero,
+          //   ),
+          // );
+
+          break;
+      }
     }
 
     var items = const <BottomNavigationBarItem>[
@@ -172,57 +181,67 @@ class _PageState extends State<Page> {
       BottomNavigationBarItem(icon: Icon(Icons.map_outlined), label: "Parks"),
     ];
 
-    return Scaffold(
-      body: widget.widget ??
-          Center(child: _pages[Provider.of<ValueNotifier<int>>(context).value]),
-      bottomNavigationBar: Container(
-        // add a top right border radius
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.only(
-            topRight: Radius.circular(25),
-          ),
-          color: Colors.white,
-        ),
-        child: ClipRRect(
-          borderRadius: BorderRadius.only(
-            topRight: Radius.circular(25),
-          ),
-          child: BottomNavigationBar(
-              currentIndex: Provider.of<ValueNotifier<int>>(context).value,
-              onTap: _onItemTapped,
-              type: BottomNavigationBarType.fixed,
-              backgroundColor: Colors.black,
-              iconSize: 25,
-              selectedIconTheme:
-                  IconThemeData(color: Colors.yellow[200], size: 30),
-              unselectedIconTheme: IconThemeData(
-                color: Colors.white,
+    final Size size = MediaQuery.of(context).size;
+
+    return Stack(
+      clipBehavior: Clip.none,
+      children: [
+        Positioned(
+          child: Container(
+            decoration: const BoxDecoration(
+              borderRadius: BorderRadius.only(
+                topRight: Radius.circular(25),
               ),
-              unselectedItemColor: Colors.white,
-              selectedItemColor: Colors.yellow[200],
-              items: items),
+              color: Colors.transparent,
+            ),
+            child: ClipRRect(
+              borderRadius: const BorderRadius.only(
+                topRight: Radius.circular(25),
+              ),
+              child: BottomNavigationBar(
+                  currentIndex:
+                      context.watch<DashboardProvider>().selectedIndex,
+                  onTap: _onItemTapped,
+                  type: BottomNavigationBarType.fixed,
+                  backgroundColor: Color.fromRGBO(39, 44, 41, 1),
+                  iconSize: 25,
+                  selectedIconTheme: const IconThemeData(
+                      color: Color.fromRGBO(211, 205, 98, 1), size: 30),
+                  unselectedIconTheme: const IconThemeData(
+                    color: Colors.white,
+                  ),
+                  selectedLabelStyle: GoogleFonts.montserrat(),
+                  unselectedLabelStyle: GoogleFonts.montserrat(),
+                  unselectedItemColor: Colors.white,
+                  selectedItemColor: Color.fromRGBO(211, 205, 98, 1),
+                  items: items),
+            ),
+          ),
         ),
-      ),
-      floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
-      floatingActionButton: SizedBox(
-        width: 70,
-        height: 70,
-        child: FittedBox(
-          child:
-              // Check if keyboard if open if true hide FAB
-              MediaQuery.of(context).viewInsets.bottom != 0.0
-                  ? null
-                  : FloatingActionButton(
-                      backgroundColor: Color(0xffa2a5a4),
-                      child: Image.asset('assets/images/camera_icon.png'),
-                      onPressed: () {
-                        setState(() {
-                          getImage(source: ImageSource.camera);
-                          // _selectedIndex = 2;
-                        });
-                      }),
+        Positioned(
+          bottom: 5,
+          left: size.width / 2.4,
+          child: IconButton(
+              tooltip: "Scan Flower",
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  PageRouteBuilder(
+                    pageBuilder: (context, animation1, animation2) =>
+                        ScanFlower(),
+                    transitionDuration: Duration.zero,
+                    reverseTransitionDuration: Duration.zero,
+                  ),
+                );
+                // getImage(source: ImageSource.camera);
+              },
+              // splashColor: Colors.transparent,
+              // highlightColor: Colors.transparent,
+              iconSize: 58,
+              color: Color.fromARGB(255, 141, 6, 63),
+              icon: Image.asset('assets/images/camera_icon.png')),
         ),
-      ),
+      ],
     );
   }
 }

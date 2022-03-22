@@ -14,6 +14,7 @@
 import 'dart:ffi';
 
 import 'package:blossom/components/app_text.dart';
+import 'package:blossom/dashboard.dart';
 import 'package:blossom/memories.dart';
 import 'package:blossom/present_flower.dart';
 import 'package:dart_jsonwebtoken/dart_jsonwebtoken.dart';
@@ -64,40 +65,39 @@ class _ViewHistoryState extends State<Favorites> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        appBar: AppBar(
-          title: const Text(''),
-          centerTitle: true,
-          backgroundColor: Colors.white,
-          // leading: _selectionButton,
-          // actions: _buttons,
-        ),
-        body: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-          Divider(height: 20),
-          Padding(
-              padding: EdgeInsets.only(top: 15, bottom: 30, left: 20),
-              child: Container(
-                  alignment: Alignment.topLeft,
-                  child: AppTextBold(text: "Favourites", size: 26))),
-          Expanded(
-            child: FutureBuilder(
-              future: favoritesFuture,
-              builder: (context, snapshot) {
-                if (snapshot.connectionState == ConnectionState.done) {
-                  if (snapshot.data != null) {
-                    context
-                        .read<ViewHistoryProvider>()
-                        .setAllPhotos(snapshot.data as List<Map?>);
-                  }
+      appBar: AppBar(
+        title: const Text(''),
+        centerTitle: true,
+        backgroundColor: Colors.white,
+        // leading: _selectionButton,
+        // actions: _buttons,
+      ),
+      body: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+        Padding(
+            padding: EdgeInsets.only(top: 15, bottom: 30, left: 20),
+            child: Container(
+                alignment: Alignment.topLeft,
+                child: AppTextBold(text: "Favourites", size: 26))),
+        Expanded(
+          child: FutureBuilder(
+            future: favoritesFuture,
+            builder: (context, snapshot) {
+              if (snapshot.connectionState == ConnectionState.done) {
+                if (snapshot.data != null) {
+                  var items = snapshot.data as List<Map?>;
                   return FavouriteGridView(
                       key: favouriteGridViewKey,
                       isLoading: false,
-                      items: context.watch<ViewHistoryProvider>().historyItems);
+                      items: items);
                 }
-                return FavouriteGridView(isLoading: true, items: []);
-              },
-            ),
-          )
-        ]));
+              }
+              return FavouriteGridView(isLoading: true, items: []);
+            },
+          ),
+        )
+      ]),
+      bottomNavigationBar: Dashboard(),
+    );
   }
 }
 
@@ -138,7 +138,10 @@ class _FavouriteGridViewState extends State<FavouriteGridView> {
                 onTap: () {
                   Navigator.of(context).push(MaterialPageRoute(
                       builder: (context) => PresentFlower(
-                          scannedImage: widget.items[index]!["file"], comingFrom: "favorites", flowerName: widget.items[index]!["flower_name"], location: widget.items[index]!["location"])));
+                          scannedImage: widget.items[index]!["file"],
+                          comingFrom: "favorites",
+                          flowerName: widget.items[index]!["flower_name"],
+                          location: widget.items[index]!["location"])));
                 },
                 child: Column(
                   children: [
@@ -154,9 +157,10 @@ class _FavouriteGridViewState extends State<FavouriteGridView> {
                         ),
                       ),
                     ),
-                    Text(widget.items[index]!["display_name"],
-                        style: const TextStyle(
-                            color: kTextColor, fontWeight: FontWeight.bold)),
+                    AppTextBold(
+                      text: widget.items[index]!["display_name"],
+                      size: 12,
+                    ),
                   ],
                 ),
               ));

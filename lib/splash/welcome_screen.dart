@@ -1,3 +1,4 @@
+import 'package:blossom/components/app_text.dart';
 import 'package:blossom/components/constants.dart';
 import 'package:blossom/components/rounded_button.dart';
 import 'package:blossom/components/size_config.dart';
@@ -25,31 +26,24 @@ class WelcomeScreen extends StatelessWidget {
       body: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          SizedBox(height: 60),
-          Center(
+          const SizedBox(height: 60),
+          const Center(
             child: Image(
               image: AssetImage('assets/images/blossom.png'),
               width: 250,
               height: 250,
             ),
           ),
-          Text(
-            'Blossom',
-            style: TextStyle(
-              color: Colors.black,
-              fontSize: 40,
-              fontWeight: FontWeight.bold,
-            ),
+          AppTextBold(size: 40, text: 'Blossom'),
+          // Theme.of(context).textTheme.headline4!.copyWith(
+          //           color: Colors.white,
 
-            // Theme.of(context).textTheme.headline4!.copyWith(
-            //           color: Colors.white,
+          //         ),
 
-            //         ),
-          ),
-          SizedBox(height: 20),
+          const SizedBox(height: 20),
           RoundedButton(
             text: "Login",
-            color: Color(0xFFB71C1C),
+            color: kPrimaryColor,
             //textColor: Colors.white,
             press: () {
               Navigator.push(
@@ -72,11 +66,12 @@ class WelcomeScreen extends StatelessWidget {
             },
           ),
           // SizedBox(height: 50),
-          Image(
+
+          const Image(
             image: AssetImage('assets/images/logo.png'),
-            width: 260,
-            height: 260,
-            alignment: Alignment.bottomLeft,
+            width: 250,
+            height: 250,
+            alignment: Alignment.bottomCenter,
           ),
 
           // Stack(

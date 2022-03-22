@@ -39,7 +39,8 @@ class _MemoriesState extends State<Memories> {
           iconTheme: const IconThemeData(color: Colors.black),
           actions: [
             IconButton(
-              icon: Icon(Icons.share),
+              tooltip: "Share",
+              icon: Icon(Icons.share_rounded),
               onPressed: () async {
                 share(widget.name, widget.items);
                 print('Ran share');
@@ -104,9 +105,10 @@ class PhotoGridView extends StatelessWidget {
                         ),
                       ),
                     ),
-                    Text(items[index]!["display_name"],
-                        style: TextStyle(
-                            color: kTextColor, fontWeight: FontWeight.bold)),
+                    AppTextBold(
+                      text: items[index]!["display_name"],
+                      size: 12,
+                    ),
                   ],
                 ),
               );
@@ -151,7 +153,7 @@ class FlowerImage extends StatelessWidget {
 
 void share(String memoryName, List<Map?> items) async {
   List<String> files = [];
-  final appurl = "google.com";
+  const String appurl = "google.com";
 
   for (int index = 0; index < items.length; index++) {
     final bytes = await items[index]!["file"].readAsBytes();
@@ -161,14 +163,13 @@ void share(String memoryName, List<Map?> items) async {
     final name = items[index]!["file"].path.split("/").last;
 
     final temp = await getTemporaryDirectory();
-    final path = '${temp.path}/$name';
+    final path = '${temp.path}/image$index.jpg';
 
     File(path).writeAsBytesSync(watermarked);
 
     files.add(path);
   }
-
   // await Share.share(
   //     "I identified " + flowerName + " using the Blossom app!" + appurl);
-  await Share.shareFiles(files, text: memoryName + appurl);
+  await Share.shareFiles(files, text: "$memoryName $appurl");
 }

@@ -1,13 +1,18 @@
 import 'package:blossom/backend/authentication.dart';
 import 'package:blossom/backend/points.dart';
 import 'package:blossom/backend/vouchers.dart';
+import 'package:blossom/dashboard.dart';
+import 'package:blossom/forgot_password/forgot_password_change.dart';
+import 'package:blossom/providers/userinfo_provider.dart';
 import 'package:blossom/redeem_voucher.dart';
 import 'package:blossom/splash/welcome_screen.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:blossom/components/app_text.dart';
 import 'package:blossom/constants.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:shimmer/shimmer.dart';
 
 class Profile extends StatefulWidget {
   const Profile({Key? key}) : super(key: key);
@@ -22,72 +27,105 @@ class _ProfileState extends State<Profile> {
     super.initState();
   }
 
-  Future<Map?> getAccountInfo() async {
+  // Future<Map?> getAccountInfo() async {
+  //   final jwt = await Authentication.verifyJWT();
+  //   int points = await Points().getPoints(jwt!.payload["email"]);
+  //   List? vouchers = await Vouchers().getUserVouchers(jwt.payload["email"]);
+  //   Map? accountInfo = {
+  //     "username": jwt.payload["username"],
+  //     "email": jwt.payload["email"],
+  //     "points": points
+  //     "vouchers": vouchers
+  //   };
+  //   return accountInfo;
+  // }
+
+  Future<List?> getVouchers() async {
+    final jwt = await Authentication.verifyJWT();
+    List? vouchers = await Vouchers().getUserVouchers(jwt!.payload["email"]);
+
+    return vouchers;
+  }
+
+  Future<int> getPoints() async {
     final jwt = await Authentication.verifyJWT();
     int points = await Points().getPoints(jwt!.payload["email"]);
-    List? vouchers = await Vouchers().getUserVouchers(jwt.payload["email"]);
-    Map? accountInfo = {
-      "username": jwt.payload["username"],
-      "email": jwt.payload["email"],
-      "points": points
-      "vouchers": vouchers
-    };
-    return accountInfo;
+
+    return points;
   }
 
   @override
   Widget build(BuildContext context) {
-    
-    Widget profileSection(String accountName, int pointNumber, String emailAddress) {
-      
+    Widget profileSection() {
+      var accountName = context.watch<UserInfoProvider>().username;
+      var emailAddress = context.watch<UserInfoProvider>().email;
+
       return Container(
-      padding: const EdgeInsets.all(30.0),
-      height: 180,
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Row(children: [
-                const Icon(
-                  Icons.account_circle_outlined,
-                  size: 70,
-                  color: kTextColor,
-                ), //profile photo
+        padding: const EdgeInsets.all(30.0),
+        height: 180,
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Row(children: [
+                  const Icon(
+                    Icons.account_circle_outlined,
+                    size: 60,
+                    color: kTextColor,
+                  ), //profile photo
+                  AppTextBold(
+                    text: accountName,
+                    size: 28,
+                  ),
+                ]),
+                Container(
+                  child: Column(
+                    children: [
+                      AppTextNormal(text: "My Points", size: 14),
+                      FutureBuilder(
+                        future: getPoints(),
+                        builder: (context, snapshot) {
+                          if (snapshot.data != null) {
+                            int? pointNumber = snapshot.data as int?;
+                            return AppTextBold(
+                              text: pointNumber.toString() + " pts",
+                              size: 22,
+                            );
+                          } else {
+                            return Shimmer.fromColors(
+                              baseColor: Colors.grey[300]!,
+                              highlightColor: Colors.grey[100]!,
+                              child: Container(
+                                height: 29,
+                                width: 100.0,
+                                color: Colors.grey[300],
+                              ),
+                            );
+                          }
+                        },
+                      ),
+                    ],
+                  ),
+                )
+              ],
+            ),
+            Row(
+              children: [
                 AppTextBold(
-                  text: accountName,
-                  size: 35,
+                  text: "Email: ",
+                  size: 18,
                 ),
-              ]),
-              Container(
-                child: Column(
-                  children: [
-                    AppTextNormal(text: "My Points", size: 17),
-                    AppTextBold(
-                      text: pointNumber.toString() + " pts",
-                      size: 30,
-                    ),
-                  ],
+                AppTextNormal(
+                  text: emailAddress,
+                  size: 18,
                 ),
-              )
-            ],
-          ),
-          Row(
-            children: [
-              AppTextBold(
-                text: "Email: ",
-                size: 20,
-              ),
-              AppTextNormal(
-                text: emailAddress,
-                size: 20,
-              ),
-            ],
-          )
-        ],
-      ),
-    );
+              ],
+            )
+          ],
+        ),
+      );
     }
 
     Row MyVoucherTile(Map? voucher) {
@@ -101,7 +139,8 @@ class _ProfileState extends State<Profile> {
           decoration: BoxDecoration(
             image: DecorationImage(
               fit: BoxFit.fill,
-              image: NetworkImage("https://cdn-icons-png.flaticon.com/512/3210/3210036.png"),
+              image: NetworkImage(
+                  "https://cdn-icons-png.flaticon.com/512/3210/3210036.png"),
             ),
           ),
         ),
@@ -109,10 +148,7 @@ class _ProfileState extends State<Profile> {
         Center(
           //voucher info
           child: AppTextNormal(
-            text:
-                voucher!["voucher_info"] +
-                "\n" +
-                voucher["date"],
+            text: voucher!["voucher_info"] + "\n" + voucher["date"],
             size: 15,
           ),
         ),
@@ -134,51 +170,78 @@ class _ProfileState extends State<Profile> {
       ]);
     }
 
-    Widget voucherSection(List? vouchers) {
-
-    return Container(
-      padding: const EdgeInsets.all(30.0),
-      child: Column(
-        children: [
-          Align(
-            //to make text in column left-aligned
-            alignment: Alignment.centerLeft,
-            child: AppTextBold(
-              text: "My Vouchers",
-              size: 20,
-            ),
-          ),
-          Expanded(
-            child: ListView.builder(
-                padding: const EdgeInsets.all(8),
-                itemCount: vouchers!.length,
-                itemBuilder: (BuildContext context, int index) {
-                  return Container(
-                    height: 100,
-                    child: MyVoucherTile(vouchers[index]),
-                  );
-                }),
-          ),
-          Center(
-            child: ElevatedButton(
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                      builder: (context) => const RedeemVoucher()),
-                ); // Respond to button press: go to Redeem Voucher page
-              },
-              child: const Text('Redeem More >'),
-              style: ElevatedButton.styleFrom(
-                primary: kButtonColor1, // Background color
-                onPrimary: Colors.white, // Text Color (Foreground color)
+    Widget voucherSection() {
+      return Container(
+        padding: const EdgeInsets.all(30.0),
+        child: Column(
+          children: [
+            Align(
+              //to make text in column left-aligned
+              alignment: Alignment.centerLeft,
+              child: AppTextBold(
+                text: "My Vouchers",
+                size: 20,
               ),
             ),
-          ),
-        ],
-      ),
-    );
+            Expanded(
+              child: FutureBuilder(
+                future: getVouchers(),
+                builder: (context, snapshot) {
+                  if (snapshot.data != null) {
+                    List? vouchers = snapshot.data as List?;
+                    return ListView.builder(
+                        padding: const EdgeInsets.all(8),
+                        itemCount: vouchers!.length,
+                        itemBuilder: (BuildContext context, int index) {
+                          return Container(
+                            height: 100,
+                            child: MyVoucherTile(vouchers[index]),
+                          );
+                        });
+                  } else {
+                    return Shimmer.fromColors(
+                      baseColor: Colors.grey[300]!,
+                      highlightColor: Colors.grey[100]!,
+                      child: Container(
+                        height: 100.0,
+                        color: Colors.grey[300],
+                      ),
+                    );
+                  }
+                },
+              ),
+            ),
+            Center(
+              child: ElevatedButton(
+                onPressed: () {
+                  Navigator.pushReplacement(
+                    context,
+                    PageRouteBuilder(
+                      pageBuilder: (context, animation1, animation2) =>
+                          RedeemVoucher(),
+                      transitionDuration: Duration.zero,
+                      reverseTransitionDuration: Duration.zero,
+                    ),
+                  );
+                  // Navigator.push(
+                  //   context,
+                  //   MaterialPageRoute(
+                  //       builder: (context) => const RedeemVoucher()),
+                  // ); // Respond to button press: go to Redeem Voucher page
+                },
+                child: AppTextBold(
+                    text: 'Redeem More >', size: 14, color: Colors.white),
+                style: ElevatedButton.styleFrom(
+                  primary: kButtonColor1, // Background color
+                  onPrimary: Colors.white, // Text Color (Foreground color)
+                ),
+              ),
+            ),
+          ],
+        ),
+      );
     }
+
     return Scaffold(
       appBar: AppBar(
         title: const Text(''),
@@ -187,25 +250,70 @@ class _ProfileState extends State<Profile> {
         iconTheme: const IconThemeData(color: Colors.black),
         actions: [
           IconButton(
+            tooltip: "Change Password",
+            icon: Icon(
+              Icons.manage_accounts_outlined,
+            ),
+            onPressed: () {
+              Navigator.push(
+                context,
+                PageRouteBuilder(
+                  pageBuilder: (context, animation1, animation2) =>
+                      const ForgetChangeScreen(
+                    comingForm: 'Change Password',
+                    email: '',
+                  ),
+                  transitionDuration: Duration.zero,
+                  reverseTransitionDuration: Duration.zero,
+                ),
+              );
+            },
+          ),
+          IconButton(
             icon: Icon(Icons.logout_rounded),
+            tooltip: "Logout",
             onPressed: () {
               showDialog(
                 context: context,
                 //barrierDismissible: false,//user must tap button to dismiss
                 builder: (_) => AlertDialog(
-                  title: const Text("Confirm"),
-                  content: const Text('Confirm to log out?'),
+                  title: AppTextBold(
+                    text: "Confirm",
+                    size: 18,
+                  ),
+                  content: AppTextNormal(
+                    text: 'Confirm to log out?',
+                    size: 16,
+                  ),
                   actions: [
                     TextButton(
-                      child: const Text("Cancel"),
+                      child: AppTextNormal(
+                        text: 'Cancel',
+                        size: 14,
+                        color: Colors.blue,
+                      ),
                       onPressed: () => Navigator.pop(context, 'Cancel'),
                     ),
                     TextButton(
-                      child: const Text("Confirm to log out"),
+                      child: AppTextNormal(
+                        text: "Confirm to log out",
+                        size: 14,
+                        color: Colors.blue,
+                      ),
                       onPressed: () async {
                         //log out
                         final prefs = await SharedPreferences.getInstance();
                         final success = await prefs.remove('jwt');
+                        context.read<UserInfoProvider>().setUsername("");
+                        context.read<UserInfoProvider>().setEmail("");
+                        // Navigator.of(context).pushAndRemoveUntil(
+                        //     PageRouteBuilder(
+                        //       pageBuilder: (context, animation1, animation2) =>
+                        //           WelcomeScreen(),
+                        //       transitionDuration: Duration.zero,
+                        //       reverseTransitionDuration: Duration.zero,
+                        //     ),
+                        //     (Route<dynamic> route) => false);
                         Navigator.of(context).pushAndRemoveUntil(
                             MaterialPageRoute(
                                 builder: (context) => WelcomeScreen()),
@@ -218,27 +326,14 @@ class _ProfileState extends State<Profile> {
                 ),
               );
             },
-          )
+          ),
         ],
       ),
-      body: FutureBuilder(
-        future: getAccountInfo(),
-        builder: (context, snapshot) {
-          if (snapshot.data != null) {
-            Map? accountInfo = snapshot.data as Map?;
-            String accountName = accountInfo!["username"];
-            String emailAddress = accountInfo["email"];
-            int pointNumber = accountInfo["points"];
-            List? vouchers = accountInfo["vouchers"];
-            return Column(children: [
-              profileSection(accountName, pointNumber, emailAddress),
-              Expanded(child: voucherSection(vouchers)),
-            ]);
-          } else {
-            return Row();
-          }
-        },
-      ),
+      body: Column(children: [
+        profileSection(),
+        Expanded(child: voucherSection()),
+      ]),
+      bottomNavigationBar: Dashboard(),
     );
   }
 }
