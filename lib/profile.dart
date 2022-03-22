@@ -83,7 +83,7 @@ class _ProfileState extends State<Profile> {
                 Container(
                   child: Column(
                     children: [
-                      AppTextNormal(text: "My Points", size: 16),
+                      AppTextNormal(text: "My Points", size: 14),
                       FutureBuilder(
                         future: getPoints(),
                         builder: (context, snapshot) {
@@ -91,14 +91,14 @@ class _ProfileState extends State<Profile> {
                             int? pointNumber = snapshot.data as int?;
                             return AppTextBold(
                               text: pointNumber.toString() + " pts",
-                              size: 26,
+                              size: 22,
                             );
                           } else {
                             return Shimmer.fromColors(
                               baseColor: Colors.grey[300]!,
                               highlightColor: Colors.grey[100]!,
                               child: Container(
-                                height: 32.0,
+                                height: 29,
                                 width: 100.0,
                                 color: Colors.grey[300],
                               ),

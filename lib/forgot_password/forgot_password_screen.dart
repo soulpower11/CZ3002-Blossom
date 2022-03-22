@@ -40,7 +40,7 @@ class ForgotPasswordScreen extends StatelessWidget {
               children: [
                 SizedBox(height: SizeConfig.screenHeight! * 0.04),
                 Padding(
-                  padding: EdgeInsets.only(left: 0, right: 80, top: 10),
+                  padding: EdgeInsets.only(left: 0, right: 70, top: 10),
                   child: AppTextBold(
                     text: "Forgot Password",
                     size: getProportionateScreenWidth(28),
