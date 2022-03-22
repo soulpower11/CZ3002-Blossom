@@ -7,6 +7,7 @@ import 'package:blossom/scan_flower.dart';
 import 'package:blossom/social_media.dart';
 import 'package:dart_jsonwebtoken/dart_jsonwebtoken.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/scheduler.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -158,19 +159,23 @@ class _PresentFlowerState extends State<PresentFlower> {
             icon: favourite
                 ? Icon(Icons.favorite, color: kButtonColor1)
                 : Icon(Icons.favorite_border),
-            onPressed: () async {
-              setState(() => favourite = !favourite);
-              Flower().toggleFavourite(
-                  widget.flowerName, flowerName, email, favourite);
-            },
+            onPressed: isLoading
+                ? null
+                : () async {
+                    setState(() => favourite = !favourite);
+                    Flower().toggleFavourite(
+                        widget.flowerName, flowerName, email, favourite);
+                  },
           ),
           IconButton(
             tooltip: "Share",
             icon: Icon(Icons.share_rounded),
-            onPressed: () async {
-              share(flowerName, scannedImage);
-              print('Ran share');
-            },
+            onPressed: isLoading
+                ? null
+                : () async {
+                    share(flowerName, scannedImage);
+                    print('Ran share');
+                  },
           )
         ],
       ),
@@ -180,7 +185,10 @@ class _PresentFlowerState extends State<PresentFlower> {
             if (snapshot.connectionState == ConnectionState.done) {
               var flower = snapshot.data as Map<dynamic, dynamic>;
               flowerName = flower["display_name"];
-
+              SchedulerBinding.instance
+                  ?.addPostFrameCallback((_) => setState(() {
+                        isLoading = false;
+                      }));
               return PresentFlowerScrollView(
                   flower: flower,
                   databaseImage: databaseImage,

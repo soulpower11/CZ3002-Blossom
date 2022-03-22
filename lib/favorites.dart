@@ -62,6 +62,13 @@ class _ViewHistoryState extends State<Favorites> {
     return null;
   }
 
+  refreshState() {
+    setState(() {
+      favoritesFuture = getUserFavorites();
+    });
+    // change your state to refresh the screen
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(

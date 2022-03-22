@@ -41,6 +41,10 @@ class LandingPage extends StatelessWidget {
       }
     }
 
+    Future<String> getFlowerOfTheDay() async {
+      return await Flower().getFlowerOfTheDay();
+    }
+
     void getImage({required ImageSource source}) async {
       File? imageFile;
       Classifier _classifier = ClassifierFloat();
@@ -120,6 +124,42 @@ class LandingPage extends StatelessWidget {
       ),
       body: ListView(
         children: [
+          // Padding(
+          //     padding: EdgeInsets.only(top: 8, left: 12),
+          //     child:
+          //     Container(
+          //         alignment: Alignment.topLeft,
+          //         child: FutureBuilder(
+          //             future: getFlowerOfTheDay(),
+          //             builder: (context, snapshot) {
+          //               if (snapshot.connectionState == ConnectionState.done) {
+          //                 if (snapshot.data != null) {
+          //                   String? flower = snapshot.data as String?;
+          //                   return AppTextBold(
+          //                       text: "Flower of the Day: ${flower}", size: 18);
+          //                 } else {
+          //                   return Shimmer.fromColors(
+          //                     baseColor: Colors.grey[300]!,
+          //                     highlightColor: Colors.grey[100]!,
+          //                     child: Container(
+          //                       height: 22.0,
+          //                       width: 320.0,
+          //                       color: Colors.grey[300],
+          //                     ),
+          //                   );
+          //                 }
+          //               } else {
+          //                 return Shimmer.fromColors(
+          //                   baseColor: Colors.grey[300]!,
+          //                   highlightColor: Colors.grey[100]!,
+          //                   child: Container(
+          //                     height: 22.0,
+          //                     width: 320.0,
+          //                     color: Colors.grey[300],
+          //                   ),
+          //                 );
+          //               }
+          //             }))),
           Container(
             child: CarouselSlider(
               items: [
