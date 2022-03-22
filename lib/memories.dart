@@ -163,7 +163,7 @@ void share(String memoryName, List<Map?> items) async {
     final name = items[index]!["file"].path.split("/").last;
 
     final temp = await getTemporaryDirectory();
-    final path = '${temp.path}/$name';
+    final path = '${temp.path}/image$index.jpg';
 
     File(path).writeAsBytesSync(watermarked);
 

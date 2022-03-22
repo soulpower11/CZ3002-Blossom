@@ -84,14 +84,12 @@ class _ViewHistoryState extends State<Favorites> {
             builder: (context, snapshot) {
               if (snapshot.connectionState == ConnectionState.done) {
                 if (snapshot.data != null) {
-                  context
-                      .read<ViewHistoryProvider>()
-                      .setAllPhotos(snapshot.data as List<Map?>);
+                  var items = snapshot.data as List<Map?>;
+                  return FavouriteGridView(
+                      key: favouriteGridViewKey,
+                      isLoading: false,
+                      items: items);
                 }
-                return FavouriteGridView(
-                    key: favouriteGridViewKey,
-                    isLoading: false,
-                    items: context.watch<ViewHistoryProvider>().historyItems);
               }
               return FavouriteGridView(isLoading: true, items: []);
             },

@@ -165,6 +165,16 @@ class _PresentFlowerState extends State<PresentFlower> {
                     setState(() => favourite = !favourite);
                     Flower().toggleFavourite(
                         widget.flowerName, flowerName, email, favourite);
+                    if (widget.comingFrom == "favorites") {
+                      Navigator.of(context).pushAndRemoveUntil(
+                          PageRouteBuilder(
+                            pageBuilder: (context, animation1, animation2) =>
+                                Favorites(),
+                            transitionDuration: Duration.zero,
+                            reverseTransitionDuration: Duration.zero,
+                          ),
+                          (Route<dynamic> route) => false);
+                    }
                   },
           ),
           IconButton(

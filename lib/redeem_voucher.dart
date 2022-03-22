@@ -2,6 +2,7 @@ import 'package:blossom/backend/points.dart';
 import 'package:blossom/backend/vouchers.dart';
 import 'package:blossom/components/app_text.dart';
 import 'package:blossom/dashboard.dart';
+import 'package:blossom/home.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:blossom/constants.dart';
@@ -115,6 +116,14 @@ class _RedeemVoucherState extends State<RedeemVoucher> {
                           left: 14,
                           right: 14,
                         )));
+                    Navigator.of(context).pushAndRemoveUntil(
+                        PageRouteBuilder(
+                          pageBuilder: (context, animation1, animation2) =>
+                              LandingPage(),
+                          transitionDuration: Duration.zero,
+                          reverseTransitionDuration: Duration.zero,
+                        ),
+                        (Route<dynamic> route) => false);
                   });
                 },
               ),

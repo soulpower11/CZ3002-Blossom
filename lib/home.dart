@@ -13,11 +13,13 @@ import 'package:blossom/redeem_voucher.dart';
 import 'package:blossom/scan_flower.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/material.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:image/image.dart' as img;
 import 'package:image_picker/image_picker.dart';
 import 'package:shimmer/shimmer.dart';
 import 'dashboard.dart';
+import 'package:image_watermark/image_watermark.dart';
 
 class LandingPage extends StatelessWidget {
   const LandingPage({Key? key}) : super(key: key);
@@ -41,8 +43,22 @@ class LandingPage extends StatelessWidget {
       }
     }
 
-    Future<String> getFlowerOfTheDay() async {
-      return await Flower().getFlowerOfTheDay();
+    Future<File?> getFlowerOfTheDay() async {
+      String flowerName = await Flower().getFlowerOfTheDay();
+      Map? flowerInfo = await Flower().getFlower(flowerName);
+      File flowerPhoto = await Flower().getStockFlowerImage(flowerName);
+      String displayName = flowerInfo!["display_name"];
+
+      final bytes = await flowerPhoto.readAsBytes();
+      final watermarked = await image_watermark.addTextWatermarkCentered(
+          bytes, 'Flower of the day: $displayName');
+
+      final temp = await getTemporaryDirectory();
+      final path = '${temp.path}/image.jpg';
+
+      File(path).writeAsBytesSync(watermarked);
+
+      return File(path);
     }
 
     void getImage({required ImageSource source}) async {
@@ -124,42 +140,6 @@ class LandingPage extends StatelessWidget {
       ),
       body: ListView(
         children: [
-          // Padding(
-          //     padding: EdgeInsets.only(top: 8, left: 12),
-          //     child:
-          //     Container(
-          //         alignment: Alignment.topLeft,
-          //         child: FutureBuilder(
-          //             future: getFlowerOfTheDay(),
-          //             builder: (context, snapshot) {
-          //               if (snapshot.connectionState == ConnectionState.done) {
-          //                 if (snapshot.data != null) {
-          //                   String? flower = snapshot.data as String?;
-          //                   return AppTextBold(
-          //                       text: "Flower of the Day: ${flower}", size: 18);
-          //                 } else {
-          //                   return Shimmer.fromColors(
-          //                     baseColor: Colors.grey[300]!,
-          //                     highlightColor: Colors.grey[100]!,
-          //                     child: Container(
-          //                       height: 22.0,
-          //                       width: 320.0,
-          //                       color: Colors.grey[300],
-          //                     ),
-          //                   );
-          //                 }
-          //               } else {
-          //                 return Shimmer.fromColors(
-          //                   baseColor: Colors.grey[300]!,
-          //                   highlightColor: Colors.grey[100]!,
-          //                   child: Container(
-          //                     height: 22.0,
-          //                     width: 320.0,
-          //                     color: Colors.grey[300],
-          //                   ),
-          //                 );
-          //               }
-          //             }))),
           Container(
             child: CarouselSlider(
               items: [
@@ -193,6 +173,26 @@ class LandingPage extends StatelessWidget {
                         fit: BoxFit.cover,
                       )),
                 ),
+                FutureBuilder(
+                    future: getFlowerOfTheDay(),
+                    builder: (context, snapshot) {
+                      if (snapshot.connectionState == ConnectionState.done) {
+                        if (snapshot.data != null) {
+                          File? fod = snapshot.data as File?;
+
+                          return Container(
+                            margin: EdgeInsets.all(10.0),
+                            decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(10.0),
+                                image: DecorationImage(
+                                  image: FileImage(fod!),
+                                  fit: BoxFit.cover,
+                                )),
+                          );
+                        }
+                      }
+                      return Container();
+                    })
               ],
               options: CarouselOptions(
                   height: 300.0,
