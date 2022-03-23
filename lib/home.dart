@@ -3,6 +3,7 @@ import 'package:blossom/backend/authentication.dart';
 import 'package:blossom/backend/flower.dart';
 import 'package:blossom/backend/points.dart';
 import 'package:blossom/components/app_text.dart';
+import 'package:blossom/components/constants.dart';
 import 'package:blossom/dashboard.dart';
 import 'package:blossom/image_recognition/classifier.dart';
 import 'package:blossom/image_recognition/classifier_float.dart';
@@ -13,6 +14,7 @@ import 'package:blossom/redeem_voucher.dart';
 import 'package:blossom/scan_flower.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:image/image.dart' as img;
@@ -20,6 +22,7 @@ import 'package:image_picker/image_picker.dart';
 import 'package:shimmer/shimmer.dart';
 import 'dashboard.dart';
 import 'package:image_watermark/image_watermark.dart';
+import 'package:path/path.dart';
 
 class LandingPage extends StatelessWidget {
   const LandingPage({Key? key}) : super(key: key);
@@ -50,10 +53,10 @@ class LandingPage extends StatelessWidget {
       String displayName = flowerInfo!["display_name"];
 
       final temp = await getTemporaryDirectory();
-      final path = '${temp.path}/image.jpg';
+      final path = '${temp.path}/cropped_${basename(flowerPhoto.path)}';
 
       img.Image? image = img.decodeImage(flowerPhoto.readAsBytesSync());
-      img.Image thumbnail = img.copyResize(image!, width: 640, height: 480);
+      img.Image thumbnail = img.copyResize(image!, width: 640);
       File(path).writeAsBytesSync(img.encodeJpg(thumbnail));
       flowerPhoto = File(path);
 
@@ -193,16 +196,18 @@ class LandingPage extends StatelessWidget {
                           String flower = fodInfo["display_name"];
                           return Container(
                             child: Center(
-                              child: AppTextBold(
-                                text: "Flower of the Day: $flower",
-                                size: 24,
-                              ),
-                            ),
+                                child: Text("Flower of the Day: $flower",
+                                    style: GoogleFonts.montserrat(
+                                        textStyle: const TextStyle(
+                                            backgroundColor: Colors.white,
+                                            fontSize: 18,
+                                            color: kTextColor,
+                                            fontWeight: FontWeight.bold)))),
                             margin: EdgeInsets.all(10.0),
                             decoration: BoxDecoration(
                                 borderRadius: BorderRadius.circular(10.0),
                                 image: DecorationImage(
-                                  image: FileImage(fod!),
+                                  image: FileImage(fod),
                                   fit: BoxFit.cover,
                                 )),
                           );
