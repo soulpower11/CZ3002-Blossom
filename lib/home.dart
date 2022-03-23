@@ -43,22 +43,32 @@ class LandingPage extends StatelessWidget {
       }
     }
 
-    Future<File?> getFlowerOfTheDay() async {
+    Future<Map?> getFlowerOfTheDay() async {
       String flowerName = await Flower().getFlowerOfTheDay();
       Map? flowerInfo = await Flower().getFlower(flowerName);
       File flowerPhoto = await Flower().getStockFlowerImage(flowerName);
       String displayName = flowerInfo!["display_name"];
 
-      final bytes = await flowerPhoto.readAsBytes();
-      final watermarked = await image_watermark.addTextWatermarkCentered(
-          bytes, 'Flower of the day: $displayName');
-
       final temp = await getTemporaryDirectory();
       final path = '${temp.path}/image.jpg';
 
-      File(path).writeAsBytesSync(watermarked);
+      img.Image? image = img.decodeImage(flowerPhoto.readAsBytesSync());
+      img.Image thumbnail = img.copyResize(image!, width: 640, height: 480);
+      File(path).writeAsBytesSync(img.encodeJpg(thumbnail));
+      flowerPhoto = File(path);
 
-      return File(path);
+      // final bytes = await flowerPhoto.readAsBytes();
+
+      // final watermarked = await image_watermark.addTextWatermarkCentered(
+      //     bytes, 'Flower of the day: $displayName',
+      //     color: Colors.black);
+
+      // File(path).writeAsBytesSync(watermarked);
+
+      return {
+        "display_name": displayName,
+        "file": File(path),
+      };
     }
 
     void getImage({required ImageSource source}) async {
@@ -178,9 +188,16 @@ class LandingPage extends StatelessWidget {
                     builder: (context, snapshot) {
                       if (snapshot.connectionState == ConnectionState.done) {
                         if (snapshot.data != null) {
-                          File? fod = snapshot.data as File?;
-
+                          Map? fodInfo = snapshot.data as Map?;
+                          File fod = fodInfo!["file"];
+                          String flower = fodInfo["display_name"];
                           return Container(
+                            child: Center(
+                              child: AppTextBold(
+                                text: "Flower of the Day: $flower",
+                                size: 24,
+                              ),
+                            ),
                             margin: EdgeInsets.all(10.0),
                             decoration: BoxDecoration(
                                 borderRadius: BorderRadius.circular(10.0),
