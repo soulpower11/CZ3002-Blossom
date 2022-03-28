@@ -2,9 +2,8 @@ import 'package:blossom/components/app_text.dart';
 import 'package:blossom/components/constants.dart';
 import 'package:blossom/components/rounded_button.dart';
 import 'package:blossom/components/size_config.dart';
-import 'package:blossom/sign_in/sign_in_screen.dart';
-import 'package:blossom/sign_up/sign_up_screen.dart';
-
+import 'package:blossom/screen/sign_in_screen.dart';
+import 'package:blossom/screen/sign_up_screen.dart';
 import 'package:flutter/material.dart';
 
 class WelcomeScreen extends StatelessWidget {

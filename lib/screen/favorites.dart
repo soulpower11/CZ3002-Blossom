@@ -1,31 +1,16 @@
-// import 'package:flutter/material.dart';
-
-// class Favorites extends StatelessWidget {
-//   const Favorites({ Key? key }) : super(key: key);
-
-//   @override
-//   Widget build(BuildContext context) {
-//     return Container(
-//       child: Center(child: Text('My Favorites')),
-//     );
-//   }
-// }
-
 import 'dart:ffi';
 
+import 'package:blossom/screen/dashboard.dart';
+import 'package:blossom/screen/present_flower.dart';
+import 'package:blossom/backend/authentication.dart';
+import 'package:blossom/backend/flower.dart';
 import 'package:blossom/components/app_text.dart';
-import 'package:blossom/dashboard.dart';
-import 'package:blossom/memories.dart';
-import 'package:blossom/present_flower.dart';
+import 'package:blossom/components/constants.dart';
 import 'package:dart_jsonwebtoken/dart_jsonwebtoken.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'backend/authentication.dart';
-import 'backend/flower.dart';
-import 'constants.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:provider/provider.dart';
-import 'providers/view_history_provider.dart';
 
 class Favorites extends StatefulWidget {
   const Favorites({Key? key}) : super(key: key);

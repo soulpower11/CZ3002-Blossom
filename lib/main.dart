@@ -1,9 +1,9 @@
 import 'package:blossom/providers/dashboard_provider.dart';
 import 'package:blossom/providers/userinfo_provider.dart';
 import 'package:blossom/providers/view_history_provider.dart';
-import 'package:blossom/splash_screen.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter/material.dart';
+import 'package:blossom/screen/splash_screen.dart';
 
 void main() {
   runApp(

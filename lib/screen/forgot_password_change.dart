@@ -1,17 +1,16 @@
+import 'package:blossom/backend/authentication.dart';
 import 'package:blossom/components/app_text.dart';
 import 'package:blossom/components/constants.dart';
 import 'package:blossom/components/form_error.dart';
 import 'package:blossom/components/rounded_button.dart';
-import 'package:blossom/home.dart';
 import 'package:blossom/providers/userinfo_provider.dart';
-import 'package:blossom/splash/welcome_screen.dart';
+import 'package:blossom/screen/welcome_screen.dart';
+import 'home.dart';
 import 'package:dart_jsonwebtoken/dart_jsonwebtoken.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-
-import '../backend/authentication.dart';
 
 class ForgetChangeScreen extends StatelessWidget {
   final String email;

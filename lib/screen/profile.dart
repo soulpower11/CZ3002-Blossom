@@ -1,18 +1,18 @@
 import 'package:blossom/backend/authentication.dart';
 import 'package:blossom/backend/points.dart';
 import 'package:blossom/backend/vouchers.dart';
-import 'package:blossom/dashboard.dart';
-import 'package:blossom/forgot_password/forgot_password_change.dart';
+import 'package:blossom/components/constants.dart';
 import 'package:blossom/providers/userinfo_provider.dart';
-import 'package:blossom/redeem_voucher.dart';
-import 'package:blossom/splash/welcome_screen.dart';
+import 'package:blossom/screen/welcome_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:blossom/components/app_text.dart';
-import 'package:blossom/constants.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:shimmer/shimmer.dart';
+import 'package:blossom/screen/dashboard.dart';
+import 'package:blossom/screen/forgot_password_change.dart';
+import 'package:blossom/screen/redeem_voucher.dart';
 
 class Profile extends StatefulWidget {
   const Profile({Key? key}) : super(key: key);

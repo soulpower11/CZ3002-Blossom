@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:blossom/screen/forgot_password_change.dart';
 import 'package:blossom/backend/authentication.dart';
 import 'package:blossom/components/app_text.dart';
 import 'package:blossom/components/constants.dart';
@@ -7,12 +8,11 @@ import 'package:blossom/components/form_error.dart';
 import 'package:blossom/components/no_account_text.dart';
 import 'package:blossom/components/rounded_button.dart';
 import 'package:blossom/components/size_config.dart';
-import 'package:blossom/forgot_password/forgot_password_change.dart';
+import 'package:blossom/config/auth.config.dart';
 import 'package:flutter/material.dart';
 import 'package:email_auth/email_auth.dart';
 import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
-import '../auth.config.dart';
 
 class ForgotPasswordScreen extends StatelessWidget {
   static Route route() {
