@@ -11,6 +11,7 @@ import 'package:dart_jsonwebtoken/src/jwt.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:blossom/components/size_config.dart';
 
 class SplashScreen extends StatelessWidget {
   static Route route() {
@@ -21,6 +22,7 @@ class SplashScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    SizeConfig().init(context);
     Timer(const Duration(seconds: 2), () async {
       final JWT? jwt = await Authentication.verifyJWT();
       if (jwt != null) {
