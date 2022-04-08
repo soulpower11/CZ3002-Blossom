@@ -166,7 +166,7 @@ class _SignFormState extends State<SignInForm> {
                     // KeyboardUtil.hideKeyboard(context);
                     final login = await Authentication()
                         .login(emailController.text, passwordController.text);
-                    print(login);
+                    // print(login);
                     if (login == "UserNotFound") {
                       addError(error: kUserNotFoundError);
                     } else if (login == "WrongPassword") {
@@ -176,7 +176,7 @@ class _SignFormState extends State<SignInForm> {
                       final prefs = await SharedPreferences.getInstance();
                       // Save an String value to 'action' key.
                       await prefs.setString('jwt', login);
-                      print(prefs);
+                      // print(prefs);
                       JWT? jwt = await Authentication.verifyJWT();
                       context
                           .read<UserInfoProvider>()
