@@ -1,20 +1,17 @@
 import 'dart:io';
 
+import 'package:blossom/screen/scan_flower.dart';
+import 'package:blossom/screen/view_history.dart';
+import 'package:blossom/screen/view_parks.dart';
+import 'package:blossom/screen/favorites.dart';
+import 'package:blossom/screen/home.dart';
+import 'package:blossom/screen/present_flower.dart';
 import 'package:blossom/backend/authentication.dart';
 import 'package:blossom/backend/flower.dart';
 import 'package:blossom/backend/points.dart';
-import 'package:blossom/constants.dart';
-import 'package:blossom/favorites.dart';
-import 'package:blossom/home.dart';
 import 'package:blossom/image_recognition/classifier.dart';
 import 'package:blossom/image_recognition/classifier_float.dart';
-import 'package:blossom/present_flower.dart';
-import 'package:blossom/profile.dart';
 import 'package:blossom/providers/dashboard_provider.dart';
-import 'package:blossom/redeem_voucher.dart';
-import 'package:blossom/scan_flower.dart';
-import 'package:blossom/view_history.dart';
-import 'package:blossom/view_parks.dart';
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:google_fonts/google_fonts.dart';

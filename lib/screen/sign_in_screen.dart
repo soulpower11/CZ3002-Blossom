@@ -1,21 +1,18 @@
+import 'package:blossom/backend/authentication.dart';
 import 'package:blossom/components/app_text.dart';
 import 'package:blossom/components/constants.dart';
 import 'package:blossom/components/form_error.dart';
 import 'package:blossom/components/no_account_text.dart';
 import 'package:blossom/components/rounded_button.dart';
 import 'package:blossom/components/size_config.dart';
-import 'package:blossom/dashboard.dart';
-import 'package:blossom/forgot_password/forgot_password_screen.dart';
-import 'package:blossom/home.dart';
-import 'package:blossom/present_flower.dart';
+import 'package:blossom/providers/userinfo_provider.dart';
 import 'package:dart_jsonwebtoken/dart_jsonwebtoken.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter/material.dart';
-
-import '../backend/authentication.dart';
-import '../providers/userinfo_provider.dart';
+import 'package:blossom/screen/forgot_password_screen.dart';
+import 'package:blossom/screen/home.dart';
 
 class SignInScreen extends StatelessWidget {
   static Route route() {
@@ -169,7 +166,7 @@ class _SignFormState extends State<SignInForm> {
                     // KeyboardUtil.hideKeyboard(context);
                     final login = await Authentication()
                         .login(emailController.text, passwordController.text);
-                    print(login);
+                    // print(login);
                     if (login == "UserNotFound") {
                       addError(error: kUserNotFoundError);
                     } else if (login == "WrongPassword") {
@@ -179,7 +176,7 @@ class _SignFormState extends State<SignInForm> {
                       final prefs = await SharedPreferences.getInstance();
                       // Save an String value to 'action' key.
                       await prefs.setString('jwt', login);
-                      print(prefs);
+                      // print(prefs);
                       JWT? jwt = await Authentication.verifyJWT();
                       context
                           .read<UserInfoProvider>()

@@ -1,12 +1,10 @@
 import 'dart:async';
 import 'package:blossom/backend/authentication.dart';
 import 'package:blossom/components/app_text.dart';
-import 'package:blossom/dashboard.dart';
-import 'package:blossom/home.dart';
-import 'package:blossom/present_flower.dart';
 import 'package:blossom/providers/userinfo_provider.dart';
-import 'package:blossom/sign_in/sign_in_screen.dart';
-import 'package:blossom/splash/welcome_screen.dart';
+import 'package:blossom/screen/home.dart';
+import 'package:blossom/screen/sign_in_screen.dart';
+import 'package:blossom/screen/welcome_screen.dart';
 import 'package:dart_jsonwebtoken/src/jwt.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';

@@ -62,9 +62,12 @@ dependencies:
   tflite_flutter_helper: ^0.3.1
   tflite_flutter: ^0.9.0
   intl: ^0.17.0
+  mockito: ^5.1.0
   
 dev_dependencies:
   flutter_test:
+    sdk: flutter
+  integration_test:
     sdk: flutter
 
   # The "flutter_lints" package below contains a set of recommended lints to
@@ -92,7 +95,8 @@ flutter:
     - assets/
     - assets/images/
     - assets/model/
-
+    - assets/sample/
+    
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware.
 

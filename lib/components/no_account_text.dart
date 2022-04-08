@@ -1,6 +1,6 @@
 import 'package:blossom/components/constants.dart';
 import 'package:blossom/components/size_config.dart';
-import 'package:blossom/sign_up/sign_up_screen.dart';
+import 'package:blossom/screen/sign_up_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 //import 'package:bowls/screens/sign_up/sign_up_screen.dart';

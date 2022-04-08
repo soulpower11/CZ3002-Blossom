@@ -11,7 +11,15 @@ const kPrimaryGradientColor = LinearGradient(
   colors: [Color(0xFFFFA53E), Color(0xFFFF7643)],
 );
 const kSecondaryColor = Color(0xFF979797);
-const kTextColor = Color(0xFF757575);
+// const kTextColor = Color(0xFF757575);
+
+const kTextColor = Color(0xDD303030);
+const kTextLightColor = Color(0XFFBDBDBD);
+const kDefaultPadding = 20.0;
+const kBarColor = Color.fromARGB(255, 39, 44, 41);
+const kButtonColor1 = Color.fromARGB(255, 143, 32, 49);
+const kAppBrownColor = Color.fromARGB(255, 87, 66, 54);
+const kAppPinkColor = Color.fromARGB(255, 255, 234, 234);
 
 const kAnimationDuration = Duration(milliseconds: 200);
 

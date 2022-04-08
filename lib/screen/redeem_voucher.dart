@@ -1,18 +1,17 @@
+import 'package:blossom/backend/authentication.dart';
 import 'package:blossom/backend/points.dart';
 import 'package:blossom/backend/vouchers.dart';
 import 'package:blossom/components/app_text.dart';
-import 'package:blossom/dashboard.dart';
-import 'package:blossom/home.dart';
+import 'package:blossom/components/constants.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:blossom/constants.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:shimmer/shimmer.dart';
 import 'dart:math';
-
-import 'backend/authentication.dart';
+import 'package:blossom/screen/dashboard.dart';
+import 'package:blossom/screen/home.dart';
 
 class RedeemVoucher extends StatefulWidget {
   const RedeemVoucher({Key? key}) : super(key: key);

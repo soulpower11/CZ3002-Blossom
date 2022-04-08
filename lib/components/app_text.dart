@@ -1,5 +1,5 @@
+import 'package:blossom/components/constants.dart';
 import 'package:flutter/material.dart';
-import 'package:blossom/constants.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 class AppTextBold extends StatelessWidget {

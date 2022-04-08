@@ -1,10 +1,10 @@
 import 'dart:io';
 
 import 'package:blossom/backend/authentication.dart';
-import 'package:blossom/dashboard.dart';
-import 'package:blossom/favorites.dart';
-import 'package:blossom/scan_flower.dart';
-import 'package:blossom/social_media.dart';
+import 'package:blossom/backend/flower.dart';
+import 'package:blossom/components/constants.dart';
+import 'package:blossom/screen/dashboard.dart';
+import 'package:blossom/screen/favorites.dart';
 import 'package:dart_jsonwebtoken/dart_jsonwebtoken.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
@@ -12,12 +12,10 @@ import 'package:geocoding/geocoding.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:shimmer/shimmer.dart';
-import 'backend/flower.dart';
 import 'package:http/http.dart' as http;
 import 'package:path_provider/path_provider.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:blossom/components/app_text.dart';
-import 'package:blossom/constants.dart';
 import 'package:image_watermark/image_watermark.dart';
 
 class PresentFlower extends StatefulWidget {
